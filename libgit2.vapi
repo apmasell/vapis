@@ -310,7 +310,7 @@ namespace Git {
 		 *            Set to null if the open failed.
 		 */
 		[CCode(cname = "git_odb_new")]
-		public static Error create(out Database? db);
+		public static Error create(out Database ? db);
 
 		/**
 		 * Create a new object database and automatically add
@@ -508,7 +508,7 @@ namespace Git {
 		 * without the leading header.
 		 * @return a pointer to the data
 		 */
-		[CCode(cname = "git_odb_object_data")]
+		[CCode(cname = "git_odb_object_data", array_length = false)]
 		public unowned uint8[] get_data();
 
 		/**
@@ -606,7 +606,7 @@ namespace Git {
 		 * @param path the path to the repository
 		 */
 		[CCode(cname = "git_repository_open")]
-		public static Error open(out Repository? repository, string path);
+		public static Error open(out Repository ? repository, string path);
 
 		/**
 		 * Open a git repository by manually specifying all its paths
@@ -632,7 +632,7 @@ namespace Git {
 		 *		If null, the repository is assumed to be bare.
 		 */
 		[CCode(cname = "git_repository_open2")]
-		public static Error  open_detailed(out Repository repository, string dir, string? object_directory, string? index_file, string? work_tree);
+		public static Error  open_detailed(out Repository repository, string dir, string ? object_directory, string ? index_file, string ? work_tree);
 
 		/**
 		 * Open a git repository by manually specifying its paths and
@@ -660,7 +660,7 @@ namespace Git {
 		 */
 
 		[CCode(cname = "git_repository_open3")]
-		public static Error open_with_db(out Repository repository, string dir, owned Database object_database, string? index_file, string? work_tree);
+		public static Error open_with_db(out Repository repository, string dir, owned Database object_database, string ? index_file, string ? work_tree);
 
 		/**
 		 * Look for a git repository and copy its path in the given buffer. The lookup start
@@ -823,7 +823,7 @@ namespace Git {
 		 * @return 0 on success; error code otherwise
 		 */
 		[CCode(cname = "git_revwalk_new", instance_pos = -1)]
-		public Error get_walker(RevisionWalker walker);
+		public Error get_walker(out RevisionWalker walker);
 
 		/**
 		 * Lookup a reference by its name in a repository.
@@ -907,7 +907,7 @@ namespace Git {
 		 *		listing.
 		 */
 		[CCode(cname = "git_reference_listall", instance_pos = 1.2)]
-		public Error list_all(string_array array, ReferenceType list_flags);
+		public Error list_all(out string_array array, ReferenceType list_flags);
 
 		/**
 		 * Lookup a reference to one of the objects in a repostory.
@@ -1051,7 +1051,7 @@ namespace Git {
 		 * given commits must be owned by this repository.
 		 */
 		[CCode(cname = "git_commit_create", instance_pos = 1.2)]
-		public Error create_commit(object_id id, string? update_ref, Signature author, Signature committer, string? message_encoding, string message, Tree tree, [CCode(array_length_pos = 7.8)] Commit[] parents);
+		public Error create_commit(object_id id, string ? update_ref, Signature author, Signature committer, string ? message_encoding, string message, Tree tree, [CCode(array_length_pos = 7.8)] Commit[] parents);
 
 		/**
 		 * Create a new commit in the repository using a variable
@@ -1265,7 +1265,7 @@ namespace Git {
 	 */
 	[CCode(cname = "git_repository_pathid", cprefix = "GIT_REPO_")]
 	public enum PathType {
-		 /**
+		/**
 		 * The path to the repository
 		 */
 		[CCode(cname = "GIT_REPO_PATH")]
@@ -1409,7 +1409,7 @@ namespace Git {
 		 * @param id where to store the id of the next commit
 		 */
 		[CCode(cname = "git_revwalk_next", instance_pos = -1)]
-		public Error next(object_id id);
+		public Error next(out object_id id);
 
 		/**
 		 * Change the sorting mode when iterating through the
@@ -1514,7 +1514,7 @@ namespace Git {
 		 *
 		 * @return the data or null if the blob has no contents
 		 */
-		[CCode(cname = "git_blob_rawcontent")]
+		[CCode(cname = "git_blob_rawcontent", array_length = false)]
 		public unowned uint8[] ? get_content();
 
 		/**
@@ -1538,7 +1538,7 @@ namespace Git {
 		 * @return object identity for the commit.
 		 */
 		[CCode(cname = "git_commit_id")]
-		public unowned object_id get_id();
+		public unowned object_id*get_id();
 
 		/**
 		 * Get the encoding for the message of a commit,
@@ -1550,7 +1550,7 @@ namespace Git {
 		 * @return null, or the encoding
 		 */
 		[CCode(cname = "git_commit_message_encoding")]
-		public unowned string? get_message_encoding();
+		public unowned string ? get_message_encoding();
 
 		/**
 		 * Get the full message of a commit.
@@ -1636,7 +1636,7 @@ namespace Git {
 		 * @return the id of the parent, null on error.
 		 */
 		[CCode(cname = "git_commit_parent_oid")]
-		public unowned object_id? get_parent_id(uint n);
+		public unowned object_id ? get_parent_id(uint n);
 	}
 
 	/**
@@ -1666,7 +1666,7 @@ namespace Git {
 		 * @return the tree entry; null if not found
 		 */
 		[CCode(cname = "git_tree_entry_byname")]
-		public unowned TreeEntry? get_entry_by_name(string filename);
+		public unowned TreeEntry ? get_entry_by_name(string filename);
 
 		/**
 		 * Lookup a tree entry by its position in the tree
@@ -1675,7 +1675,7 @@ namespace Git {
 		 * @return the tree entry; null if not found
 		 */
 		[CCode(cname = "git_tree_entry_byindex")]
-		public unowned TreeEntry? get(uint idx);
+		public unowned TreeEntry ? get(uint idx);
 	}
 
 	/**
@@ -1783,7 +1783,7 @@ namespace Git {
 		 * @return 0 on success; error code otherwise
 		 */
 		[CCode(cname = "git_treebuilder_insert", instance_pos = 1.2)]
-		public Error insert(out TreeEntry? entry = null, string filename, object_id id, Attributes attributes);
+		public Error insert(out TreeEntry ? entry = null, string filename, object_id id, Attributes attributes);
 
 		/**
 		 * Remove an entry from the builder by its filename
@@ -2036,7 +2036,7 @@ namespace Git {
 		 * @return the entry; null if out of bounds
 		 */
 		[CCode(cname = "git_index_get")]
-		public unowned IndexEntry? get(uint n);
+		public unowned IndexEntry ? get(uint n);
 
 		/**
 		 * Get the count of entries currently in the index
@@ -2061,7 +2061,7 @@ namespace Git {
 		 * @return the unmerged entry; null if not found
 		 */
 		[CCode(cname = "git_index_get_unmerged_bypath")]
-		public unowned unmerged_index_entry? get_unmerged_by_path(string path);
+		public unowned unmerged_index_entry ? get_unmerged_by_path(string path);
 
 		/**
 		 * Get an unmerged entry from the index.
@@ -2070,7 +2070,7 @@ namespace Git {
 		 * @return a pointer to the unmerged entry; null if out of bounds
 		 */
 		[CCode(cname = "git_index_get_unmerged_byindex")]
-		public unowned unmerged_index_entry? get_unmerged(uint n);
+		public unowned unmerged_index_entry ? get_unmerged(uint n);
 	}
 
 	/**
@@ -2128,6 +2128,7 @@ namespace Git {
 		 * @param file the configuration file (backend) to add
 		 * @param priority the priority the backend should have
 		 */
+		[CCode(cname = "git_config_add_file")]
 		public Error add_file(owned ConfigFile file, int priority);
 
 		/**
@@ -2144,7 +2145,8 @@ namespace Git {
 		 * @param path path to the configuration file (backend) to add
 		 * @param priority the priority the backend should have
 		 */
-		public Error add_file_ondisk(string path, int priority);
+		[CCode(cname = "git_config_add_file_ondisk")]
+		public Error add_filename(string path, int priority);
 
 		/**
 		 * Create a new config instance containing a single on-disk file
@@ -2157,7 +2159,8 @@ namespace Git {
 		 * @param cfg the configuration instance to create
 		 * @param path path to the on-disk file to open
 		 */
-		public static Error open_ondisk(out Config cfg, string path);
+		[CCode(cname = "git_config_open_ondisk")]
+		public static Error open(out Config cfg, string path);
 
 		/**
 		 * Get the value of an integer config variable.
@@ -2308,7 +2311,7 @@ namespace Git {
 		 * @return the entry; null if not found
 		 */
 		[CCode(cname = "git_reflog_entry_byindex")]
-		public unowned ReferenceLogEntry? get(uint idx);
+		public unowned ReferenceLogEntry ? get(uint idx);
 	}
 
 	/**
@@ -2430,15 +2433,15 @@ namespace Git {
 	[CCode(cname = "git_reference")]
 	[Compact]
 	public class Reference {
-		 /**
-		  * Get the id pointed to by a reference.
-		  *
-		  * Only available if the reference is direct (i.e. not symbolic)
-		  *
-		  * @return the id if available, null otherwise
-		  */
+		/**
+		 * Get the id pointed to by a reference.
+		 *
+		 * Only available if the reference is direct (i.e. not symbolic)
+		 *
+		 * @return the id if available, null otherwise
+		 */
 		[CCode(cname = "git_reference_oid")]
-		public unowned object_id? get_id();
+		public unowned object_id ? get_id();
 
 		/**
 		 * Get full name to the reference pointed by this reference
@@ -2448,7 +2451,7 @@ namespace Git {
 		 * @return the name if available, null otherwise
 		 */
 		[CCode(cname = "git_reference_target")]
-		public unowned string? get_target();
+		public unowned string ? get_target();
 
 		/**
 		 * Get the type of a reference
@@ -2562,7 +2565,7 @@ namespace Git {
 		 * @param msg the reflog message
 		 */
 		[CCode(cname = "git_reflog_write")]
-		public Error write_reflog(object_id? id_old, Signature committer, string? msg = null);
+		public Error write_reflog(object_id ? id_old, Signature committer, string ? msg = null);
 	}
 
 	/**
@@ -2639,7 +2642,7 @@ namespace Git {
 		 * @param filename where to store the temproray filename
 		 */
 		[CCode(cname = "git_remote_download", instance_pos = -1)]
-		public Error download(out string? filename);
+		public Error download(out string ? filename);
 
 		/**
 		 * Update the tips to the new state
@@ -2770,7 +2773,7 @@ namespace Git {
 		 * @return the string; null if memory is exhausted.
 		 */
 		[CCode(cname = "git_oid_allocfmt")]
-		public string? to_string();
+		public string ? to_string();
 
 		/**
 		 * Format an id into a buffer as a hex format string.
@@ -2815,7 +2818,6 @@ namespace Git {
 		[CCode(cname = "git_oid_cmp")]
 		public int compare_to(object_id b);
 
-
 		/**
 		 * Compare the first 'len' hexadecimal characters (packets of 4 bits)
 		 * of two id structures.
@@ -2856,7 +2858,7 @@ namespace Git {
 		/**
 		 * Read a file from disk and determine the id
 		 *
-		 * Read the file and compute the id have if it were 
+		 * Read the file and compute the id have if it were
 		 * written to the database as an object of the given type.
 		 * Similar functionality to git's //git hash-object// without
 		 * the //-w// flag.
@@ -2920,6 +2922,7 @@ namespace Git {
 	 * An action signature (e.g. for committers, taggers, etc)
 	 */
 	[CCode(cname = "git_signature", free_function = "git_signature_free", copy_function = "git_signature_dup")]
+	[Compact]
 	public class Signature {
 		/**
 		 * Full name of the author
@@ -2944,7 +2947,7 @@ namespace Git {
 		 * @param offset timezone offset in minutes for the time
 		 */
 		[CCode(cname = "git_signature_new")]
-		public static int create(out Signature? sig, string name, string email, int64 time, int offset);
+		public static int create(out Signature ? sig, string name, string email, int64 time, int offset);
 
 		/**
 		 * Create a new action signature with a timestamp of now.
@@ -2954,7 +2957,7 @@ namespace Git {
 		 * @param email email of the person
 		 */
 		[CCode(cname = "git_signature_now")]
-		public static int create_now(out Signature? sig, string name, string email);
+		public static int create_now(out Signature ? sig, string name, string email);
 	}
 
 	[CCode(cname = "int", cprefix = "GIT_STATUS_")]
@@ -3054,7 +3057,7 @@ namespace Git {
 
 	[CCode(cname = "git_strarray", destroy_function = "git_strarray_free")]
 	public struct string_array {
-		[CCode(array_lengh_cname = "count", array_length_type = "size_t")]
+		[CCode(array_length_cname = "count", array_length_type = "size_t")]
 		string[] strings;
 	}
 }
