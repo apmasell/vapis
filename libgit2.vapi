@@ -541,30 +541,57 @@ namespace Git {
 	[Compact]
 	public class Backend {
 		public unowned Database odb;
-		//TODO int (* read)( void **, size_t *, git_otype *, struct git_odb_backend *, const git_oid *);
 
-		/* To find a unique object given a prefix
-		 * of its oid.
-		 * The oid given must be so that the
-		 * remaining (GIT_OID_HEXSZ - len)*4 bits
-		 * are 0s.
-		 */
-		//TODO int (* read_prefix)( git_oid *, void **, size_t *, git_otype *, struct git_odb_backend *, const git_oid *, unsigned int);
+		public ReadHandler read;
 
-		//TODO int (* read_header)( size_t *, git_otype *, struct git_odb_backend *, const git_oid *);
+		public ReadPrefixHandler read_prefix;
 
-		//TODO int (* write)( git_oid *, struct git_odb_backend *, const void *, size_t, git_otype);
+		public ReadHeaderHandler read_header;
 
-		//TODO int (* writestream)( struct git_odb_stream **, struct git_odb_backend *, size_t, git_otype);
+		public WriteHandler write;
 
-		//TODO int (* readstream)( struct git_odb_stream **, struct git_odb_backend *, const git_oid *);
+		public WriteStreamHandler writestream;
 
-		//TODO int (* exists)( struct git_odb_backend *, const git_oid *);
-		//TODO void (* free)(struct git_odb_backend *);
+		public ReadHandler readstream;
+
+		public ReadStreamHandler exists;
+
+		public FreeHandler free;
+
 		[CCode(cname = "git_odb_backend_pack")]
 		public static Error create_pack(out Backend backend, string objects_dir);
 		[CCode(cname = "git_odb_backend_loose")]
 		public static Error create_loose(out Backend backend, string objects_dir);
+
+		[CCode(has_target = false)]
+		public delegate int ReadHandler([CCode(array_length_type = "size_t")] out uint8[] data, out ObjectType type, Backend self, object_id id);
+
+		/**
+		 * Find a unique object given a prefix
+		 *
+		 * The id given must be so that the remaining
+		 * ({@link object_id.HEX_SIZE} - len)*4 bits are 0s.
+		 */
+		[CCode(has_target = false)]
+		public delegate int ReadPrefixHandler(out object_id id, [CCode(array_length_type = "size_t")] out uint8[] data, out ObjectType type, Backend self, object_id id_prefix, uint len);
+
+		[CCode(has_target = false)]
+		public delegate int ReadHeaderHandler(out size_t size, out ObjectType type, Backend self, object_id id);
+
+		[CCode(has_target = false)]
+		public delegate int WriteHandler(out object_id id, Backend self, [CCode(array_length_type = "size_t")] out uint8[] data, ObjectType type);
+
+		[CCode(has_target = false)]
+		public delegate int WriteStreamHandler(out Stream stream, Backend self, size_t size, ObjectType type);
+
+		[CCode(has_target = false)]
+		public delegate int ReadStreamHandler(out Stream stream, Backend self, object_id id);
+
+		[CCode(has_target = false)]
+		public delegate int ExistsHandler(Backend self, object_id id);
+
+		[CCode(has_target = false)]
+		public delegate void FreeHandler(owned Backend self);
 	}
 
 	/**
@@ -585,10 +612,26 @@ namespace Git {
 	public class Stream {
 		public unowned Backend backend;
 		public StreamMode mode;
-		//TODO int (*read)(struct git_odb_stream *stream, char *buffer, size_t len);
-		//TODO int (*write)(struct git_odb_stream *stream, const char *buffer, size_t len);
-		//TODO int (*finalize_write)(git_oid *oid_p, struct git_odb_stream *stream);
-		//TODO void (*free)(struct git_odb_stream *stream);
+
+		public ReadHandler read;
+
+		public WriteHandler write;
+
+		public FinalizeWriteHandler finalize_write;
+
+		public FreeHandler free;
+
+		[CCode(has_target = false)]
+		public delegate int ReadHandler(Stream stream, [CCode(array_length_type = "size_t")] uint8[] buffer);
+
+		[CCode(has_target = false)]
+		public delegate int WriteHandler(Stream stream, [CCode(array_length_type = "size_t")] uint8[] buffer);
+
+		[CCode(has_target = false)]
+		public delegate int FinalizeWriteHandler(out object_id oid, Stream stream);
+
+		[CCode(has_target = false)]
+		public delegate void FreeHandler(owned Stream stream);
 	}
 
 	/**
