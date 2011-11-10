@@ -72,7 +72,7 @@ namespace FFI {
 		STDCALL,
 		SYSV,
 		UNIX,
-		UNIX64
+		UNIX64,
 		V8,
 		V8PLUS,
 		V9,
