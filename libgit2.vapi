@@ -294,7 +294,6 @@ namespace Git {
 		 * Get the size in bytes for the structure which
 		 * acts as an in-memory representation of any given
 		 * object type.
-		 * @return size in bytes of the object
 		 */
 		[CCode(cname = "git_object__size")]
 		public size_t get_size();
@@ -500,38 +499,33 @@ namespace Git {
 	public class DbObject {
 
 		/**
-		 * Return the id of an ODB object
+		 * The id of an ODB object
 		 *
 		 * This is the id from which the object was read from
 		 */
-		[CCode(cname = "git_odb_object_id")]
-		public unowned object_id get_id();
+		public object_id? id {
+			[CCode(cname = "git_odb_object_id")]
+			get;
+		}
 
 		/**
-		 * Return the data of an ODB object
+		 * The data of an ODB object
 		 *
 		 * This is the uncompressed, raw data as read from the ODB,
 		 * without the leading header.
-		 * @return a pointer to the data
 		 */
-		[CCode(cname = "git_odb_object_data", array_length = false)]
-		public unowned uint8[] get_data();
+		public uint8[] data {
+			[CCode(cname = "git_odb_object_data", array_length_cexpr = "git_odb_object_size")]
+			get;
+		}
 
 		/**
-		 * Return the size of an ODB object
-		 *
-		 * This is the real size of the `data` buffer, not the
-		 * actual size of the object.
-		 * @return the size
+		 * The type of an ODB object
 		 */
-		[CCode(cname = "git_odb_object_size")]
-		public size_t get_size();
-
-		/**
-		 * Return the type of an ODB object
-		 */
-		[CCode(cname = "git_odb_object_type")]
-		public ObjectType get_type();
+		public ObjectType type {
+			[CCode(cname = "git_odb_object_type")]
+			get;
+		}
 	}
 
 	/**
@@ -721,9 +715,7 @@ namespace Git {
 		 * The method will automatically detect if the repository is bare (if there is
 		 * a repository).
 		 *
-		 * @param repository_path The user allocated buffer which will contain the found path.
-		 *
-		 * @param size repository_path size
+		 * @param repository_path The buffer which will contain the found path.
 		 *
 		 * @param start_path The base path where the lookup starts.
 		 *
@@ -737,13 +729,15 @@ namespace Git {
 		 *
 		 * @return 0 on success; error code otherwise
 		 */
-		public static Error discover([CCode(array_length_type = "size_t")] char[] repository_path, string start_path, bool across_fs, string ? ceiling_dirs = null);
+		public static Error discover([CCode(array_length_type = "size_t")] char[] repository_path, string start_path, bool across_fs = true, string ? ceiling_dirs = null);
 
 		/**
 		 * Get the object database behind a Git repository
 		 */
-		[CCode(cname = "git_repository_database")]
-		public unowned Database get_database();
+		public Database database {
+			[CCode(cname = "git_repository_database")]
+			get;
+		}
 
 		/**
 		 * Open the Index file of a Git repository
@@ -1312,7 +1306,7 @@ namespace Git {
 	/**
 	 * Internal path identifiers for a repository
 	 */
-	[CCode(cname = "git_repository_pathid", cprefix = "GIT_REPO_")]
+	[CCode(cname = "git_repository_pathid", cprefix = "GIT_REPO_PATH_")]
 	public enum PathType {
 		/**
 		 * The path to the repository
@@ -1340,23 +1334,28 @@ namespace Git {
 	[Compact]
 	public class Object {
 		/**
-		 * Get the id (SHA1) of a repository object
+		 * The id (SHA1) of a repository object
 		 */
-		[CCode(cname = "git_object_id")]
-		public unowned object_id get_object_id();
+		public object_id id {
+			[CCode(cname = "git_object_id")]
+			get;
+		}
 
 		/**
-		 * Get the object type of an object
+		 * The object type of an object
 		 */
-		[CCode(cname = "git_object_type")]
-		public ObjectType get_type();
+		public ObjectType type {
+			[CCode(cname = "git_object_type")]
+			get;
+		}
 
 		/**
-		 * Get the repository that owns this object
-		 * @return the repository who owns this object
+		 * The repository that owns this object
 		 */
-		[CCode(cname = "git_object_owner")]
-		public unowned Repository get_repository();
+		public Repository repository {
+			[CCode(cname = "git_object_owner")]
+			get;
+		}
 	}
 
 	[CCode(cname = "int", cprefix = "GIT_SORT_")]
@@ -1477,8 +1476,10 @@ namespace Git {
 		 *
 		 * @return the repository being walked
 		 */
-		[CCode(cname = "git_revwalk_repository")]
-		public unowned Repository get_repository();
+		public Repository repository {
+			[CCode(cname = "git_revwalk_repository")]
+			get;
+		}
 	}
 
 	/**
@@ -1492,8 +1493,10 @@ namespace Git {
 		 *
 		 * @return object identity for the tag.
 		 */
-		[CCode(cname = "git_tag_id")]
-		public unowned object_id get_id();
+		public object_id id {
+			[CCode(cname = "git_tag_id")]
+			get;
+		}
 
 		/**
 		 * Get the tagged object of a tag
@@ -1508,45 +1511,44 @@ namespace Git {
 
 		/**
 		 * Get the id of the tagged object of a tag
-		 *
-		 * @return pointer to the id
 		 */
-		[CCode(cname = "git_tag_target_oid")]
-		public unowned object_id get_target_id();
+		public object_id target_id {
+			[CCode(cname = "git_tag_target_oid")]
+			get;
+		}
 
 		/**
-		 * Get the type of a tag's tagged object
-		 *
-		 * @return type of the tagged object
+		 * The type of a tag's tagged object
 		 */
-		[CCode(cname = "git_tag_type")]
-		public ObjectType get_type();
+		public ObjectType type {
+			[CCode(cname = "git_tag_type")]
+			get;
+		}
 
 		/**
-		 * Get the name of a tag
-		 *
-		 * @param tag a previously loaded tag.
-		 * @return name of the tag
+		 * The name of a tag
 		 */
-		[CCode(cname = "git_tag_name")]
-		public unowned string get_name();
+		public string name {
+			[CCode(cname = "git_tag_name")]
+			get;
+		}
 
 		/**
-		 * Get the tagger (author) of a tag
-		 *
-		 * @return reference to the tag's author
+		 * The tagger (author) of a tag
 		 */
-		[CCode(cname = "git_tag_tagger")]
-		public unowned Signature get_tagger();
+		public Signature tagger {
+			[CCode(cname = "git_tag_tagger")]
+			get;
+		}
 
 		/**
-		 * Get the message of a tag
-		 *
-		 * @param tag a previously loaded tag.
-		 * @return message of the tag
+		 * The message of a tag
 		 */
-		[CCode(cname = "git_tag_message")]
-		public unowned string get_message();
+		public string message {
+			[CCode(cname = "git_tag_message")]
+			get;
+		}
+
 	}
 
 	/**
@@ -1582,12 +1584,12 @@ namespace Git {
 	[Compact]
 	public class Commit : Object {
 		/**
-		 * Get the id of a commit.
-		 *
-		 * @return object identity for the commit.
+		 * The id of a commit.
 		 */
-		[CCode(cname = "git_commit_id")]
-		public unowned object_id*get_id();
+		public object_id id {
+			[CCode(cname = "git_commit_id")]
+			get;
+		}
 
 		/**
 		 * Get the encoding for the message of a commit,
@@ -1595,56 +1597,62 @@ namespace Git {
 		 *
 		 * The encoding may be null if the encoding header
 		 * in the commit is missing; in that case UTF-8 is assumed.
-		 *
-		 * @return null, or the encoding
 		 */
-		[CCode(cname = "git_commit_message_encoding")]
-		public unowned string ? get_message_encoding();
+		public string ? message_encoding {
+			[CCode(cname = "git_commit_message_encoding")]
+			get;
+		}
 
 		/**
 		 * Get the full message of a commit.
-		 *
-		 * @return the message of a commit
 		 */
-		[CCode(cname = "git_commit_message")]
-		public unowned string get_message();
+		public string message {
+			[CCode(cname = "git_commit_message")]
+			get;
+		}
+
+		/**
+		 * The message of a commit converted to UTF-8.
+		 */
+		public string get_message_utf8() throws GLib.ConvertError{
+			return this.message_encoding == null ? this.message : GLib.convert(this.message, this.message.length, "utf-8", this.message_encoding);
+		}
+
 
 		/**
 		 * Get the commit time (i.e., committer time) of a commit.
-		 *
-		 * @return the time of a commit
 		 */
-		[CCode(cname = "git_commit_time")]
-		public int64 get_time();
+		public int64 time {
+			[CCode(cname = "git_commit_time")]
+			get;
+		}
 
 		/**
-		 * Get the commit timezone offset (i.e., committer's preferred timezone) of a commit.
-		 *
-		 * @return positive or negative timezone offset, in minutes from UTC
+		 * Get the commit timezone offset (i.e., committer's preferred timezone) in minutes from UTC of a commit.
 		 */
-		[CCode(cname = "git_commit_time_offset")]
-		public int get_time_offset();
+		public int time_offset {
+			[CCode(cname = "git_commit_time_offset")]
+			get;
+		}
 
 		/**
-		 * Get the committer of a commit.
-		 *
-		 * @return the committer of a commit
+		 * The committer of a commit.
 		 */
-		[CCode(cname = "git_commit_committer")]
-		public unowned Signature get_committer();
+		public Signature committer {
+			[CCode(cname = "git_commit_committer")]
+			get;
+		}
 
 		/**
-		 * Get the author of a commit.
-		 *
-		 * @return the author of a commit
+		 * The author of a commit.
 		 */
-		[CCode(cname = "git_commit_author")]
-		public unowned Signature get_author();
+		public Signature author {
+			[CCode(cname = "git_commit_author")]
+			get;
+		}
 
 		/**
 		 * Get the tree pointed to by a commit.
-		 *
-		 * @param tree where to store the tree object
 		 */
 		[CCode(cname = "git_commit_tree", instance_pos = -1)]
 		public Error get_tree(out Tree tree);
@@ -1654,17 +1662,19 @@ namespace Git {
 		 *
 		 * This differs from {@link get_tree} in that no attempts
 		 * are made to fetch an object from the ODB.
-		 * @return the id of tree pointed to by commit.
 		 */
-		[CCode(cname = "git_commit_tree_oid")]
-		public unowned object_id get_tree_id();
+		public object_id tree_id {
+			[CCode(cname = "git_commit_tree_oid")]
+			get;
+		}
 
 		/**
 		 * Get the number of parents of this commit
-		 * @return integer of count of parents
 		 */
-		[CCode(cname = "git_commit_parentcount")]
-		public uint get_parent_count();
+		public uint parent_count {
+			[CCode(cname = "git_commit_parentcount")]
+			get;
+		}
 
 		/**
 		 * Get the specified parent of the commit.
@@ -1685,7 +1695,7 @@ namespace Git {
 		 * @return the id of the parent, null on error.
 		 */
 		[CCode(cname = "git_commit_parent_oid")]
-		public unowned object_id ? get_parent_id(uint n);
+		public unowned object_id? get_parent_id(uint n);
 	}
 
 	/**
@@ -1696,17 +1706,19 @@ namespace Git {
 	public class Tree : Object {
 		/**
 		 * Get the id of a tree.
-		 * @return object identity for the tree.
 		 */
-		[CCode(cname = "git_tree_id")]
-		public unowned object_id get_id();
+		public object_id id {
+			[CCode(cname = "git_tree_id")]
+			get;
+		}
 
 		/**
 		 * Get the number of entries listed in a tree
-		 * @return the number of entries in the tree
 		 */
-		[CCode(cname = "git_tree_entrycount")]
-		public uint get_entry_count();
+		public uint entry_count {
+			[CCode(cname = "git_tree_entrycount")]
+			get;
+		}
 
 		/**
 		 * Lookup a tree entry by its filename
@@ -1734,32 +1746,36 @@ namespace Git {
 	[Compact]
 	public class TreeEntry {
 		/**
-		 * Get the UNIX file attributes of a tree entry
-		 * @return attributes as an integer
+		 * The UNIX file attributes of a tree entry
 		 */
-		[CCode(cname = "git_tree_entry_attributes")]
-		public uint get_attributes();
+		public uint attributes {
+			[CCode(cname = "git_tree_entry_attributes")]
+			get;
+		}
 
 		/**
-		 * Get the filename of a tree entry
-		 * @return the name of the file
+		 * The filename of a tree entry
 		 */
-		[CCode(cname = "git_tree_entry_name")]
-		public unowned string get_name();
+		public string name {
+			[CCode(cname = "git_tree_entry_name")]
+			get;
+		}
 
 		/**
-		 * Get the id of the object pointed by the entry
-		 * @return the id of the object
+		 * The id of the object pointed by the entry
 		 */
-		[CCode(cname = "git_tree_entry_id")]
-		public unowned object_id get_id();
+		public unowned object_id id {
+			[CCode(cname = "git_tree_entry_id")]
+			get;
+		}
 
 		/**
-		 * Get the type of the object pointed by the entry
-		 * @return the type of the pointed object
+		 * The type of the object pointed by the entry
 		 */
-		[CCode(cname = "git_tree_entry_type")]
-		public ObjectType get_type();
+		public ObjectType type {
+			[CCode(cname = "git_tree_entry_type")]
+			get;
+		}
 
 		/**
 		 * Create a new tree builder.
@@ -1911,11 +1927,12 @@ namespace Git {
 		public string path;
 
 		/**
-		 * Return the stage number from a git index entry
-		 * @return the stage number
+		 * The stage number from a git index entry
 		 */
-		[CCode(cname = "git_index_entry_stage")]
-		public int get_stage();
+		public int stage {
+			[CCode(cname = "git_index_entry_stage")]
+			get;
+		}
 	}
 
 	/**
@@ -2088,20 +2105,20 @@ namespace Git {
 		public unowned IndexEntry ? get(uint n);
 
 		/**
-		 * Get the count of entries currently in the index
-		 *
-		 * @return the number of current entries
+		 * The count of entries currently in the index
 		 */
-		[CCode(cname = "git_index_entrycount")]
-		public uint get_entry_count();
+		public uint entry_count {
+			[CCode(cname = "git_index_entrycount")]
+			get;
+		}
 
 		/**
-		 * Get the count of unmerged entries currently in the index
-		 *
-		 * @return the number of current unmerged entries
+		 * The count of unmerged entries currently in the index
 		 */
-		[CCode(cname = "git_index_entrycount_unmerged")]
-		public uint get_unmerged_count();
+		public uint get_unmerged_count {
+			[CCode(cname = "git_index_entrycount_unmerged")]
+			get;
+		}
 
 		/**
 		 * Get an unmerged entry from the index.
@@ -2203,7 +2220,7 @@ namespace Git {
 		 * This method is a simple utility wrapper for the following sequence
 		 * of calls:
 		 *	* {@link create}
-		 *	* {@link add_file_ondisk}
+		 *	* {@link add_filename}
 		 *
 		 * @param cfg the configuration instance to create
 		 * @param path path to the on-disk file to open
@@ -2326,7 +2343,7 @@ namespace Git {
 	public class ConfigFile {
 		public unowned Config cfg;
 		/**
-		 * Create a configuration file backend for ondisk files
+		 * Create a configuration file backend for on-disk files
 		 *
 		 * These are the normal //.gitconfig// files that Core Git
 		 * processes. Note that you first have to add this file to a
@@ -2370,33 +2387,36 @@ namespace Git {
 	[Compact]
 	public class ReferenceLogEntry {
 		/**
-		 * Get the old id
-		 *
-		 * @return the old id
+		 * The old id
 		 */
-		[CCode(cname = "git_reflog_entry_oidold")]
-		public unowned object_id get_old_id();
+		public object_id old_id {
+			[CCode(cname = "git_reflog_entry_oidold")]
+			get;
+		}
 
 		/**
-		 * Get the new id
-		 * @return the new id at this time
+		 * The new id at this time
 		 */
-		[CCode(cname = "git_reflog_entry_oidnew")]
-		public unowned object_id get_new_id();
+		public object_id new_id {
+			[CCode(cname = "git_reflog_entry_oidnew")]
+			get;
+		}
 
 		/**
-		 * Get the committer of this entry
-		 * @return the committer
+		 * The committer of this entry
 		 */
-		[CCode(cname = "git_reflog_entry_committer")]
-		public unowned Signature get_commiter();
+		public Signature commiter {
+			[CCode(cname = "git_reflog_entry_committer")]
+			get;
+		}
 
 		/**
-		 * Get the log message
-		 * @return the log msg
+		 * The log message
 		 */
-		[CCode(cname = "git_reflog_entry_msg")]
-		public unowned string get_message();
+		public string message {
+			[CCode(cname = "git_reflog_entry_msg")]
+			get;
+		}
 	}
 
 	/**
@@ -2442,18 +2462,20 @@ namespace Git {
 	[Compact]
 	public class RefSpec {
 		/**
-		 * Get the source specifier
-		 * @return the refspec's source specifier
+		 * The source specifier
 		 */
-		[CCode(cname = "git_refspec_src")]
-		public unowned string get_source();
+		public string source {
+			[CCode(cname = "git_refspec_src")]
+			get;
+		}
 
 		/**
-		 * Get the destination specifier
-		 * @return the refspec's destination specifier
+		 * The destination specifier
 		 */
-		[CCode(cname = "git_refspec_dst")]
-		public unowned string get_destination();
+		public string destination {
+			[CCode(cname = "git_refspec_dst")]
+			get;
+		}
 
 		/**
 		 * Match a refspec's source descriptor with a reference name
@@ -2483,41 +2505,43 @@ namespace Git {
 	[Compact]
 	public class Reference {
 		/**
-		 * Get the id pointed to by a reference.
+		 * The id pointed to by a reference.
 		 *
 		 * Only available if the reference is direct (i.e. not symbolic)
-		 *
-		 * @return the id if available, null otherwise
 		 */
-		[CCode(cname = "git_reference_oid")]
-		public unowned object_id ? get_id();
+		public object_id? id {
+			[CCode(cname = "git_reference_oid")]
+			get;
+		}
 
 		/**
-		 * Get full name to the reference pointed by this reference
+		 * The full name to the reference pointed by this reference
 		 *
 		 * Only available if the reference is symbolic
-		 *
-		 * @return the name if available, null otherwise
 		 */
-		[CCode(cname = "git_reference_target")]
-		public unowned string ? get_target();
+		public string ? target {
+			[CCode(cname = "git_reference_target")]
+			get;
+		}
 
 		/**
-		 * Get the type of a reference
+		 * The type of a reference
 		 *
-		 * @return either direct, {@link ReferenceType.ID}, or symbolic, {@link ReferenceType.SYMBOLIC}
+		 * Either direct, {@link ReferenceType.ID}, or symbolic, {@link ReferenceType.SYMBOLIC}
 		 *
 		 */
-		[CCode(cname = "git_reference_type")]
-		public ReferenceType get_type();
+		public ReferenceType type {
+			[CCode(cname = "git_reference_type")]
+			get;
+		}
 
 		/**
-		 * Get the full name of a reference
-		 *
-		 * @return the full name for the ref
+		 * The full name of a reference
 		 */
-		[CCode(cname = "git_reference_name")]
-		public unowned string get_name();
+		public string name {
+			[CCode(cname = "git_reference_name")]
+			get;
+		}
 
 		/**
 		 * Resolve a symbolic reference
@@ -2534,10 +2558,12 @@ namespace Git {
 		public Error resolve(out Reference resolved_ref);
 
 		/**
-		 * Get the repository where a reference resides
+		 * The repository where a reference resides
 		 */
-		[CCode(cname = "git_reference_owner")]
-		public unowned Repository get_repository();
+		public Repository repository {
+			[CCode(cname = "git_reference_owner")]
+			get;
+		}
 
 		/**
 		 * Set the symbolic target of a reference.
@@ -2620,36 +2646,41 @@ namespace Git {
 	/**
 	 * Reference to a remote repository
 	 */
-	[CCode(cname = "git_remote")]
+	[CCode(cname = "git_remote", free_function = "git_remote_free")]
 	[Compact]
 	public class Remote {
 		/**
 		 * Get the remote's name
 		 */
-		[CCode(cname = "git_remote_name", free_function = "git_remote_free")]
-		public unowned string get_name();
+		public string name {
+			[CCode(cname = "git_remote_name")]
+			get;
+		}
 
 		/**
 		 * Get the remote's url
 		 */
-		[CCode(cname = "git_remote_url")]
-		public unowned string get_url();
+		public string url {
+			[CCode(cname = "git_remote_url")]
+			get;
+		}
 
 		/**
-		 * Get the fetch refspec
-		 *
-		 * @return the fetch refspec or null if it doesn't exist
+		 * The fetch refspec, if it exists
 		 */
-		[CCode(cname = "git_remote_fetchspec")]
-		public unowned RefSpec ? get_fetch_spec();
+		public RefSpec ? fetch_spec {
+			[CCode(cname = "git_remote_fetchspec")]
+			get;
+		}
 
 		/**
-		 * Get the push refspec
-		 * @return the push refspec or null if it doesn't exist
+		 * Get the push refspe, if it existsc
 		 */
 
-		[CCode(cname = "git_remote_pushspec")]
-		public unowned RefSpec ? get_push_spec();
+		public RefSpec ? push_spec {
+			[CCode(cname = "git_remote_pushspec")]
+			get;
+		}
 
 		/**
 		 * Open a connection to a remote
@@ -2714,7 +2745,8 @@ namespace Git {
 		 * @param tranport the transport for the url
 		 * @param url the url of the repo
 		 */
-		public static Error git_transport_new(out Transport ? transport, string url);
+		[CCode(cname = "git_transport_new")]
+		public static Error create(out Transport ? transport, string url);
 
 		[CCode(cname = "git_transport_connect")]
 		public Error connect(Direction direction);
@@ -2847,6 +2879,15 @@ namespace Git {
 		 */
 		[CCode(cname = "git_oid_cpy")]
 		public static void copy(out object_id dest, object_id src);
+
+		/**
+		 * Copy an id from one structure to another.
+		 *
+		 * @param dest id structure the result is written into.
+		 * @param src id structure to copy from.
+		 */
+		[CCode(cname = "git_oid_cpy", instance_pos = -1)]
+		public void copy_to(out object_id dest);
 
 		/**
 		 * Compare two id structures.
@@ -3071,7 +3112,7 @@ namespace Git {
 		 * names. This is only correct after the index has been written to disk.
 		 */
 		[CCode(cname = "git_indexer_hash")]
-		public unowned object_id get_hash();
+		public unowned object_id? get_hash();
 	}
 
 	[CCode(cname = "GIT_DEFAULT_PORT")]
