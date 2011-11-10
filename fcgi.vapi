@@ -22,8 +22,9 @@ namespace FastCGI {
 	[CCode(cname = "FCGX_Stream", free_function = "FCGX_FClose")]
 	[Compact]
 	public class Stream {
-    public bool isReader;
-    public bool isClosed;
+		public bool isReader;
+		public bool isClosed;
+
 		/**
 		 * Repositions an input stream to the start of FCGI_DATA.
 		 *
@@ -150,7 +151,7 @@ namespace FastCGI {
 		[CCode(cname = "FCGX_ClearError")]
 		public void clear_error();
 
-		/*TODO
+		/**
 		 * Create a FCGX_Stream (used by cgi-fcgi).
 		 *
 		 * This shouldn't be needed by a FastCGI application.
@@ -166,7 +167,7 @@ namespace FastCGI {
 	[SimpleType]
 	public struct parameters {
 		[CCode(cname = "FCGX_GetParam", instance_pos = -1)]
-		public unowned string get(string name);
+		public unowned string? get(string name);
 		[CCode(array_null_terminated = true, array_length = false)]
 		public unowned string[] get_all() {
 			return (string[]) this;
@@ -174,7 +175,10 @@ namespace FastCGI {
 	}
 
 	[CCode(cname = "int", cprefix = "FCGI_")]
+	[Flags]
 	public enum RequestFlags {
+		[CCode(cname = "0")]
+		NONE,
 		/**
 		 * Do not restart upon being interrupted.
 		 */
@@ -184,15 +188,19 @@ namespace FastCGI {
 	/**
 	 * State associated with a request.
 	 */
-	[CCode(cname = "FCGX_Request", has_type_id = false)]
+	[CCode(cname = "FCGX_Request", has_type_id = false, destroy_function = "")]
 	public struct request {
 		public int requestId;
 		public int role;
 		public Stream @in;
 		public Stream @out;
 		public Stream err;
-		[CCode(array_null_terminated = true)]
-		public string[] envp;
+		[CCode(cname = "envp")]
+		public parameters environment;
+
+		public unowned string? @get(string name) {
+			return environment[name];
+		}
 
 		/**
 		 * Initialize a request.
@@ -202,7 +210,7 @@ namespace FastCGI {
 		 * @return 0 upon success.
 		 */
 		[CCode(cname = "FCGX_InitRequest")]
-		public static int init(out request request, int sock, RequestFlags flags = RequestFlags.FAIL_ACCEPT_ON_INTR);
+		public static int init(out request request, int sock = 0, RequestFlags flags = RequestFlags.NONE);
 
 		/**
 		 * Accept a new request
@@ -222,7 +230,7 @@ namespace FastCGI {
 		 * @return 0 for successful call, -1 for error.
 		 */
 		[CCode(cname = "FCGX_Accept_r")]
-			public int accept();
+		public int accept();
 
 		/**
 		 * Finish the request
@@ -328,10 +336,14 @@ namespace FastCGI {
 	 */
 	[CCode(cname = "FCGI_FILE", cheader_filename = "fcgi_stdio.h", free_function = "FCGI_pclose")]
 	public class FileStream {
-		[CCode(cname = "FCGI_ToFILE")]
-		public GLib.FileStream get_file_stream();
-		[CCode(cname = "FCGI_ToFcgiStream")]
-		public Stream get_stream();
+		public GLib.FileStream file_stream {
+			[CCode(cname = "FCGI_ToFILE")]
+			get;
+		}
+		public Stream stream {
+			[CCode(cname = "FCGI_ToFcgiStream")]
+			get;
+		}
 		[CCode(cname = "FCGI_fflush")]
 		public int flush();
 		[CCode(cname = "FCGI_fseek")]
