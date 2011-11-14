@@ -1336,7 +1336,7 @@ namespace Git {
 		/**
 		 * The id (SHA1) of a repository object
 		 */
-		public object_id id {
+		public object_id? id {
 			[CCode(cname = "git_object_id")]
 			get;
 		}
@@ -1493,7 +1493,7 @@ namespace Git {
 		 *
 		 * @return object identity for the tag.
 		 */
-		public object_id id {
+		public object_id? id {
 			[CCode(cname = "git_tag_id")]
 			get;
 		}
@@ -1512,7 +1512,7 @@ namespace Git {
 		/**
 		 * Get the id of the tagged object of a tag
 		 */
-		public object_id target_id {
+		public object_id? target_id {
 			[CCode(cname = "git_tag_target_oid")]
 			get;
 		}
@@ -1586,7 +1586,7 @@ namespace Git {
 		/**
 		 * The id of a commit.
 		 */
-		public object_id id {
+		public object_id? id {
 			[CCode(cname = "git_commit_id")]
 			get;
 		}
@@ -1663,7 +1663,7 @@ namespace Git {
 		 * This differs from {@link get_tree} in that no attempts
 		 * are made to fetch an object from the ODB.
 		 */
-		public object_id tree_id {
+		public object_id? tree_id {
 			[CCode(cname = "git_commit_tree_oid")]
 			get;
 		}
@@ -1707,7 +1707,7 @@ namespace Git {
 		/**
 		 * Get the id of a tree.
 		 */
-		public object_id id {
+		public object_id? id {
 			[CCode(cname = "git_tree_id")]
 			get;
 		}
@@ -1764,7 +1764,7 @@ namespace Git {
 		/**
 		 * The id of the object pointed by the entry
 		 */
-		public unowned object_id id {
+		public unowned object_id? id {
 			[CCode(cname = "git_tree_entry_id")]
 			get;
 		}
@@ -2389,7 +2389,7 @@ namespace Git {
 		/**
 		 * The old id
 		 */
-		public object_id old_id {
+		public object_id? old_id {
 			[CCode(cname = "git_reflog_entry_oidold")]
 			get;
 		}
@@ -2397,7 +2397,7 @@ namespace Git {
 		/**
 		 * The new id at this time
 		 */
-		public object_id new_id {
+		public object_id? new_id {
 			[CCode(cname = "git_reflog_entry_oidnew")]
 			get;
 		}
