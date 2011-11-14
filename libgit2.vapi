@@ -1254,7 +1254,7 @@ namespace Git {
 		 * @param len the length of the short identifier
 		 */
 		[CCode(cname = "git_tree_lookup_prefix", instance_pos = 1.2)]
-		public Error git_tree_lookup_prefix(out Tree tree, object_id id, uint len);
+		public Error lookup_tree_by_prefix(out Tree tree, object_id id, uint len);
 
 		/**
 		 * Write the contents of the tree builder as a tree object
