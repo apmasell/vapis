@@ -1758,7 +1758,7 @@ namespace Git {
 		/**
 		 * The UNIX file attributes of a tree entry
 		 */
-		public uint attributes {
+		public FileMode attributes {
 			[CCode(cname = "git_tree_entry_attributes")]
 			get;
 		}
@@ -1801,6 +1801,98 @@ namespace Git {
 		 */
 		[CCode(cname = "git_treebuilder_create", instance_pos = -1)]
 		public Error create_builder(out TreeBuilder builder);
+	}
+
+	[CCode(cname = "unsigned int", cheader_filename = "sys/stat.h", cprefix = "S_I")]
+	[Flags]
+	public enum FileMode {
+		FMT,
+		FBLK,
+		FCHR,
+		FDIR,
+		FIFO,
+		FLNK,
+		FREG,
+		FSOCK,
+		RWXU,
+		RUSR,
+		WUSR,
+		XUSR,
+		RWXG,
+		RGRP,
+		WGRP,
+		XGRP,
+		RWXO,
+		ROTH,
+		WOTH,
+		XOTH,
+		SUID,
+		SGID,
+		SVTX;
+		[CCode(cname = "S_ISBLK")]
+		public bool is_block_dev();
+		[CCode(cname = "S_ISCHR")]
+		public bool is_char_dev();
+		[CCode(cname = "S_ISDIR")]
+		public bool is_dir();
+		[CCode(cname = "S_ISFIFO")]
+		public bool is_fifo();
+		[CCode(cname = "S_ISREG")]
+		public bool is_regular();
+		[CCode(cname = "S_ISLNK")]
+		public bool is_link();
+		[CCode(cname = "S_ISSOCK")]
+		public bool is_sock();
+		public string to_string() {
+			char attr[11];
+			switch (this & FileMode.FMT) {
+				case FileMode.FBLK:
+					attr[0]= 'b';
+					break;
+				case FileMode.FCHR:
+					attr[0]= 'c';
+					break;
+				case FileMode.FDIR:
+					attr[0] = 'd';
+					break;
+				case FileMode.FIFO:
+					attr[0] = 'p';
+					break;
+				case FileMode.FLNK:
+					attr[0]= 'l';
+					break;
+				case FileMode.FREG:
+					attr[0]= '-';
+					break;
+				case FileMode.FSOCK:
+					attr[0]= 's';
+					break;
+				default:
+					attr[0]= '?';
+					break;
+			}
+			attr[1] = check_mode(FileMode.RUSR, 'r');
+			attr[2] = check_mode(FileMode.WUSR, 'w');
+			attr[3] = check_mode_x(FileMode.RUSR, FileMode.SUID, 's');
+			attr[4] = check_mode(FileMode.RGRP, 'r');
+			attr[5] = check_mode(FileMode.WGRP, 'w');
+			attr[6] = check_mode_x(FileMode.RGRP, FileMode.SGID, 's');
+			attr[7] = check_mode(FileMode.ROTH, 'r');
+			attr[8] = check_mode(FileMode.WOTH, 'w');
+			attr[9] = check_mode_x(FileMode.ROTH, FileMode.SVTX, 't');
+			attr[10] = '\0';
+			return ((string)attr).dup();
+		}
+		char check_mode(FileMode mode, char symbol) {
+			return mode in this ? symbol : '-';
+		}
+		char check_mode_x(FileMode mode, FileMode modifier, char symbol) {
+			if ((mode | modifier) in this)
+				return symbol.tolower();
+			if (modifier in this)
+				return symbol.toupper();
+			return mode in this ? 'x' : '-';
+		}
 	}
 
 	/**
