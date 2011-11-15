@@ -1669,10 +1669,19 @@ namespace Git {
 			get;
 		}
 
+		public Parents parents {
+			[CCode(cname = "")]
+			get;
+		}
+	}
+
+	[Compact]
+	[CCode(cname = "git_commit")]
+	public class Parents {
 		/**
 		 * Get the number of parents of this commit
 		 */
-		public uint parent_count {
+		public uint count {
 			[CCode(cname = "git_commit_parentcount")]
 			get;
 		}
@@ -1684,7 +1693,7 @@ namespace Git {
 		 * @param n the position of the parent
 		 */
 		[CCode(cname = "git_commit_parent", instance_pos = 1.2)]
-		public Error get_parent(out Commit parent, uint n);
+		public Error lookup(out Commit parent, uint n);
 
 		/**
 		 * Get the id of a specified parent for a commit.
@@ -1696,7 +1705,7 @@ namespace Git {
 		 * @return the id of the parent, null on error.
 		 */
 		[CCode(cname = "git_commit_parent_oid")]
-		public unowned object_id? get_parent_id(uint n);
+		public unowned object_id? get(uint n);
 	}
 
 	/**
