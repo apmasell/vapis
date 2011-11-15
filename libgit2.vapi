@@ -1562,19 +1562,20 @@ namespace Git {
 		 *
 		 * A pointer to the raw content of a blob is returned.
 		 * The pointer may be invalidated at a later time.
-		 *
-		 * @return the data or null if the blob has no contents
 		 */
-		[CCode(cname = "git_blob_rawcontent", array_length = false)]
-		public unowned uint8[] ? get_content();
+		[CCode(array_length = false)]
+		public uint8[] ? content {
+			[CCode(cname = "git_blob_rawcontent")]
+			get;
+		}
 
 		/**
 		 * Get the size in bytes of the contents of a blob
-		 *
-		 * @return size in bytes
 		 */
-		[CCode(cname = "git_blob_rawsize")]
-		public int get_size();
+		public int size {
+			[CCode(cname = "git_blob_rawsize")]
+			get;
+		}
 	}
 
 	/**
