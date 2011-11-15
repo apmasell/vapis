@@ -22,8 +22,10 @@ namespace FastCGI {
 	[CCode(cname = "FCGX_Stream", free_function = "FCGX_FClose")]
 	[Compact]
 	public class Stream {
-		public bool isReader;
-		public bool isClosed;
+		[CCode(cname = "isReader")]
+		public bool is_reader;
+		[CCode(cname = "isClosed")]
+		public bool is_closed;
 
 		/**
 		 * Repositions an input stream to the start of FCGI_DATA.
@@ -157,7 +159,7 @@ namespace FastCGI {
 		 * This shouldn't be needed by a FastCGI application.
 		 */
 		[CCode(cname = "FCGX_CreateWriter")]
-		public static Stream create_writer(int socket, int requestId, int bufflen, int streamType);
+		public static Stream create_writer(int socket, int request_id, int bufflen, int streamType);
 	}
 
 	/**
@@ -190,7 +192,8 @@ namespace FastCGI {
 	 */
 	[CCode(cname = "FCGX_Request", has_type_id = false, destroy_function = "")]
 	public struct request {
-		public int requestId;
+		[CCode(cname = "requestId")]
+		public int request_id;
 		public int role;
 		public Stream @in;
 		public Stream @out;
