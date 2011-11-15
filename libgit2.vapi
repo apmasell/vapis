@@ -400,7 +400,7 @@ namespace Git {
 		 * @param len the length of the prefix
 		 */
 		[CCode(cname = "git_odb_read_prefix", instance_pos = 1.2)]
-		public Error git_odb_read_prefix(out DbObject obj, object_id short_id, uint len);
+		public Error read_by_prefix(out DbObject obj, object_id short_id, uint len);
 
 		/**
 		 * Read the header of an object from the database, without
