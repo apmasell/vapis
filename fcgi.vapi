@@ -256,7 +256,7 @@ namespace FastCGI {
 	 *     // Process request
 	 *     request.finish();
 	 *   }
-	 *   request.release();
+	 *   request.close(false);
 	 * }
 	 * void main() {
 	 *   mutex = new Mutex();
@@ -345,14 +345,6 @@ namespace FastCGI {
 		 */
 		public unowned string? @get(string name) {
 			return environment[name];
-		}
-
-		/**
-		 * Releases this instance without closing the underlying file descriptor.
-		 */
-		[DestroysInstance]
-		public void release() {
-			close(false);
 		}
 	}
 
