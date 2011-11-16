@@ -28,6 +28,20 @@
  * the Free Software Foundation, 51 Franklin Street, Fifth Floor,
  * Boston, MA 02110-1301, USA.
  */
+
+/**
+ * Library to access the contents of git repositories
+ *
+ * libgit2 can access and manipulate the contents of git repositories. To begin, create an instance of a {@link Git.Repository} like so:
+ * {{{
+ * Git.Repository repo;
+ * if (Git.Repository.open(out repo, "/path/to/repo") != Git.Error.SUCCESS) {
+ *   stderr.printf("Could not open repository because: %s\n", git.get_last());
+ *   return false;
+ * }
+ * }}}
+ * Then use the methods of //repo// to access the repository.
+ */
 [CCode(cheader_filename = "git2.h")]
 namespace Git {
 	namespace Version {
