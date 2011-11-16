@@ -5,28 +5,8 @@
  * VAPI Homepage: https://github.com/apmasell/vapis/blob/master/libgit2.vapi
  * VAPI Maintainer: Andre Masella <andre@masella.name>
  *
- * This file is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License, version 2,
- * as published by the Free Software Foundation.
- *
- * In addition to the permissions in the GNU General Public License,
- * the authors give you unlimited permission to link the compiled
- * version of this file into combinations with other programs,
- * and to distribute those combinations without any restriction
- * coming from the use of this file.  (The General Public License
- * restrictions do apply in other respects; for example, they cover
- * modification of the file, and distribution when not linked into
- * a combined executable.)
- *
- * This file is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; see the file COPYING.  If not, write to
- * the Free Software Foundation, 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
+ * This file is part of libgit2, distributed under the GNU GPL v2 with
+ * a Linking Exception. For full terms see the included COPYING file.
  */
 
 /**
@@ -44,6 +24,33 @@
  */
 [CCode(cheader_filename = "git2.h")]
 namespace Git {
+	namespace Threads {
+		/**
+		 * Init the threading system.
+		 *
+		 * If libgit2 has been built with GIT_THREADS
+		 * on, this function must be called once before
+		 * any other library functions.
+		 *
+		 * If libgit2 has been built without GIT_THREADS
+		 * support, this function is a no-op.
+		 */
+		[CCode(cname = "git_threads_init")]
+		public void init();
+
+		/**
+		 * Shutdown the threading system.
+		 *
+		 * If libgit2 has been built with GIT_THREADS
+		 * on, this function must be called before shutting
+		 * down the library.
+		 *
+		 * If libgit2 has been built without GIT_THREADS
+		 * support, this function is a no-op.
+		 */
+		[CCode(cname = "git_threads_shutdown")]
+		public void shutdown();
+	}
 	namespace Version {
 		[CCode(cname = "LIBGIT2_VERSION")]
 		public const string VERSION;
@@ -175,7 +182,7 @@ namespace Git {
 		/**
 		 * Get the size in bytes of the contents of a blob
 		 */
-		public int size {
+		public size_t size {
 			[CCode(cname = "git_blob_rawsize")]
 			get;
 		}
@@ -316,6 +323,18 @@ namespace Git {
 		public static Error find_global([CCode(array_length = false)] char[] global_config_path);
 
 		/**
+		 * Locate the path to the system configuration file
+		 *
+		 * If /etc/gitconfig doesn't exist, it will look for
+		 * %PROGRAMFILES%\Git\etc\gitconfig.
+		 * @param system_config_path Buffer of {@link PATH_MAX} length to store the path
+		 * @return {@link Error.SUCCESS} if a system configuration file has been found. Its path will be stored in //buffer//.
+		 */
+		[CCode(cname = "git_config_find_system")]
+		public static Error find_system([CCode(array_length = false)] char[] system_config_path);
+
+
+		/**
 		 * Create a new config instance containing a single on-disk file
 		 *
 		 * This method is a simple utility wrapper for the following sequence of
@@ -405,7 +424,7 @@ namespace Git {
 		 * @param value where the value should be stored
 		 */
 		[CCode(cname = "git_config_get_int")]
-		public Error get_int(string name, out int value);
+		public Error get_int32(string name, out int32 value);
 
 		/**
 		 * Get the value of a long integer config variable.
@@ -413,8 +432,8 @@ namespace Git {
 		 * @param name the variable's name
 		 * @param value where the value should be stored
 		 */
-		[CCode(cname = "git_config_get_long")]
-		public Error get_long(string name, out long value);
+		[CCode(cname = "git_config_get_int64")]
+		public Error get_int64(string name, out int64 value);
 
 		/**
 		 * Get the information for a particular remote
@@ -448,8 +467,8 @@ namespace Git {
 		 * @param name the variable's name
 		 * @param value integer value for the variable
 		 */
-		[CCode(cname = "git_config_set_int")]
-		public Error set_int(string name, int value);
+		[CCode(cname = "git_config_set_int32")]
+		public Error set_int32(string name, int32 value);
 
 		/**
 		 * Set the value of a long integer config variable.
@@ -457,8 +476,8 @@ namespace Git {
 		 * @param name the variable's name
 		 * @param value Long integer value for the variable
 		 */
-		[CCode(cname = "git_config_set_long")]
-		public Error set_long(string name, long value);
+		[CCode(cname = "git_config_set_long64")]
+		public Error set_int64(string name, int64 value);
 
 		/**
 		 * Set the value of a string config variable.
@@ -1113,7 +1132,7 @@ namespace Git {
 	/**
 	 * In-memory representation of a reference.
 	 */
-	[CCode(cname = "git_reference")]
+	[CCode(cname = "git_reference", free_function = "git_reference_free")]
 	[Compact]
 	public class Reference {
 		/**
@@ -1123,6 +1142,14 @@ namespace Git {
 		 */
 		public object_id? id {
 			[CCode(cname = "git_reference_oid")]
+			get;
+		}
+
+		/**
+		 * Has been loaded from a packfile?
+		 */
+		public bool is_packed {
+			[CCode(cname = "git_reference_is_packed")]
 			get;
 		}
 
@@ -1182,6 +1209,24 @@ namespace Git {
 		 */
 		[CCode(cname = "git_reflog_read", instance_pos = -1)]
 		public Error get_reflog(out ReferenceLog reflog);
+
+		/**
+		 * Reload a reference from disk
+		 *
+		 * Reference pointers may become outdated if the Git repository is accessed
+		 * simultaneously by other clients whilt the library is open.
+		 *
+		 * This method forces a reload of the reference from disk, to ensure that
+		 * the provided information is still reliable.
+		 *
+		 * If the reload fails (e.g. the reference no longer exists on disk, or has
+		 * become corrupted), an error code will be returned and the reference
+		 * pointer will be invalidated.
+		 *
+		 * @return GIT_SUCCESS on success, or an error code
+		 */
+		[CCode(cname = "git_reference_reload")]
+		public Error reload();
 
 		/**
 		 * Rename an existing reference
@@ -1620,6 +1665,17 @@ namespace Git {
 		public Error create_reference(out unowned Reference reference, string name, object_id id, bool force);
 
 		/**
+		 * Create a new unnamed remote
+		 *
+		 * Useful when you don't want to store the remote
+		 *
+		 * @param out the newly created remote reference
+		 * @param url the remote repository's URL
+		 */
+		[CCode(cname = "git_remote_new", instance_pos = 1.2)]
+		public Error create_remote(out Remote remote, string url);
+
+		/**
 		 * Create a new symbolic reference.
 		 *
 		 * The reference will be created in the repository and written to the disk.
@@ -1705,27 +1761,49 @@ namespace Git {
 		 * order:
 		 *
 		 * * Repository configuration file
-		 * * User configuration file
+		 * * Global configuration file
 		 * * System configuration file
 		 *
 		 * The method will fail if any of the passed config files cannot be found
 		 * or accessed.
 		 *
 		 * @param config the repository's configuration
-		 * @param user_config_path Path to the user config file. If not null, the given config file will be also included in the configuration set. On most UNIX systems, this file may be found on //$HOME/.gitconfig//.
+		 * @param global_config_path Path to the global config file. If not null, the given config file will be also included in the configuration set. On most UNIX systems, this file may be found on //$HOME/.gitconfig//.
 		 * @param system_config_path Path to the system-wide config file. If not null, the given config file will be also included in the configuration set. On most UNIX systems, this file may be found on //$PREFIX/etc/gitconfig//.
 		 */
 		[CCode(cname = "git_repository_config", instance_pos = 1.2)]
-		public Error get_config(out Config config, string? user_config_path = null, string? system_config_path = null);
+		public Error get_config(out Config config, string? global_config_path = null, string? system_config_path = null);
+
+		/**
+		 * Automatically load the configuration files
+		 *
+		 * A wrapper around {@link get_config} that tries to guess where
+		 * the global and system config files are located. No error is
+		 * reported if either of these files are missing at the guessed
+		 * locations.
+		 *
+		 * @param out the repository's configuration
+		 */
+		[CCode(cname = "git_repository_config_autoload", instance_pos = 1.2)]
+		public Error get_config_auto(out Config config);
 
 		/**
 		 * Get file status for a single file
 		 *
 		 * @param status the status value
 		 * @param path the file to retrieve status for, rooted at the repo's workdir
+		 * @return {@link Error.INVALIDPATH} when //path// points at a folder, {@link Error.NOTFOUND} when the file doesn't exist in any of HEAD, the index or the worktree, {@link Error.SUCCESS} otherwise
 		 */
 		[CCode(cname = "git_status_file", instance_pos = 1.2)]
 		public Error get_file_status(out Status status, string path);
+
+		/**
+		 * Retrieve and resolve the reference pointed at by HEAD.
+		 *
+		 * @param head the reference which will be retrieved
+		 */
+		[CCode(cname = "git_repository_head", instance_pos = -1)]
+		public Error get_head(out Reference head);
 
 		/**
 		 * Open the index file of a Git repository
@@ -1901,7 +1979,7 @@ namespace Git {
 		 * @param name the long name for the reference (e.g., HEAD, ref/heads/master, refs/tags/v0.1.0, ...)
 		 */
 		[CCode(cname = "git_reference_lookup", instance_pos = 1.2)]
-		public Error lookup_reference(out unowned Reference reference, string name);
+		public Error lookup_reference(out Reference reference, string name);
 
 		/**
 		 * Lookup a tag object from the repository.
@@ -1955,9 +2033,6 @@ namespace Git {
 		 *
 		 * Once the //packed-refs// file has been written properly, the loose
 		 * references will be removed from disk.
-		 *
-		 * WARNING: calling this method may invalidate any existing references
-		 * previously loaded on the cache.
 		 */
 		[CCode(cname = "git_reference_packall")]
 		public Error pack_all_references();
@@ -2221,7 +2296,7 @@ namespace Git {
 	/**
 	 * A transport to use
 	 */
-	[CCode(cname = "git_transport", free_function = "git_transport_free")]
+	[CCode(cname = "git_transport")]
 	[Compact]
 	public class Transport {
 		/**
@@ -2230,19 +2305,7 @@ namespace Git {
 		 * @param url the url of the repo
 		 */
 		[CCode(cname = "git_transport_new")]
-		public static Error create(out Transport? transport, string url);
-
-		[CCode(cname = "git_transport_add")]
-		public Error add(string prefix);
-
-		[CCode(cname = "git_transport_close")]
-		public Error close();
-
-		[CCode(cname = "git_transport_connect")]
-		public Error connect(Direction direction);
-
-		[CCode(cname = "git_transport_ls")]
-		public Error list(head_array array);
+		public static Error create(out unowned Transport? transport, string url);
 	}
 
 	/**
@@ -2284,6 +2347,37 @@ namespace Git {
 		 */
 		[CCode(cname = "git_tree_entry_byname")]
 		public unowned TreeEntry? get_by_name(string filename);
+
+		/**
+		 * Retrieve the tree object containing a tree entry, given a relative path
+		 * to this tree entry.
+		 *
+		 * @param parent where to store the parent tree
+		 * @param tree_entry_path Path to the tree entry from which to extract the last tree object
+		 * @return {@link Error.SUCCESS} on success; {@link Error.NOTFOUND} if the path does not lead to an entry, {@link Error.INVALIDPATH}; otherwise, an error code
+		 */
+		[CCode(cname = "git_tree_frompath", instance_pos = 1.2)]
+		public Error get_from_path(out Tree parent, string tree_entry_path);
+
+		/**
+		 * Traverse the entries in a tree and its subtrees in post or pre order
+		 *
+		 * The entries will be traversed in the specified order, children subtrees
+		 * will be automatically loaded as required, and the callback will be
+		 * called once per entry with the current (relative) root for the entry and
+		 * the entry data itself.
+		 *
+		 * If the callback returns a negative value, the passed entry will be
+		 * skiped on the traversal.
+		 *
+		 * @param tree The tree to walk
+		 * @param callback Function to call on each tree entry
+		 * @param mode Traversal mode (pre or post-order)
+		 * @return {@link Error.SUCCESS} or an error code
+		 */
+		[CCode(cname = "git_tree")]
+		public Error walk(TreeWalker callback, WalkMode mode);
+
 	}
 
 	/**
@@ -2645,6 +2739,15 @@ namespace Git {
 		 */
 		[CCode(cname = "git_oid_ncmp")]
 		public int compare_n_to(object_id b, uint len);
+
+		/**
+		 * Check if an oid equals an hex formatted object id.
+		 *
+		 * @param str input hex string of an object id.
+		 * @return {@link Error.NOTID} if the string is not a valid hex string, {@link Error.SUCCESS} in case of a match, {@link Error.ERROR} otherwise.
+		 */
+		[CCode(cname = "git_oid_streq")]
+		public Error compare_string(string str);
 
 		/**
 		 * Determine the id of a buffer containing an object
@@ -3211,8 +3314,19 @@ namespace Git {
 		RW
 	}
 
+	/**
+	 * Tree traversal modes
+	 */
+	[CCode(cname = "git_treewalk_mode", cprefix = "GIT_TREEWALK_")]
+	public enum WalkMode {
+		PRE,
+		POST
+	}
+
 	public delegate int ConfigCallback(string var_name, string val);
 	public delegate bool Filter(TreeEntry entry);
 	public delegate int ReferenceCallback(string refname);
 	public delegate Error StatusCallback(string file, Status status);
+	[CCode(cname = "git_treewalk_cb", has_target = false)]
+	public delegate int TreeWalker(string root, TreeEntry entry);
 }
