@@ -1367,6 +1367,17 @@ namespace Git {
 	[Compact]
 	public class Remote {
 		/**
+		 * Whether the remote is connected
+		 *
+		 * Whether the remote's underlying transport is connected to the remote
+		 * host.
+		 */
+		public bool is_connected {
+			[CCode(cname = "git_remote_connected")]
+			get;
+		}
+
+		/**
 		 * The fetch refspec, if it exists
 		 */
 		public RefSpec? fetch_spec {
@@ -1413,15 +1424,25 @@ namespace Git {
 		/**
 		 * Download the packfile
 		 *
-		 * The packfile is downloaded with a temporary filename, as it's final name
-		 * is not known yet. If there was no packfile needed (all the objects were
-		 * available locally), filename will be null and the function will return
-		 * success.
+		 * Negotiate what objects should be downloaded and download the packfile
+		 * with those objects. The packfile is downloaded with a temporary
+		 * filename, as it's final name is not known yet. If there was no packfile
+		 * needed (all the objects were available locally), //filename// will be
+		 * null and the function will return success.
 		 *
 		 * @param filename where to store the temproray filename
 		 */
 		[CCode(cname = "git_remote_download", instance_pos = -1)]
 		public Error download(out string? filename);
+
+		/**
+		 * Disconnect from the remote
+		 *
+		 * Close the connection to the remote and free the underlying transport.
+		 */
+		[CCode(cname = "git_remote_disconnect")]
+		public void disconnect();
+
 
 		/**
 		 * Get a list of refs at the remote
@@ -1432,13 +1453,6 @@ namespace Git {
 		 */
 		[CCode(cname = "git_remote_ls", instance_pos = -1)]
 		public Error list(head_array refs);
-
-		/**
-		 * Negotiate what data needs to be exchanged to synchroize the remote and
-		 * local references
-		 */
-		[CCode(cname = "git_remote_negotiate")]
-		public Error negotiate();
 
 		/**
 		 * Update the tips to the new state
@@ -1673,7 +1687,7 @@ namespace Git {
 		 * @param url the remote repository's URL
 		 */
 		[CCode(cname = "git_remote_new", instance_pos = 1.2)]
-		public Error create_remote(out Remote remote, string url);
+		public Error create_remote(out Remote remote, string url, string name);
 
 		/**
 		 * Create a new symbolic reference.
@@ -2349,15 +2363,14 @@ namespace Git {
 		public unowned TreeEntry? get_by_name(string filename);
 
 		/**
-		 * Retrieve the tree object containing a tree entry, given a relative path
-		 * to this tree entry.
+		 * Retrieve a subtree contained in a tree, given its relative path.
 		 *
-		 * @param parent where to store the parent tree
-		 * @param tree_entry_path Path to the tree entry from which to extract the last tree object
+		 * @param subtree where to store the parent tree
+		 * @param path Path to the tree entry from which to extract the last tree object
 		 * @return {@link Error.SUCCESS} on success; {@link Error.NOTFOUND} if the path does not lead to an entry, {@link Error.INVALIDPATH}; otherwise, an error code
 		 */
-		[CCode(cname = "git_tree_frompath", instance_pos = 1.2)]
-		public Error get_from_path(out Tree parent, string tree_entry_path);
+		[CCode(cname = "git_tree_get_subtree", instance_pos = 1.2)]
+		public Error get_subtree(out Tree subtree, string path);
 
 		/**
 		 * Traverse the entries in a tree and its subtrees in post or pre order
@@ -3327,6 +3340,6 @@ namespace Git {
 	public delegate bool Filter(TreeEntry entry);
 	public delegate int ReferenceCallback(string refname);
 	public delegate Error StatusCallback(string file, Status status);
-	[CCode(cname = "git_treewalk_cb", has_target = false)]
+	[CCode(cname = "git_treewalk_cb")]
 	public delegate int TreeWalker(string root, TreeEntry entry);
 }
