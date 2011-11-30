@@ -164,7 +164,7 @@ namespace Git {
 	/**
 	 * In-memory representation of a blob object.
 	 */
-	[CCode(cname = "git_blob", free_function = "git_blob_close")]
+	[CCode(cname = "git_blob", free_function = "git_blob_free")]
 	[Compact]
 	public class Blob : Object {
 		/**
@@ -191,7 +191,7 @@ namespace Git {
 	/**
 	 * Parsed representation of a commit object.
 	 */
-	[CCode(cname = "git_commit", free_function = "git_commit_close")]
+	[CCode(cname = "git_commit", free_function = "git_commit_free")]
 	[Compact]
 	public class Commit : Object {
 		/**
@@ -436,15 +436,6 @@ namespace Git {
 		public Error get_int64(string name, out int64 value);
 
 		/**
-		 * Get the information for a particular remote
-		 *
-		 * @param remote the new remote object
-		 * @param name the remote's name
-		 */
-		[CCode(cname = "git_remote_get", instance_pos = 1.2)]
-		public Error get_remote(out Remote remote, string name);
-
-		/**
 		 * Get the value of a string config variable.
 		 *
 		 * @param name the variable's name
@@ -500,6 +491,16 @@ namespace Git {
 	[Compact]
 	public class ConfigFile {
 		public unowned Config cfg;
+		[CCode(cname = "foreach")]
+		public ForEachHandler foreach_func;
+		[CCode(cname = "free")]
+		public FreeHandler free_func;
+		[CCode(cname = "get")]
+		public GetHandler get_func;
+		[CCode(cname = "open")]
+		public OpenHandler open_func;
+		[CCode(cname = "set")]
+		public SetHandler set_func;
 		/**
 		 * Create a configuration file backend for on-disk files
 		 *
@@ -513,6 +514,17 @@ namespace Git {
 		 */
 		[CCode(cname = "git_config_file__ondisk")]
 		public static Error open(out ConfigFile file, string path);
+
+		[CCode(cname = "git_config_file_foreach_cb")]
+		public delegate int ForEachHandler(ConfigFile file, ConfigCallback callback);
+		[CCode(cname = "git_config_file_free_cb")]
+		public delegate void FreeHandler(ConfigFile file);
+		[CCode(cname = "git_config_file_get_cb")]
+		public delegate int GetHandler(ConfigFile file, string key, out string value);
+		[CCode(cname = "git_config_file_open_cb")]
+		public delegate int OpenHandler(ConfigFile file);
+		[CCode(cname = "git_config_file_set_cb")]
+		public delegate int SetHandler(ConfigFile file, string key, string value);
 	}
 
 	/**
@@ -706,7 +718,7 @@ namespace Git {
 	/**
 	 * An object read from the database
 	 */
-	[CCode(cname = "git_odb_object", free_function = "git_odb_object_close")]
+	[CCode(cname = "git_odb_object", free_function = "git_odb_object_free")]
 	[Compact]
 	public class DbObject {
 
@@ -1022,7 +1034,7 @@ namespace Git {
 	/**
 	 * Representation of a generic object in a repository
 	 */
-	[CCode(cname = "git_object", free_function = "git_object_close")]
+	[CCode(cname = "git_object", free_function = "git_object_free")]
 	[Compact]
 	public class Object {
 		/**
@@ -1203,6 +1215,12 @@ namespace Git {
 		public Error @delete();
 
 		/**
+		 * Delete the reflog for the given reference
+		 */
+		[CCode(cname = "git_reflog_delete")]
+		public Error delete_reflog();
+
+		/**
 		 * Read the reflog for the given reference
 		 *
 		 * @param reflog where to put the reflog
@@ -1237,6 +1255,11 @@ namespace Git {
 		 *
 		 * The refernece will be immediately renamed in-memory
 		 * and on disk.
+		 *
+		 * ''IMPORTANT:'' The user needs to write a proper reflog entry if the
+		 * reflog is enabled for the repository. We only rename the reflog if it
+		 * exists.
+		 *
 		 */
 		[CCode(cname = "git_reference_rename")]
 		public Error rename(string new_name, bool force);
@@ -1318,6 +1341,14 @@ namespace Git {
 		 */
 		[CCode(cname = "git_reflog_entry_byindex")]
 		public unowned ReferenceLogEntry? get(uint idx);
+
+		/**
+		 * Rename the reflog for the given reference
+		 *
+		 * @param new_name the new name of the reference
+		 */
+		[CCode(cname = "git_reflog_rename")]
+		public Error rename(string new_name);
 	}
 
 	/**
@@ -1410,6 +1441,14 @@ namespace Git {
 		}
 
 		/**
+		 * Return whether a string is a valid remote URL
+		 *
+		 * @param tranport the url to check
+		 */
+		[CCode(cname = "git_remote_valid_url")]
+		public static bool is_valid_url(string url);
+
+		/**
 		 * Open a connection to a remote
 		 *
 		 * The transport is selected based on the URL. The direction argument is
@@ -1448,11 +1487,9 @@ namespace Git {
 		 * Get a list of refs at the remote
 		 *
 		 * The remote (or more exactly its transport) must be connected.
-		 *
-		 * @param refs where to store the refs
 		 */
 		[CCode(cname = "git_remote_ls", instance_pos = -1)]
-		public Error list(head_array refs);
+		public Error list(HeadCallback headcb);
 
 		/**
 		 * Update the tips to the new state
@@ -1471,14 +1508,6 @@ namespace Git {
 	[CCode(cname = "git_repository", free_function = "git_repository_free")]
 	[Compact]
 	public class Repository {
-		/**
-		 * The object database behind a git repository
-		 */
-		public Database database {
-			[CCode(cname = "git_repository_database")]
-			get;
-		}
-
 		/**
 		 * Check if a repository is bare
 		 */
@@ -1516,6 +1545,30 @@ namespace Git {
 		public bool is_empty {
 			[CCode(cname = "git_repository_is_empty")]
 			get;
+		}
+
+		/**
+		 * The path to the repository.
+		 */
+		public string? path {
+			[CCode(cname = "git_repository_path")]
+			get;
+		}
+
+		/**
+		 * The working directory for this repository
+		 *
+		 * If the repository is bare, this is null.
+		 *
+		 * If this repository is bare, setting its working directory will turn it
+		 * into a normal repository, capable of performing all the common workdir
+		 * operations (checkout, status, index manipulation, etc).
+		 */
+		public string? workdir {
+			[CCode(cname = "git_repository_workdir")]
+			get;
+			[CCode(cname = "git_repository_set_workdir")]
+			set;
 		}
 
 		/**
@@ -1563,35 +1616,6 @@ namespace Git {
 		 */
 		[CCode(cname = "git_repository_open")]
 		public static Error open(out Repository? repository, string path);
-
-		/**
-		 * Open a git repository by manually specifying all its paths
-		 *
-		 * @param repository the repo which will be opened
-		 *
-		 * @param git_dir The full path to the repository folder (e.g., a //.git// folder for live repos, any folder for bare. Equivalent to //$GIT_DIR//.)
-		 * @param git_object_directory The full path to the ODB folder. The folder where all the loose and packed objects are stored. Equivalent to //$GIT_OBJECT_DIRECTORY//.  If null, //$GIT_DIR/objects/// is assumed.
-		 * @param git_index_file The full path to the index (dircache) file. Equivalent to //$GIT_INDEX_FILE//. If null, //$GIT_DIR/index// is assumed.
-		 * @param git_work_tree The full path to the working tree of the repository, if the repository is not bare. Equivalent to //$GIT_WORK_TREE//. If null, the repository is assumed to be bare.
-		 */
-		[CCode(cname = "git_repository_open2")]
-		public static Error open_detailed(out Repository repository, string dir, string? object_directory, string? index_file, string? work_tree);
-
-		/**
-		 * Open a git repository by manually specifying its paths and
-		 * the object database it will use.
-		 *
-		 * @param repository pointer to the repo which will be opened
-		 *
-		 * @param git_dir The full path to the repository folder (e.g., a //.git// folder for live repos, any folder for bare). Equivalent to //$GIT_DIR//.
-		 * @param object_database A pointer to a git_odb created & initialized by the user (e.g. with custom backends).
-		 *
-		 * @param git_index_file The full path to the index (dircache) file. Equivalent to //$GIT_INDEX_FILE//. If null, //$GIT_DIR/index// is assumed.
-		 * @param git_work_tree The full path to the working tree of the repository, if the repository is not bare. Equivalent to //$GIT_WORK_TREE//. If null, the repository is assumed to be bare.
-		 */
-
-		[CCode(cname = "git_repository_open3")]
-		public static Error open_with_db(out Repository repository, string dir, owned Database object_database, string? index_file, string? work_tree);
 
 		/**
 		 * Write an in-memory buffer to the ODB as a blob
@@ -1765,41 +1789,25 @@ namespace Git {
 		public Error for_each_status(StatusCallback callback);
 
 		/**
-		 * Retrieve the relevant configuration for a repository
+		 * Get the configuration file for this repository.
 		 *
-		 * By default he returned //git_config// instance contains a single
-		 * configuration file, the //.gitconfig// file that may be found inside the
-		 * repository.
-		 *
-		 * The resulting //git_config// instance will query the files in the following
-		 * order:
-		 *
-		 * * Repository configuration file
-		 * * Global configuration file
-		 * * System configuration file
-		 *
-		 * The method will fail if any of the passed config files cannot be found
-		 * or accessed.
+		 * If a configuration file has not been set, the default
+		 * config set for the repository will be returned, including
+		 * global and system configurations (if they are available).
 		 *
 		 * @param config the repository's configuration
-		 * @param global_config_path Path to the global config file. If not null, the given config file will be also included in the configuration set. On most UNIX systems, this file may be found on //$HOME/.gitconfig//.
-		 * @param system_config_path Path to the system-wide config file. If not null, the given config file will be also included in the configuration set. On most UNIX systems, this file may be found on //$PREFIX/etc/gitconfig//.
 		 */
-		[CCode(cname = "git_repository_config", instance_pos = 1.2)]
-		public Error get_config(out Config config, string? global_config_path = null, string? system_config_path = null);
+		[CCode(cname = "git_repository_config", instance_pos = -1)]
+		public Error get_config(out Config config);
 
 		/**
-		 * Automatically load the configuration files
+		 * Get the Object Database for this repository.
 		 *
-		 * A wrapper around {@link get_config} that tries to guess where
-		 * the global and system config files are located. No error is
-		 * reported if either of these files are missing at the guessed
-		 * locations.
-		 *
-		 * @param out the repository's configuration
+		 * If a custom ODB has not been set, the default database for the
+		 * repository will be returned (the one located in //.git/objects//).
 		 */
-		[CCode(cname = "git_repository_config_autoload", instance_pos = 1.2)]
-		public Error get_config_auto(out Config config);
+		[CCode(cname = "git_repository_odb", instance_pos = -1)]
+		public Error get_db(out Database db);
 
 		/**
 		 * Get file status for a single file
@@ -1820,27 +1828,28 @@ namespace Git {
 		public Error get_head(out Reference head);
 
 		/**
-		 * Open the index file of a Git repository
+		 * Get the index file for this repository.
 		 *
-		 * This returns a new and unique index object representing the active index
-		 * for the repository.
+		 * If a custom index has not been set, the default
+		 * index for the repository will be returned (the one
+		 * located in //.git/index//).
 		 *
-		 * This method may be called more than once (e.g., on different threads).
+		 * If a custom index has not been set, the default
+		 * index for the repository will be returned (the one
+		 * located in //.git/index//).
 		 *
-		 * Each returned index object is independent and suffers no race
-		 * conditions: synchronization is done at the FS level.
 		 */
 		[CCode(cname = "git_repository_index", instance_pos = -1)]
-		public Error get_index(out Index index);
+		public void get_index(out Index index);
 
 		/**
-		 * Get one of the paths to the repository
+		 * Get the information for a particular remote
 		 *
-		 * @param type the path to return
-		 * @return absolute path of the requested type
+		 * @param remote the new remote object
+		 * @param name the remote's name
 		 */
-		[CCode(cname = "git_repository_path")]
-		public unowned string get_path(PathType type);
+		[CCode(cname = "git_remote_load", instance_pos = 1.2)]
+		public Error get_remote(out Remote remote, string name);
 
 		/**
 		 * Fill a list with all the tags in the Repository
@@ -2052,6 +2061,39 @@ namespace Git {
 		public Error pack_all_references();
 
 		/**
+		 * Set the configuration file for this repository
+		 *
+		 * This configuration file will be used for all configuration
+		 * queries involving this repository.
+		 *
+		 * @param repo A repository object
+		 * @param config A Config object
+		 */
+		[CCode(cname = "git_repository_set_config")]
+		public void set_config(Config config);
+
+		/**
+		 * Set the Object Database for this repository
+		 *
+		 * The ODB will be used for all object-related operations involving this
+		 * repository.
+		 *
+		 * @param repo A repository object
+		 * @param odb An ODB object
+		 */
+		[CCode(cname = "git_repository_set_odb")]
+		public void set_db(Database db);
+
+		/**
+		 * Set the index file for this repository
+		 *
+		 * This index will be used for all index-related operations
+		 * involving this repository.
+		 */
+		[CCode(cname = "git_repository_set_index")]
+		public void set_index(Index index);
+
+		/**
 		 * Write the contents of the tree builder as a tree object
 		 *
 		 * The tree builder will be written to the repositrory, and it's
@@ -2244,7 +2286,7 @@ namespace Git {
 	/**
 	 * Parsed representation of a tag object.
 	 */
-	[CCode(cname = "git_tag", free_function = "git_tag_close")]
+	[CCode(cname = "git_tag", free_function = "git_tag_free")]
 	[Compact]
 	public class Tag : Object {
 		/**
@@ -2308,24 +2350,9 @@ namespace Git {
 	}
 
 	/**
-	 * A transport to use
-	 */
-	[CCode(cname = "git_transport")]
-	[Compact]
-	public class Transport {
-		/**
-		 * Get the appropriate transport for an URL.
-		 * @param tranport the transport for the url
-		 * @param url the url of the repo
-		 */
-		[CCode(cname = "git_transport_new")]
-		public static Error create(out unowned Transport? transport, string url);
-	}
-
-	/**
 	 * Representation of a tree object.
 	 */
-	[CCode(cname = "git_tree", free_function = "git_tree_close")]
+	[CCode(cname = "git_tree", free_function = "git_tree_free")]
 	[Compact]
 	public class Tree : Object {
 		/**
@@ -2552,15 +2579,6 @@ namespace Git {
 		 */
 		[CCode(cname = "git_index_get_unmerged_bypath")]
 		public unowned unmerged_index_entry? get_by_path(string path);
-	}
-
-	/**
-	 * Array of remote heads
-	 */
-	[CCode(cname = "git_headarray")]
-	public struct head_array {
-		[CCode(array_lenth_cname = "len", array_length_type = "unsigned int")]
-		remote_head[] heads;
 	}
 
 	/**
@@ -3222,30 +3240,6 @@ namespace Git {
 	}
 
 	/**
-	 * Internal path identifiers for a repository
-	 */
-	[CCode(cname = "git_repository_pathid", cprefix = "GIT_REPO_PATH_")]
-	public enum PathType {
-		/**
-		 * The path to the repository
-		 */
-		[CCode(cname = "GIT_REPO_PATH")]
-		BASE,
-		/**
-		 * The path to the index
-		 */
-		INDEX,
-		/**
-		 * The path to the database
-		 */
-		ODB,
-		/**
-		 * The path to the working directory
-		 */
-		WORKDIR
-	}
-
-	/**
 	 * Basic type of any Git reference.
 	 */
 	[CCode(cname = "git_rtype", cprefix = "GIT_REF_")]
@@ -3338,6 +3332,8 @@ namespace Git {
 
 	public delegate int ConfigCallback(string var_name, string val);
 	public delegate bool Filter(TreeEntry entry);
+	[CCode(cname = "git_headlist_cb")]
+	public delegate int HeadCallback(remote_head head);
 	public delegate int ReferenceCallback(string refname);
 	public delegate Error StatusCallback(string file, Status status);
 	[CCode(cname = "git_treewalk_cb")]
