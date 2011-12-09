@@ -1,4 +1,4 @@
-[CCode(cheader_filename = "vala_buffer.h")]
+[CCode(cheader_filename = "tricks.h")]
 namespace Buffer {
 	/**
 	 * Create a buffer representation of a particular object.
@@ -24,3 +24,17 @@ namespace Buffer {
 	public unowned T[] from_array<T>(uint8[] @value);
 }
 
+[CCode(cname = "InitialisationFunction", cheader_filename = "tricks.h")]
+public delegate size_t InitialisationFunction();
+
+/**
+ * Call a function once and cache the result.
+ *
+ * Calls a function once, which returns a non-zero value and caches the
+ * result. The same once block can be enetered many times, with different
+ * parameters, and the result will always be the same.
+ *
+ * This is thread-safe.
+ */
+[CCode(cname = "ONCE", cheader_filename = "tricks.h")]
+public void once(out size_t @value, InitialisationFunction func);
