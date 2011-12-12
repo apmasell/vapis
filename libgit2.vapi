@@ -2418,6 +2418,20 @@ namespace Git {
 		[CCode(cname = "git_tree")]
 		public Error walk(TreeWalker callback, WalkMode mode);
 
+		/**
+		 * Diff two trees
+		 *
+		 * Compare two trees. For each difference in the trees, the callback
+		 * will be called with a git_tree_diff_data filled with the relevant
+		 * information.
+		 *
+		 * @param newer the "newer" tree
+		 */
+		[CCode(cname = "git_tree_diff")]
+		public Error diff(Tree newer, TreeDiffCallback cb);
+
+		[CCode(cname = "git_tree_diff_index_recursive")]
+		public Error diff_index_recursive(Index index, TreeDiffCallback cb);
 	}
 
 	/**
@@ -2844,6 +2858,18 @@ namespace Git {
 		 * timezone offset, in minutes
 		 */
 		int offset;
+	}
+
+	[CCode(cname = "git_tree_diff_data")]
+	public struct tree_diff {
+		uint old_attr;
+		uint new_attr;
+		[CCode(cname = "old_oid")]
+		object_id old_id;
+		[CCode(cname = "new_oid")]
+		object_id new_id;
+		TreeStatus status;
+		string path;
 	}
 
 	/**
@@ -3321,6 +3347,13 @@ namespace Git {
 		RW
 	}
 
+	[CCode(cname = "git_status_t", cprefix = "GIT_STATUS_")]
+	public enum TreeStatus {
+		ADDED,
+		DELETED,
+		MODIFIED
+	}
+
 	/**
 	 * Tree traversal modes
 	 */
@@ -3336,6 +3369,8 @@ namespace Git {
 	public delegate int HeadCallback(remote_head head);
 	public delegate int ReferenceCallback(string refname);
 	public delegate Error StatusCallback(string file, Status status);
+	[CCode(cname = "git_tree_diff_cb")]
+	public delegate int TreeDiffCallback(tree_diff td);
 	[CCode(cname = "git_treewalk_cb")]
 	public delegate int TreeWalker(string root, TreeEntry entry);
 }
