@@ -128,11 +128,6 @@ namespace GDBM {
 		}
 
 		/**
-		 * Get the file descriptor used by the database.
-		 */
-		public int fdesc();
-
-		/**
 		 * Retrieve the "first" key in the database.
 		 */
 		public uint8[] first_key() {
@@ -271,6 +266,14 @@ namespace GDBM {
 				int v = value ? 1 : 0;
 				this.setopt(Option.SYNCMODE, &v, (int) sizeof(int));
 			}
+		}
+
+		/**
+		 * The file descriptor used by the database.
+		 */
+		public int descriptor {
+			[CCode(cname = "gdbm_fdesc")]
+			get;
 		}
 	}
 
