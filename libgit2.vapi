@@ -491,6 +491,8 @@ namespace Git {
 	[Compact]
 	public class ConfigFile {
 		public unowned Config cfg;
+		[CCode(cname = "delete")]
+		public DeleteHandler delete_func;
 		[CCode(cname = "foreach")]
 		public ForEachHandler foreach_func;
 		[CCode(cname = "free")]
@@ -501,6 +503,7 @@ namespace Git {
 		public OpenHandler open_func;
 		[CCode(cname = "set")]
 		public SetHandler set_func;
+
 		/**
 		 * Create a configuration file backend for on-disk files
 		 *
@@ -515,6 +518,8 @@ namespace Git {
 		[CCode(cname = "git_config_file__ondisk")]
 		public static Error open(out ConfigFile file, string path);
 
+		[CCode(cname = "git_config_file_delete_cb")]
+		public delegate int DeleteHandler(ConfigFile file, string key);
 		[CCode(cname = "git_config_file_foreach_cb")]
 		public delegate int ForEachHandler(ConfigFile file, ConfigCallback callback);
 		[CCode(cname = "git_config_file_free_cb")]
