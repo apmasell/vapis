@@ -71,6 +71,44 @@ namespace Git {
 		[CCode(cname = "git_libgit2_version")]
 		public void get_version(out int major, out int minor, out int rev);
 	}
+	namespace Windows {
+		/**
+		 * Set the active codepage for Windows syscalls
+		 *
+		 * All syscalls performed by the library will assume this codepage when
+		 * converting paths and strings to use by the Windows kernel.
+		 *
+		 * The default value of UTF-8 will work automatically with most Git
+		 * repositories created on Unix systems.
+		 *
+		 * This settings needs only be changed when working with repositories that
+		 * contain paths in specific, non-UTF codepages.
+		 *
+		 * A full list of all available codepage identifiers may be found on the
+		 * [[http://msdn.microsoft.com/en-us/library/windows/desktop/dd317756(v=vs.85).aspx|MSDN]]
+		 *
+		 *
+		 * @param codepage numeric codepage identifier
+		 */
+		[CCode(cname = "gitwin_set_codepage")]
+		public void set_codepage(uint codepage);
+
+		/**
+		 * Return the active codepage for Windows syscalls
+		 *
+		 * @return numeric codepage identifier
+		 */
+		[CCode(cname = "gitwin_get_codepage")]
+		public uint get_codepage();
+
+		/**
+		 * Set the active Windows codepage to UTF-8
+		 *
+		 * This is the default value.
+		 */
+		[CCode(cname = "gitwin_set_utf8")]
+		public void set_utf8();
+	}
 
 	/**
 	 * A custom backend in an ODB
@@ -1486,7 +1524,6 @@ namespace Git {
 		 */
 		[CCode(cname = "git_remote_disconnect")]
 		public void disconnect();
-
 
 		/**
 		 * Get a list of refs at the remote
