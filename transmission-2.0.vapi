@@ -1,14 +1,18 @@
 [CCode(cheader_filename = "libtransmission/transmission.h", lower_case_cprefix = "tr_", cprefix="TR_")]
 namespace Transmission {
 
+	[CCode(cname = "TR_SHA_DIGEST_LENGTH")]
 	public const int SHA_DIGEST_LENGTH;
-	public const int TR_INET6_ADDRSTRLEN;
+	[CCode(cname = "TR_INET6_ADDRSTRLEN")]
+	public const int INET6_ADDRSTRLEN;
+	[CCode(cname = "TR_RPC_SESSION_ID_HEADER")]
 	public const string RPC_SESSION_ID_HEADER;
 
 	[SimpleType]
-	[CCode (cname = "tr_file_index", has_destroy_function = false, has_copy_function = false)]
-	public struct FileIndex { }
+	[CCode (cname = "tr_file_index")]
+	public struct file_index : uint32 { }
 
+	//TODO unused
 	[CCode(cname = "tr_preallocation_mode", cprefix="TR_PREALLOCATE_")]
 	public enum PreallocationMode {
 		NONE,
@@ -33,7 +37,8 @@ namespace Transmission {
 	 * # If XDG_CONFIG_HOME is set, "${XDG_CONFIG_HOME}/${appname}" is used.
 	 * # ${HOME}/.config/${appname}" is used as a last resort.
 	 */
-	public unowned string getDefaultConfigDir(string appname);
+	[CCode(cname = "tr_getDefaultConfigDir")]
+	public unowned string get_default_config_dir(string appname);
 
 	/**
 	 * Transmisson's default download directory.
@@ -43,7 +48,8 @@ namespace Transmission {
 	 * # On Windows, "${CSIDL_MYDOCUMENTS}/Downloads" is used.
 	 * # Otherwise, getpwuid(getuid())->pw_dir + "/Downloads" is used.
 	 */
-	public unowned string getDefaultDownloadDir();
+	[CCode(cname = "tr_getDefaultDownloadDir")]
+	public unowned string get_default_download_dir();
 
 	[CCode(cprefix = "TR_DEFAULT_")]
 	namespace Defaults {
@@ -120,25 +126,23 @@ namespace Transmission {
 	}
 
 	/**
-	 * Add libtransmission's default settings to the {@link Benc} dictionary.
-	 *
-	 * @param initme pointer to a tr_benc dictionary
+	 * Add libtransmission's default settings to the {@link benc} dictionary.
 	 */
 	[CCode(cname = "tr_sessionGetDefaultSettings")]
-	public void GetDefaultSettings(Benc dictionary);
+	public void get_default_settings(out benc_dict dictionary);
 
 	/**
 	 * Load settings from the configuration directory's settings.json file, using libtransmission's default settings as fallbacks for missing keys.
 	 *
-	 *
-	 * @param dictionary pointer to an uninitialized tr_benc
-	 * @param configDir the configuration directory to find settings.json
-	 * @param appName if configDir is empty, appName is used to find the default dir.
+	 * @param dictionary where to put settings
+	 * @param config_dir the configuration directory to find settings.json
+	 * @param app_name if configDir is empty, appName is used to find the default dir.
 	 * @return success true if the settings were loaded, false otherwise
 	 */
-	public bool sessionLoadSettings(Benc dictionary, string configDir, string appName);
+	[CCode(cname = "tr_sessionLoadSettings")]
+	public bool load_default_settings(out benc_dict dictionary, string config_dir, string app_name);
 
-	[CCode(cheader_filename = "libtransmission/benc.h", cprefix = "TR_FMT_", cname = "tr_fmt_mode")]
+	[CCode(cheader_filename = "libtransmission/transmission.h,libtransmission/bencode.h", cprefix = "TR_FMT_", cname = "tr_fmt_mode")]
 	public enum BencFormat {
 		BENC,
 		JSON,
@@ -148,102 +152,161 @@ namespace Transmission {
 	/**
 	 * Variant data storage
 	 *
-	 * An object that acts like a union for integers, strings, lists, dictionaries, booleans, and floating-point numbers. The structure is named Benc due to the historical reason that it was originally tightly coupled with bencoded data. It currently supports being parsed from, and serialized to, both bencoded notation and json notation.
+	 * An object that acts like a union for integers, strings, lists, dictionaries, booleans, and floating-point numbers. The structure is named benc due to the historical reason that it was originally tightly coupled with bencoded data. It currently supports being parsed from, and serialized to, both bencoded notation and json notation.
 	 *
 	 */
-	[CCode(cheader_filename = "libtransmission/benc.h", cprefix = "tr_benc", free_function = "tr_bencFree")]
-	public class Benc {
-		public static int LoadFile(out Benc benc, BencFormat mode, string filename);
-		public static int Parse(void* buf, void* buffend, out Benc benc, out unowned uint8[] end);
-		public static int Load([CCode(array_lengh_type = "size_t")] uint8[] buf, out Benc benc, out unowned uint8[] end);
+	[CCode(cheader_filename = "libtransmission/transmission.h,libtransmission/bencode.h", cname = "tr_benc", free_function = "tr_bencFree")]
+	public struct benc {
+		[CCode(cname = "tr_bencLoadFile")]
+		public static int load_file(out benc benc, BencFormat mode, string filename);
+		[CCode(cname = "tr_bencParse")]
+		public static int parse(void* buf, void* buffend, out benc benc, out unowned uint8[] end);
+		[CCode(cname = "tr_bencLoad")]
+		public static int load([CCode(array_lengh_type = "size_t")] uint8[] buf, out benc benc, out unowned uint8[] end);
 
-		public void InitStr([CCode(array_lengh_type = "int")] char[] raw);
-		public void InitRaw([CCode(array_lengh_type = "size_t")] uint8[] raw);
-		public void InitInt(int64 num);
-		public int InitDict(size_t reserveCount);
-		public int InitList(size_t reserveCount);
-		public void InitBool(int val);
-		public void InitReal(double val);
+		[CCode(cname = "tr_bencInitStr")]
+		public benc.str([CCode(array_lengh_type = "int")] char[] raw);
+		[CCode(cname = "tr_bencInitRaw")]
+		public benc.raw([CCode(array_lengh_type = "size_t")] uint8[] raw);
+		[CCode(cname = "tr_bencInitInt")]
+		public benc.int(int64 num);
+		[CCode(cname = "tr_bencInitBool")]
+		public benc.bool(int val);
+		[CCode(cname = "tr_bencInitReal")]
+		public benc.real(double val);
 
-		public int bencToFile(BencFormat mode, string filename);
+		[CCode(cname = "tr_bencToFile")]
+		public int to_file(BencFormat mode, string filename);
 
-		[CCode(array_length_pos = 1.9)]
-		public uint8[] ToStr(BencFormat mode);
-
-		public int ListReserve(size_t reserveCount);
-		public unowned Benc ListAdd();
-		public unowned Benc ListAddBool(bool val);
-		public unowned Benc ListAddInt(int64 val);
-		public unowned Benc ListAddReal(double val);
-		public unowned Benc ListAddStr(string val);
-		public unowned Benc ListAddRaw([CCode(array_lengh_type = "size_t")]uint8[] val);
-		public unowned Benc ListAddList(size_t reserveCount);
-		public unowned Benc ListAddDict(size_t reserveCount);
-		public size_t ListSize();
-		public unowned Benc ListChild(size_t n);
-		public int ListRemove(size_t n);
-
-		public int DictReserve(size_t reserveCount);
-		public int DictRemove(string key);
-		public unowned Benc DictAdd(string key);
-		public unowned Benc DictAddReal(string key, double val);
-		public unowned Benc DictAddInt(string key, int64 val);
-		public unowned Benc DictAddBool(string key, bool val);
-		public unowned Benc DictAddStr(string key, string val);
-		public unowned Benc DictAddList(string key, size_t reserve);
-		public unowned Benc DictAddDict(string key, size_t reserve);
-		public unowned Benc DictAddRaw(string key, [CCode(array_lengh_type = "size_t")]uint8[] raw);
-		public bool DictChild(size_t i, out string key, out Benc val);
-		public unowned Benc DictFind(string key);
-		public bool DictFindList(string key, out unowned Benc setme);
-		public bool DictFindDict(string key, out unowned Benc setme);
-		public bool DictFindInt(string key, out int64 setme);
-		public bool DictFindReal(string key, out double setme);
-		public bool DictFindBool(string key, out bool setme );
-		public bool DictFindStr(string key, out unowned string setme );
-		public bool DictFindRaw(string key, [CCode(array_lengh_type = "size_t")]out uint8 raw);
+		[CCode(cname = "tr_bencToStr", array_length_pos = 1.9)]
+		public uint8[] to_string(BencFormat mode);
 
 		/**
 		 * Get an int64 from a variant object
 		 *
 		 * @return true if successful, or false if the variant could not be represented as an int64
 		 */
-		public bool GetInt(int64 val);
+		[CCode(cname = "tr_bencGetInt")]
+		public bool get_int(out int64 val);
 
 		/**
 		 * Get an string from a variant object
 		 *
 		 * @return true if successful, or false if the variant could not be represented as a string
 		*/
-		public bool GetStr(out string val);
+		[CCode(cname = "tr_bencGetStr")]
+		public bool get_str(out string val);
 
 		/**
 		 * Get a raw byte array from a variant object
 		 *
 		 * @return true if successful, or false if the variant could not be represented as a raw byte array
 		*/
-		public bool GetRaw([CCode(array_lengh_type = "size_t")]out uint8[] raw);
+		[CCode(cname = "tr_bencGetRaw")]
+		public bool get_raw([CCode(array_lengh_type = "size_t")]out uint8[] raw);
 
 		/**
 		 * Get a boolean from a variant object
 		 *
 		 * @return true if successful, or false if the variant could not be represented as a boolean
 		*/
-		public bool GetBool(bool val);
+		[CCode(cname = "tr_bencGetBool")]
+		public bool get_bool(out bool val);
 
 		/**
 		 * Get a floating-point number from a variant object
 		 *
 		 * @return true if successful, or false if the variant could not be represented as a floating-point number
 		*/
-		public bool GetReal(double val);
+		[CCode(cname = "tr_bencGetReal")]
+		public bool GetReal(out double val);
 
-		public bool IsInt();
-		public bool IsDict();
-		public bool IsList();
-		public bool IsString();
-		public bool IsBool();
-		public bool IsReal();
+		[CCode(cname = "tr_bencIsInt")]
+		public bool is_int();
+		[CCode(cname = "tr_bencIsDict")]
+		public bool is_dict();
+		[CCode(cname = "tr_bencIsList")]
+		public bool is_list();
+		[CCode(cname = "tr_bencIsString")]
+		public bool is_string();
+		[CCode(cname = "tr_bencIsBool")]
+		public bool is_bool();
+		[CCode(cname = "tr_bencIsReal")]
+		public bool is_real();
+	}
+	[CCode(cheader_filename = "libtransmission/transmission.h,libtransmission/bencode.h", cname = "tr_benc", free_function = "tr_bencFree")]
+	public struct benc_list : benc {
+		[CCode(cname = "tr_bencInitList")]
+		public benc_list(size_t reserveCount);
+		[CCode(cname = "tr_bencListReserve")]
+		public int set_reserve(size_t reserve_count);
+		[CCode(cname = "tr_bencListAdd")]
+		public unowned benc? add_list();
+		[CCode(cname = "tr_bencListAddBool")]
+		public unowned benc list_add_bool(bool val);
+		[CCode(cname = "tr_bencListAddInt")]
+		public unowned benc list_add_int(int64 val);
+		[CCode(cname = "tr_bencListAddReal")]
+		public unowned benc ListAddReal(double val);
+		[CCode(cname = "tr_bencListAddStr")]
+		public unowned benc ListAddStr(string val);
+		[CCode(cname = "tr_bencListAddRaw")]
+		public unowned benc ListAddRaw([CCode(array_lengh_type = "size_t")]uint8[] val);
+		[CCode(cname = "tr_bencListAddList")]
+		public unowned benc ListAddList(size_t reserveCount);
+		[CCode(cname = "tr_bencListAddDict")]
+		public unowned benc ListAddDict(size_t reserveCount);
+		public size_t count {
+			[CCode(cname = "tr_bencListSize")]
+			get;
+		}
+		[CCode(cname = "tr_bencListChild")]
+		public unowned benc? get(size_t n);
+		[CCode(cname = "tr_bencListRemove")]
+		public bool remove(size_t n);
+	}
+	[CCode(cheader_filename = "libtransmission/transmission.h,libtransmission/bencode.h", cname = "tr_benc", free_function = "tr_bencFree")]
+	public struct benc_dict : benc {
+		[CCode(cname = "tr_bencInitDict")]
+		public benc_dict(size_t reserve_count);
+		[CCode(cname = "tr_bencDictReserve")]
+		public bool set_reserve(size_t reserve_count);
+		[CCode(cname = "tr_bencDictRemove")]
+		public bool remove(string key);
+		[CCode(cname = "tr_bencDictAdd")]
+		public unowned benc? add(string key);
+		[CCode(cname = "tr_bencDictAddReal")]
+		public unowned benc? add_real(string key, double val);
+		[CCode(cname = "tr_bencDictAddInt")]
+		public unowned benc? add_int(string key, int64 val);
+		[CCode(cname = "tr_bencDictAddBool")]
+		public unowned benc? add_bool(string key, bool val);
+		[CCode(cname = "tr_bencDictAddStr")]
+		public unowned benc? add_str(string key, string val);
+		[CCode(cname = "tr_bencDictAddList")]
+		public unowned benc? add_list(string key, size_t reserve);
+		[CCode(cname = "tr_bencDictAddDict")]
+		public unowned benc? add_dict(string key, size_t reserve);
+		[CCode(cname = "tr_bencDictAddRaw")]
+		public unowned benc? add_raw(string key, [CCode(array_lengh_type = "size_t")]uint8[] raw);
+		[CCode(cname = "tr_bencDictChild")]
+		public bool get_child(size_t i, out string key, out benc? val);
+		[CCode(cname = "tr_bencDictFind")]
+		public unowned benc? get(string key);
+		[CCode(cname = "tr_bencDictFindList")]
+		public bool find_list(string key, out unowned benc? val);
+		[CCode(cname = "tr_bencDictFindDict")]
+		public bool find_doc(string key, out unowned benc? val);
+		[CCode(cname = "tr_bencDictFindInt")]
+		public bool find_int(string key, out int64 val);
+		[CCode(cname = "tr_bencDictFindReal")]
+		public bool find_real(string key, out double val);
+		[CCode(cname = "tr_bencDictFindBool")]
+		public bool find_bool(string key, out bool val);
+		[CCode(cname = "tr_bencDictFindStr")]
+		public bool find_str(string key, out unowned string? val);
+		[CCode(cname = "tr_bencDictFindRaw")]
+		public bool find_raw(string key, [CCode(array_lengh_type = "size_t")]out uint8[]? raw);
 	}
 
 	[CCode(cname = "tr_session", cprefix = "tr_session", free_function = "tr_sessionClose")]
@@ -252,317 +315,470 @@ namespace Transmission {
 		/**
 		 * Add the session's current configuration settings to the benc dictionary.
 		 */
-		public void GetSettings(Benc dictionary);
+		[CCode(cname = "tr_sessionGetSettings")]
+		public void get_settings(benc_dict dictionary);
 
 		/**
 		* Add the session's configuration settings to the benc dictionary and save it to the configuration directory's settings.json file.
 		*/
-		public void SaveSettings(string configDir, Benc dictonary);
+		[CCode(cname = "tr_sessionSaveSettings")]
+		public void save_settings(string config_dir, benc_dict dictonary);
 
 		/**
 		 * Initialize a libtransmission session.
 		 *
 		 * @param tag "gtk", "macosx", "daemon", etc... this is only for pre-1.30 resume files
-		 * @param configDir where Transmission will look for resume files, blocklists, etc.
-		 * @param messageQueueingEnabled if false, messages will be dumped to stderr
+		 * @param config_dir where Transmission will look for resume files, blocklists, etc.
+		 * @param message_queueing if false, messages will be dumped to stderr
 		 * @param settings libtransmission settings
 		 */
 		[CCode(cname = "tr_sessionInit")]
-		public Session(string tag, string configDir, bool messageQueueingEnabled, Benc settings);
+		public Session(string tag, string config_dir, bool message_queueing, benc settings);
 
 		/**
-		 * Update a session's settings from a benc dictionary like to the one used in Init().
+		 * Update a session's settings from a benc dictionary.
 		 */
-		public void Set(Benc settings);
+		[CCode(cname = "tr_sessionSet")]
+		public void update_settings(benc_dict settings);
 
 		/**
 		 * Rescan the blocklists directory and reload whatever blocklist files are found there
 		 */
-		public void ReloadBlocklists();
+		[CCode(cname = "tr_sessionReloadBlocklists")]
+		public void reload_block_lists();
 
 		/**
-		 * Return the session's configuration directory.
+		 * The session's configuration directory.
 		 *
 		 * This is where transmission stores its .torrent files, .resume files, blocklists, etc. It's set during initialisation and is immutable during the session.
 		 */
-		public unowned string GetConfigDir();
+		public string config_dir {
+			[CCode(cname = "tr_sessionGetConfigDir")]
+			get;
+		}
 
 		/**
-		 * Set the per-session default download folder for new torrents.
-		 */
-		public void SetDownloadDir(string downloadDir);
-
-		/**
-		 * Get the default download folder for new torrents.
+		 * The per-session default download folder for new torrents.
 		 *
-		 * This is set {@link Session.SetDownloadDir}, and can be overridden on a per-torrent basis by {@link TorrentConstructor.SetDownloadDir}.
+		 * This can be overridden on a per-torrent basis by {@link TorrentConstructor.set_download_dir}.
 		 */
-		public unowned string GetDownloadDir();
+		public string download_dir {
+			[CCode(cname = "tr_sessionSetDownloadDir")]
+			set;
+			[CCode(cname = "tr_sessionGetDownloadDir")]
+			get;
+		}
 
 		/**
-		 * Get available disk space (in bytes) for the default download folder.
-		 * @return zero or positive integer on success, -1 in case of error.
-		 */
-		public int64 GetDownloadDirFreeSpace();
-
-		/**
-		* Set the per-session incomplete download folder.
+		* The per-session incomplete download folder.
 		*
 		* When you add a new torrent and the session's incomplete directory is enabled, the new torrent will start downloading into that directory, and then be moved to downloadDir when the torrent is finished downloading.
 		*
 		* Torrents aren't moved as a result of changing the session's incomplete dir -- it's applied to new torrents, not existing ones.
 		*
-		* {@link Torrent.SetLocation} overrules the incomplete dir: when a user specifies a new location, that becomes the torrent's new downloadDir and the torrent is moved there immediately regardless of whether or not it's complete.
+		* {@link Torrent.set_location} overrules the incomplete dir: when a user specifies a new location, that becomes the torrent's new downloadDir and the torrent is moved there immediately regardless of whether or not it's complete.
 		*/
-		public void SetIncompleteDir(string dir);
+		public string incomplete_dir {
+			[CCode(cname = "tr_sessionSetIncompleteDir")]
+			set;
+			[CCode(cname = "tr_sessionGetIncompleteDir")]
+			get;
+		}
 
 		/**
-		 * Get the per-session incomplete download folder
+		 * Use of the incomplete download folder
 		 */
-		public unowned string GetIncompleteDir();
+		public bool use_incomplete_dir {
+			[CCode(cname = "tr_seesionSetIncompleteDirEnabled")]
+			set;
+			[CCode(cname = "tr_sessionIsIncompleteDirEnabled")]
+			get;
+		}
 
 		/**
-		 * Enable or disable use of the incomplete download folder
-		 */
-		public void SetIncompleteDirEnabled(bool useincomplete);
-
-		/**
-		 * Get whether or not the incomplete download folder is enabled
-		 */
-		public bool IsIncompleteDirEnabled();
-
-		/**
+		 * If files will end in ".part" until they're complete
+		 *
 		 * When enabled, newly-created files will have ".part" appended to their filename until the file is fully downloaded
 		 *
 		 * This is not retroactive -- toggling this will not rename existing files. It only applies to new files created by Transmission after this API call.
 		 */
-		public void SetIncompleteFileNamingEnabled(bool incompletefilenames);
+		public bool incomplete_file_naming {
+			[CCode(cname = "tr_sessionSetIncompleteFileNamingEnabled")]
+			set;
+			[CCode(cname = "tr_sessionIsIncompleteFileNamingEnabled")]
+			get;
+		}
 
 		/**
-		 * Return true if files will end in ".part" until they're complete
-		 */
-		public bool IsIncompleteFileNamingEnabled();
-
-		/**
-		 * Set whether or not RPC calls are allowed in this session.
+		 * Whether or not RPC calls are allowed in this session.
 		 *
 		 * If true, libtransmission will open a server socket to listen for incoming http RPC requests as described in docs/rpc-spec.txt.
 		 */
-		public void SetRPCEnabled(bool isEnabled);
+		public bool rpc_enabled {
+			[CCode(cname = "tr_sessionSetRPCEnabled")]
+			set;
+			[CCode(cname = "tr_sessionIsRPCEnabled")]
+			get;
+		}
 
 		/**
-		 * Get whether or not RPC calls are allowed in this session.
+		 * Listen port for RPC requests on.
 		 */
-		public bool IsRPCEnabled();
+		public uint32 rpc_port {
+			[CCode(cname = "tr_sessionGetRPCPort")]
+			get;
+			[CCode(cname = "tr_sessionSetRPCPort")]
+			set;
+		}
 
 		/**
-		 * Specify which port to listen for RPC requests on.
-		 */
-		public void SetRPCPort(uint32 port);
-
-		/**
-		 * Get which port to listen for RPC requests on.
-		 */
-		public uint32 GetRPCPort();
-
-		/**
-		 * Specify which base URL to use.
+		 * Which base URL to use.
 		 *
 		 * The RPC API is accessible under $url/rpc, the web interface under $url/web.
 		 */
-		public void SetRPCUrl(string url);
+		public string rpc_url {
+			[CCode(cname = "tr_sessionGetRPCUrl")]
+			get;
+			[CCode(cname = "tr_sessionSetRPCUrl")]
+			set;
+		}
 
 		/**
-		 * Get the base URL.
-		 */
-		public unowned string GetRPCUrl();
-
-		/**
-		 * Specify a whitelist for remote RPC access
+		 * A whitelist for remote RPC access
 		 *
 		 * The whitelist is a comma-separated list of dotted-quad IP addresses to be allowed. Wildmat notation is supported, meaning that '?' is interpreted as a single-character wildcard and '*' is interprted as a multi-character wildcard.
 		 */
-		public void SetRPCWhitelist(string whitelist);
+		public string rpc_whitelist {
+			[CCode(cname = "tr_sessionGetRPCWhitelist")]
+			get;
+			[CCode(cname = "tr_sessionSetRPCWhitelist")]
+			set;
+		}
 
-		/**
-		 * Get the Access Control List for allowing/denying RPC requests.
-		 * @return a comma-separated string of whitelist domains.
-		 */
-		public unowned string GetRPCWhitelist();
+		public bool rpc_whitelist_enabled {
+			[CCode(cname = "tr_sessionSetRPCWhitelistEnabled")]
+			set;
+			[CCode(cname = "tr_sessionGetRPCWhitelistEnabled")]
+			get;
+		}
 
-		public void SetRPCWhitelistEnabled(bool isEnabled);
+		public string rpc_password {
+			[CCode(cname = "tr_sessionSetRPCPassword")]
+			set;
+			[CCode(cname = "tr_sessionGetRPCPassword")]
+			get;
+		}
+		public string rpc_username {
+			[CCode(cname = "tr_sessionSetRPCUsername")]
+			set;
+			[CCode(cname = "tr_sessionGetRPCUsername")]
+			get;
+		}
 
-		public bool GetRPCWhitelistEnabled();
+		public bool rpc_password_enabled {
+			[CCode(cname = "tr_sessionSetRPCPasswordEnabled")]
+			set;
+			[CCode(cname = "tr_sessionIsRPCPasswordEnabled")]
+			get;
+		}
 
-		public void SetRPCPassword(string password);
-
-		public void SetRPCUsername(string username);
-
-		/**
-		 * Get the password used to restrict RPC requests.
-		 */
-		public unowned string GetRPCPassword();
-
-		public unowned string GetRPCUsername();
-
-		public void SetRPCPasswordEnabled(bool isEnabled);
-
-		public bool IsRPCPasswordEnabled();
-
-		public string GetRPCBindAddress();
+		public string rpc_bind_address {
+			[CCode(cname = "tr_sessionGetRPCBindAddress")]
+			get;
+		}
 
 		/**
 		* Register to be notified whenever something is changed via RPC, such as a torrent being added, removed, started, stopped, etc.
 		*
 		* The function is invoked FROM LIBTRANSMISSION'S THREAD! This means the function must be fast (to avoid blocking peers), shouldn't call libtransmission functions (to avoid deadlock), and shouldn't modify client-level memory without using a mutex!
 		*/
-		public void SetRPCCallback(Callback func);
+		public Callback rpc_callback {
+			[CCode(cname = "tr_sessionSetRPCCallback")]
+			set;
+			[CCode(cname = "tr_sessionGetRPCCallback")]
+			get;
+		}
 
 		/**
 		 * Get bandwidth use statistics for the current session
 		 */
-		public void GetStats(out Stats stats);
+		[CCode(cname = "tr_sessionGetStats")]
+		public void get_stats(out Stats stats);
 
 		/**
 		 * Get cumulative bandwidth statistics for current and past sessions
 		 */
-		public void GetCumulativeStats(out Stats stats);
+		[CCode(cname = "tr_sessionGetCumulativeStats")]
+		public void get_cumulative_stats(out Stats stats);
 
-		public void ClearStats();
+		[CCode(cname = "tr_sessionClearStats")]
+		public void clear_stats();
 
 		/**
 		 * Set whether or not torrents are allowed to do peer exchanges.
 		 *
 		 * PEX is always disabled in private torrents regardless of this. In public torrents, PEX is enabled by default.
 		 */
-		public void SetPexEnabled(bool isEnabled);
-		public bool IsPexEnabled();
+		public bool pex_enabled {
+			[CCode(cname = "tr_sessionSetPexEnabled")]
+			set;
+			[CCode(cname = "tr_sessionIsPexEnabled")]
+			get;
+		}
 
-		public bool IsDHTEnabled();
-		public void SetDHTEnabled(bool isEnabled);
+		public bool dht_enabled {
+			[CCode(cname = "tr_sessionSetDHTEnabled")]
+			set;
+			[CCode(cname = "tr_sessionIsDHTEnabled")]
+			get;
+		}
 
-		public bool IsUTPEnabled();
-		public void SetUTPEnabled(bool isEnabled);
+		public bool utp_enabled {
+			[CCode(cname = "tr_sessionSetUTPEnabled")]
+			set;
+			[CCode(cname = "tr_sessionIsUTPEnabled")]
+			get;
+		}
 
-		public bool IsLPDEnabled();
-		public void SetLPDEnabled(bool enabled);
+		public bool lpd_enabled {
+			[CCode(cname = "tr_sessionSetLPDEnabled")]
+			set;
+[CCode(cname = "tr_sessionIsLPDEnabled")]
+			get;
+		}
 
-		public void SetCacheLimit_MB(int mb);
-		public int GetCacheLimit_MB();
+		public int cache_limit {
+			[CCode(cname = "tr_sessionSetCacheLimit_MB")]
+			set;
+			[CCode(cname = "tr_sessionGetCacheLimit_MB")]
+			get;
+		}
 
-		public EncryptionMode GetEncryption();
-		public void SetEncryption(EncryptionMode mode);
+		public EncryptionMode Encryption {
+			[CCode(cname = "tr_sessionSetEncryption")]
+			set;
+			[CCode(cname = "tr_sessionGetEncryption")]
+			get;
+		}
 
-		public void SetPortForwardingEnabled(bool enabled);
-		public bool IsPortForwardingEnabled();
+		public bool port_forwarding_enabled {
+			[CCode(cname = "tr_sessionSetPortForwardingEnabled")]
+			set;
+			[CCode(cname = "tr_sessionIsPortForwardingEnabled")]
+			get;
+		}
 
-		public void SetPeerPort(uint32 port);
-		public uint32 GetPeerPort();
+		public uint32 peer_port {
+			[CCode(cname = "tr_sessionSetPeerPort")]
+			set;
+			[CCode(cname = "tr_sessionGetPeerPort")]
+			get;
+		}
 
-		public uint32 SetPeerPortRandom();
-		public void SetPeerPortRandomOnStart(bool random);
-		public bool GetPeerPortRandomOnStart();
-		public PortForwarding GetPortForwarding();
+		public bool peer_port_random_on_start {
+			[CCode(cname = "tr_sessionSetPeerPortRandomOnStart")]
+			set;
+			[CCode(cname = "tr_sessionGetPeerPortRandomOnStart")]
+			get;
+		}
 
-		public void SetSpeedLimit_KBps(Direction direction, int kbps);
-		public int GetSpeedLimit_KBps(Direction direction);
+		public PortForwarding port_forwarding {
+			[CCode(cname = "tr_sessionGetPortForwarding")]
+			get;
+		}
 
-		public void LimitSpeed(Direction direction, bool limited);
-		public bool IsSpeedLimited(Direction direction);
+		[CCode(cname = "tr_sessionSetSpeedLimit_KBps")]
+		public void set_speed_limit(Direction direction, int kbps);
+		[CCode(cname = "tr_sessionGetSpeedLimit_KBps")]
+		public int get_speed_limit(Direction direction);
 
-		public void SetAltSpeed_KBps(Direction direction, int bps);
-		public int GetAltSpeed_KBps(Direction direction);
+		[CCode(cname = "tr_sessionLimitSpeed")]
+		public void set_speed_limited(Direction direction, bool limited);
+		[CCode(cname = "tr_sessionIsSpeedLimited")]
+		public bool is_speed_limited(Direction direction);
 
-		public void UseAltSpeed(bool enabled);
-		public bool UsesAltSpeed();
+		[CCode(cname = "tr_sessionSetAltSpeed_KBps")]
+		public void set_alt_speed(Direction direction, int bps);
+		[CCode(cname = "tr_sessionGetAltSpeed_KBps")]
+		public int get_alt_speed(Direction direction);
 
-		public void UseAltSpeedTime(bool enabled);
-		public bool UsesAltSpeedTime();
+		public bool use_alt_speed {
+			[CCode(cname = "tr_sessionUseAltSpeed")]
+			set;
+			[CCode(cname = "tr_sessionUsesAltSpeed")]
+			get;
+		}
 
-		public void SetAltSpeedBegin(int minsSinceMidnight);
-		public int GetAltSpeedBegin();
+		public bool use_alt_time {
+			[CCode(cname = "tr_sessionUseAltSpeedTime")]
+			set;
+			[CCode(cname = "tr_sessionUsesAltSpeedTime")]
+			get;
+		}
 
-		public void SetAltSpeedEnd(int minsSinceMidnight);
-		public int GetAltSpeedEnd();
+		public int alt_speed_begin {
+			[CCode(cname = "tr_sessionSetAltSpeedBegin")]
+			set;
+			[CCode(cname = "tr_sessionGetAltSpeedBegin")]
+			get;
+		}
 
-		public void SetAltSpeedDay(ScheduleDay day );
-		public ScheduleDay GetAltSpeedDay ();
+		public int alt_speed_end {
+			[CCode(cname = "tr_sessionSetAltSpeedEnd")]
+			set;
+			[CCode(cname = "tr_sessionGetAltSpeedEnd")]
+			get;
+		}
 
-		public void ClearAltSpeedFunc ();
-		public void SetAltSpeedFunc (AltSpeedFunc func);
+		public ScheduleDay alt_speed_day {
+			[CCode(cname = "tr_sessionSetAltSpeedDay")]
+			set;
+			[CCode(cname = "tr_sessionGetAltSpeedDay")]
+			get;
+		}
 
-		public bool GetActiveSpeedLimit_KBps(Direction dir, out double limit );
+		[CCode(cname = "tr_sessionClearAltSpeedFunc")]
+		public void clear_alt_speed_func();
+		[CCode(cname = "tr_sessionSetAltSpeedFunc")]
+		public void set_alt_speed_func(AltSpeedFunc func);
 
-		public double GetRawSpeed_KBps(Direction direction);
+		[CCode(cname = "tr_sessionGetActiveSpeedLimit_KBps")]
+		public bool get_active_speed_limit(Direction dir, out double limit);
 
-		public void SetRatioLimited(bool isLimited);
-		public bool IsRatioLimited();
+		[CCode(cname = "tr_sessionGetRawSpeed_KBps")]
+		public double get_raw_speed(Direction direction);
 
-		public void SetRatioLimit(double desiredRatio);
-		public double GetRatioLimit();
+		public bool ratio_limited {
+			[CCode(cname = "tr_sessionSetRatioLimited")]
+			set;
+			[CCode(cname = "tr_sessionIsRatioLimited")]
+			get;
+		}
 
-		public void SetIdleLimited(bool isLimited);
-		public bool IsIdleLimited();
+		public double ratio_limit {
+			[CCode(cname = "tr_sessionSetRatioLimit")]
+			set;
+			[CCode(cname = "tr_sessionGetRatioLimit")]
+			get;
+		}
 
-		public void SetIdleLimit (uint16 idleMinutes);
-		public uint16 GetIdleLimit ();
+		public bool idle_limited {
+			[CCode(cname = "tr_sessionSetIdleLimited")]
+			set;
+			[CCode(cname = "tr_sessionIsIdleLimited")]
+			get;
+		}
 
-		public void SetPeerLimit(uint16 maxGlobalPeers);
-		public uint16 GetPeerLimit();
+		public uint16 idle_limit {
+			[CCode(cname = "tr_sessionSetIdleLimit")]
+			set;
+			[CCode(cname = "tr_sessionGetIdleLimit")]
+			get;
+		}
 
-		public void SetPeerLimitPerTorrent(uint16 maxPeers );
-		public uint16 GetPeerLimitPerTorrent();
+		public uint16 peer_limit {
+			[CCode(cname = "tr_sessionSetPeerLimit")]
+			set;
+			[CCode(cname = "tr_sessionGetPeerLimit")]
+			get;
+		}
 
-		public void SetPaused (bool isPaused);
-		public bool GetPaused ();
+		public uint16 peer_limit_per_torrent {
+			[CCode(cname = "tr_sessionSetPeerLimitPerTorrent")]
+			set;
+			[CCode(cname = "tr_sessionGetPeerLimitPerTorrent")]
+			get;
+		}
 
-		public void SetDeleteSource(bool deleteSource);
-		public bool GetDeleteSource();
+		public bool paused {
+			[CCode(cname = "tr_sessionSetPaused")]
+			set;
+			[CCode(cname = "tr_sessionGetPaused")]
+			get;
+		}
+
+		public bool delete_source {
+			[CCode(cname = "tr_sessionSetDeleteSource")]
+			set;
+			[CCode(cname = "tr_sessionGetDeleteSource")]
+			get;
+		}
 
 		/**
 		 * Load all the torrents in the torrent directory.
 		 *
 		 * This can be used at startup to kickstart all the torrents from the previous session.
 		 */
-		[CCode(array_length_pos = 1.9)]
-		public Torrent[] LoadTorrents(TorrentConstructor ctor);
+		[CCode(array_length_pos = 1.9, cname = "tr_sessionLoadTorrents")]
+		public Torrent[] load_torrents(TorrentConstructor ctor);
 
-		public bool IsTorrentDoneScriptEnabled();
+		public bool torrent_done_script_enabled {
+			[CCode(cname = "tr_sessionSetTorrentDoneScriptEnabled")]
+			set;
+			[CCode(cname = "tr_sessionIsTorrentDoneScriptEnabled")]
+			get;
+		}
 
-		public void SetTorrentDoneScriptEnabled(bool isEnabled);
+		public string torrent_done_script {
+			[CCode(cname = "tr_sessionSetTorrentDoneScript")]
+			set;
+			[CCode(cname = "tr_sessionGetTorrentDoneScript")]
+			get;
+		}
+		[CCode(cname = "tr_torrentFindFromId")]
+		public unowned Torrent get (int id);
+		[CCode(cname = "tr_torrentFindFromHash")]
+		public unowned Torrent get_by_hash ([CCode(array_length = false)] uint8[] hash);
+		[CCode(cname = "tr_torrentFindFromMagnetLink")]
+		public unowned Torrent get_by_magnet(string link);
 
-		public unowned string tr_sessionGetTorrentDoneScript();
+		public BlockList blocklist {
+			[CCode(cname = "")]
+			get;
+		}
+	}
 
-		public void SetTorrentDoneScript(string scriptFilename );
+	[CCode(cname = "tr_session")]
+	[Compact]
+	public class BlockList {
+		/**
+		 * The file in the $config/blocklists/ directory that's used by {@link set_content} and "blocklist-update"
+		 */
+		public const string DEFAULT_FILENAME;
+
 
 		/**
 		 * Specify a range of IPs for Transmission to block.
 		 *
 		 * @param filename The uncompressed ASCII file, or null to clear the blocklist. libtransmission does not keep a handle to `filename' after this call returns, so the caller is free to keep or delete `filename' as it wishes. libtransmission makes its own copy of the file massaged into a binary format easier to search.
+		 * @return the number of rules
 		 */
 		[CCode(cname = "tr_blocklistSetContent")]
-		public int SetContent(string? filename);
-		[CCode(cname = "tr_blocklistGetRuleCount")]
-		public int GetRuleCount();
-		[CCode(cname = "tr_blocklistExists")]
-		public bool Exists();
-		[CCode(cname = "tr_blocklistIsEnabled")]
-		public bool IsEnabled();
+		public int set_content(string? filename);
+		public int count {
+			[CCode(cname = "tr_blocklistGetRuleCount")]
+			get;
+		}
+		public bool exists {
+			[CCode(cname = "tr_blocklistExists")]
+			get;
+		}
 		[CCode(cname = "tr_blocklistSetEnabled")]
-		public void SetEnabled(bool isEnabled);
+		public bool enabled {
+			[CCode(cname = "tr_blocklistSetEnabled")]
+			set;
+			[CCode(cname = "tr_blocklistIsEnabled")]
+			get;
+		}
 		/**
 		 * The blocklist that gets updated when an RPC client invokes the "blocklist-update" method
 		 */
-		[CCode(cname = "tr_blocklistSetURL")]
-		public void SetURL(string url);
-		[CCode(cname = "tr_blocklistGetURL")]
-		public unowned string GetURL();
-		[CCode(cname = "tr_torrentFindFromId")]
-		public unowned Torrent GetTorrentById (int id);
-		[CCode(cname = "tr_torrentFindFromHash")]
-		public unowned Torrent GetTorrentByHash ([CCode(array_length = false)] uint8[] hash);
-		[CCode(cname = "tr_torrentFindFromMagnetLink")]
-		public unowned Torrent GetTorrentByMagnetLink(string link);
+		public string url {
+			[CCode(cname = "tr_blocklistSetURL")]
+			set;
+			[CCode(cname = "tr_blocklistGetURL")]
+			get;
+		}
 	}
 
 	[CCode(cname = "tr_altSpeedFunc")]
@@ -642,10 +858,14 @@ namespace Transmission {
 	public enum MessageLevel {
 		ERR,
 		INF,
-		DBG
+		DBG;
+		[CCode(cname = "tr_setMessageLevel")]
+		public void activate();
+		[CCode(cname = "getMessageLevel", cheader_filename = "libtransmission/utils.h")]
+		public static MessageLevel get_current();
+		[CCode(cname = "msgLoggingIsActive", cheader_filename = "libtransmission/utils.h")]
+		public bool is_logging_active();
 	}
-
-	public void setMessageLevel(MessageLevel level);
 
 	[CCode(cname = "tr_msg_list", free_function = "freeMessageList")]
 	[Compact]
@@ -662,7 +882,7 @@ namespace Transmission {
 		/**
 		 * The torrent associated with this message, or a module name such as "Port Forwarding" for non-torrent messages, or null.
 		 */
-		public string name;
+		public string? name;
 		/**
 		 * The message
 		 */
@@ -674,16 +894,13 @@ namespace Transmission {
 		public MessageList next;
 	}
 
-	public void setMessageQueuing(bool isEnabled);
-	public bool getMessageQueuing();
+	[CCode(cname = "tr_setMessageQueuing")]
+	public void set_message_queuing(bool is_enabled);
+	[CCode(cname = "tr_getMessageQueuing")]
+	public bool get_message_queuing();
 
-	public MessageList getQueuedMessages();
-
-	/**
-	 * The file in the $config/blocklists/ directory that's used by {@link Session.SetContent} and "blocklist-update"
-	 */
-	public const string DEFAULT_BLOCKLIST_FILENAME;
-
+	[CCode(cname = "tr_getQueuedMessages")]
+	public MessageList get_queued_messages();
 
 	[CCode(cname = "tr_ctorMode", cprefix = "TR_")]
 	public enum ConstructionMode {
@@ -703,54 +920,68 @@ namespace Transmission {
 	 * Instantiating a {@link Torrent} had gotten more complicated as features were added. At one point there were four functions to check metainfo and five to create a {@link Torrent} object.
 	 *
 	 * To remedy this, a Torrent Constructor has been introduced:
-	 * * Simplifies the API to two functions: {@link TorrentConstructor.Parse} and {@link Torrent.Torrent}
+	 * * Simplifies the API to two functions: {@link TorrentConstructor.parse} and {@link TorrentConstructor.instantiate}
 	 * * You can set the fields you want; the system sets defaults for the rest.
 	 * * You can specify whether or not your fields should supercede resume's.
-	 * * We can add new features to the torrent constructor without breaking {@link Torrent.Torrent}'s API.
+	 * * We can add new features to the torrent constructor without breaking {@link TorrentConstructor.instantiate}'s API.
 	 *
-	 * You must call one of the {@link TorrentConstructor.SetMetainfo} functions before creating a torrent with a torrent constructor. The other functions are optional.
+	 * You must call one of the {@link TorrentConstructor.set_metainfo} functions before creating a torrent with a torrent constructor. The other functions are optional.
 	 *
-	 * You can reuse a single tr_ctor to create a batch of torrents -- just call one of the SetMetainfo() functions between each {@link Torrent.Torrent} call.
+	 * You can reuse a single tr_ctor to create a batch of torrents -- just call one of the SetMetainfo() functions between each {@link TorrentConstructor.instantiate} call.
 	 */
 	[CCode(cname = "tr_ctor", cprefix = "tr_ctor", free_function = "tr_ctorFree")]
 	[Compact]
 	public class TorrentConstructor {
 		/**
-		 * Set the torrent's bandwidth priority.
+		 * The torrent's bandwidth priority.
 		 */
-		public void SetBandwidthPriority(Priority priority);
-
-		/**
-		* Get the torrent's bandwidth priority.
-		*/
-		public Priority GetBandwidthPriority();
+		public Priority bandwidth_priority {
+			[CCode(cname = "tr_ctorSetBandwidthPriority")]
+			set;
+			[CCode(cname = "tr_ctorGetBandwidthPriority")]
+			get;
+		}
 
 		/**
 		 * Create a torrent constructor object used to instantiate a {@link Torrent}
-		 * @param session This is required if you're going to call {@link Torrent.Torrent}, but you can use null for {@link TorrentConstructor.Parse}.
+		 * @param session This is required if you're going to call {@link TorrentConstructor.instantiate}, but you can use null for {@link TorrentConstructor.parse}.
 		 */
 		[CCode(cname = "tr_ctorNew")]
 		public TorrentConstructor(Session? session);
 
 		/**
-		 * Set whether or not to delete the source .torrent file when the torrent is added. (Default: False)
+		 * Instantiate a single torrent.
 		 */
-		public void SetDeleteSource(bool doDelete);
+		[CCode(cname = "tr_torrentNew")]
+		public Torrent? instantiate(out ParseResult error);
+
+		/**
+		 * Whether or not to delete the source .torrent file when the torrent is added. (Default: False)
+		 */
+		public bool delete_source {
+			[CCode(cname = "tr_ctorSetDeleteSource")]
+			set;
+			[CCode(cname = "tr_ctorGetDeleteSource")]
+			get;
+		}
 
 		/**
 		 * Set the constructor's metainfo from a magnet link
 		 */
-		public int SetMetainfoFromMagnetLink(string magnet);
+		[CCode(cname = "tr_ctorSetMetainfoFromMagnetLink")]
+		public int set_metainfo_from_magnet_link(string magnet);
 
 		/**
 		 * Set the constructor's metainfo from a raw benc already in memory
 		 */
-		public int SetMetainfo([CCode(array_length_type = "size_t")] uint8[] metainfo);
+		[CCode(cname = "tr_ctorSetMetainfo")]
+		public int set_metainfo([CCode(array_length_type = "size_t")] uint8[] metainfo);
 
 		/**
 		 * Set the constructor's metainfo from a local .torrent file
 		 */
-		public int SetMetainfoFromFile(string filename);
+		[CCode(cname = "tr_ctorSetMetainfoFromFile")]
+		public int set_metainfo_from_file(string filename);
 
 		/**
 		 * Set the metainfo from an existing file in the torrent directory.
@@ -758,72 +989,90 @@ namespace Transmission {
 		 * This is used by the Mac client on startup to pick and choose which
 		 * torrents to load
 		 */
-		public int SetMetainfoFromHash(string hashString);
+		[CCode(cname = "tr_ctorSetMetainfoFromHash")]
+		public int set_metainfo_from_hash(string hash_string);
 
 		/**
 		 * Set how many peers this torrent can connect to. (Default: 50)
 		 */
-		public void SetPeerLimit(ConstructionMode mode, uint16 limit);
+		[CCode(cname = "tr_ctorSetPeerLimit")]
+		public void set_peer_limit(ConstructionMode mode, uint16 limit);
 
 		/**
 		 * Set the download folder for the torrent being added with this ctor.
 		 */
-		public void SetDownloadDir(ConstructionMode mode, string directory );
+		[CCode(cname = "tr_ctorSetDownloadDir")]
+		public void set_download_dir(ConstructionMode mode, string directory);
 
 		/**
 		 * Set whether or not the torrent begins downloading/seeding when created. (Default: not paused)
 		 */
-		public void SetPaused(ConstructionMode mode, bool isPaused);
+		[CCode(cname = "tr_ctorSetPaused")]
+		public void set_paused(ConstructionMode mode, bool is_paused);
 
 		/**
 		 * Set the priorities for files in a torrent
 		 */
-		public void SetFilePriorities([CCode(array_length_type = "tr_file_index_t")] FileIndex[] files, int8 priority );
+		[CCode(cname = "tr_ctorSetFilePriorities")]
+		public void set_file_priorities([CCode(array_length_type = "tr_file_index_t")] file_index[] files, int8 priority);
 
 		/**
 		 * Set the download flag for files in a torrent
 		 */
-		public void SetFilesWanted([CCode(array_length_type = "tr_file_index_t")] FileIndex[] files, bool wanted);
+		[CCode(cname = "tr_ctorSetFilesWanted")]
+		public void set_files_wanted([CCode(array_length_type = "tr_file_index_t")] file_index[] files, bool wanted);
 
 		/**
 		 * Get this peer constructor's peer limit
 		 */
-		public int GetPeerLimit(ConstructionMode mode, out uint16 count);
+		[CCode(cname = "tr_ctorGetPeerLimit")]
+		public int get_peer_limit(ConstructionMode mode, out uint16 count);
 
 		/**
-		 * Get the "isPaused" flag from this peer constructor
+		 * Get the paused flag from this peer constructor
 		 */
-		public int GetPaused(ConstructionMode mode, out bool isPaused);
+		[CCode(cname = "tr_ctorGetPaused")]
+		public int get_paused(ConstructionMode mode, out bool is_paused);
 
 		/**
 		 * Get the download path from this peer constructor
 		 */
-		public int GetDownloadDir(ConstructionMode mode, out unowned string downloadDir);
+		[CCode(cname = "tr_ctorGetDownloadDir")]
+		public bool get_download_dir(ConstructionMode mode, out unowned string? download_dir);
 
 		/**
 		 * Get the incomplete directory from this peer constructor
 		 */
-		public int GetIncompleteDir(out unowned string incompleteDir);
+		[CCode(cname = "tr_ctorGetIncompleteDir")]
+		public bool get_incomplete_dir(out unowned string? incomplete_dir);
 
 		/**
 		 * Get the metainfo from this peer constructor
 		 */
-		public int GetMetainfo(out unowned Benc benc);
+		[CCode(cname = "tr_ctorGetMetainfo")]
+		public bool get_metainfo(out unowned benc benc);
 
 		/**
 		 * Get the "delete .torrent file" flag from this peer constructor
 		 */
-		public int GetDeleteSource(out bool doDelete);
+		[CCode(cname = "tr_ctorGetDeleteSource")]
+		public bool get_delete_source(out bool do_delete);
 
 		/**
-		 * Get the underlying session from this peer constructor
+		 * The underlying session from this peer constructor
 		 */
-		public unowned Session GetSession();
+		public Session? session {
+			[CCode(cname = "tr_ctorGetSession")]
+			get;
+		}
 
 		/**
-		 * Get the .torrent file that this torrent constructors 's metainfo came from, or null if {@link TorrentConstructor.SetMetainfoFromFile} wasn't used
+		 * Get the .torrent file that this torrent constructors 's metainfo came from, or null if {@link TorrentConstructor.set_metainfo_from_file} wasn't used
 		 */
-		public unowned string GetSourceFile();
+		public string? source_file {
+			[CCode(cname = "tr_ctorGetSourceFile")]
+			get;
+		}
 
 		/**
 		 * Parses the specified metainfo
@@ -835,7 +1084,7 @@ namespace Transmission {
 		 * @param info If parsing is successful and info is non-null, the parsed metainfo is stored there
 		 */
 		[CCode(cname = "tr_torrentParse")]
-		public ParseResult Parse(out Info info);
+		public ParseResult parse(out info info);
 	}
 
 	[CCode(cname = "tr_parse_result", cprefix = "TR_PARSE_")]
@@ -898,13 +1147,12 @@ namespace Transmission {
 	 * Represents a single tracker
 	 */
 	[CCode(cname = "tr_tracker_info", has_destroy_function = false, has_copy_function = false)]
-	[Compact]
-	public struct TrackerInfo {
+	public struct tracker_info {
 		public int tier;
 		public unowned string announce;
 		public unowned string scrape;
 		/**
-		 * Unique identifier used to match to a {@link TrackerStat}
+		 * Unique identifier used to match to a {@link tracker_stat}
 		 */
 		public uint32 id;
 	}
@@ -935,35 +1183,50 @@ namespace Transmission {
 	public delegate void MetadataFunc(Torrent torrent);
 
 	[CCode(cname = "tr_peer_stat", has_destroy_function = false, has_copy_function = false)]
-	public struct PeerStat {
-		public bool isUTP;
-		public bool isEncrypted;
-		public bool isDownloadingFrom;
-		public bool isUploadingTo;
-		public bool isSeed;
-		public bool peerIsChoked;
-		public bool peerIsInterested;
-		public bool clientIsChoked;
-		public bool clientIsInterested;
-		public bool isIncoming;
+	public struct peer_stat {
+		[CCode(cname = "isUTP")]
+		public bool is_utp;
+		[CCode(cname = "isEncrypted")]
+		public bool is_encrypted;
+		[CCode(cname = "isDownloadingFrom")]
+		public bool is_downloading_from;
+		[CCode(cname = "isUploadingTo")]
+		public bool is_uploading_to;
+		[CCode(cname = "isSeed")]
+		public bool is_seed;
+		[CCode(cname = "peerIsChoked")]
+		public bool peer_is_choked;
+		[CCode(cname = "peerIsInterested")]
+		public bool peer_is_interested;
+		[CCode(cname = "clientIsChoked")]
+		public bool client_is_choked;
+		[CCode(cname = "clientIsInterested")]
+		public bool client_is_interested;
+		[CCode(cname = "isIncoming")]
+		public bool is_incoming;
 		public uint8 from;
 		public uint32 port;
 		public unowned char addr[46];
 		public unowned char client[80];
-		public unowned char flagStr[32];
+		[CCode(cname = "flagStr")]
+		public unowned char flag[32];
 		public float progress;
-		public double rateToPeer_KBps;
-		public double rateToClient_KBps;
+		[CCode(cname = "rateToPeer_KBps")]
+		public double rate_to_peer_kbps;
+		[CCode(cname = "rateToClient_KBps")]
+		public double rate_to_client_kbps;
 
 		/**
 		 * How many requests the peer has made that we haven't responded to yet
 		 */
-		public int pendingReqsToClient;
+		[CCode(cname = "pendingReqsToClient")]
+		public int pending_reqs_to_client;
 
 		/**
 		 * How many requests we've made and are currently awaiting a response for
 		 */
-		public int pendingReqsToPeer;
+		[CCode(cname = "pendingReqsToPeer")]
+		public int pending_reqs_to_peer;
 	}
 	[CCode(cname = "tr_tracker_state", cprefix = "TR_TRACKER_")]
 	public enum TrackerState {
@@ -986,7 +1249,7 @@ namespace Transmission {
 	}
 
 	[CCode(cname = "tr_tracker_stat", has_destroy_function = false, has_copy_function = false)]
-	public struct TrackerStat {
+	public struct tracker_stat {
 		/**
 		 * How many downloads this tracker knows of (-1 means it does not know)
 		 */
@@ -1033,22 +1296,22 @@ namespace Transmission {
 		public TrackerState scrapeState;
 
 		/**
-		 * Number of peers the tracker told us about last time. If {@link TrackerStat.lastAnnounceSucceeded} is false, this field is undefined.
+		 * Number of peers the tracker told us about last time. If {@link tracker_stat.lastAnnounceSucceeded} is false, this field is undefined.
 		 */
 		public int lastAnnouncePeerCount;
 
 		/**
-		 * Human-readable string with the result of the last announce. If {@link TrackerStat.hasAnnounced} is false, this field is undefined.
+		 * Human-readable string with the result of the last announce. If {@link tracker_stat.hasAnnounced} is false, this field is undefined.
 		 */
 		public unowned char lastAnnounceResult[128];
 
 		/**
-		 * When the last announce was sent to the tracker. If {@link TrackerStat.hasAnnounced} is false, this field is undefined
+		 * When the last announce was sent to the tracker. If {@link tracker_stat.hasAnnounced} is false, this field is undefined
 		 */
 		public time_t lastAnnounceStartTime;
 
 		/**
-		 * Whether or not the last announce was a success. If {@link TrackerStat.hasAnnounced} is false, this field is undefined.
+		 * Whether or not the last announce was a success. If {@link tracker_stat.hasAnnounced} is false, this field is undefined.
 		 */
 		public bool lastAnnounceSucceeded;
 
@@ -1058,22 +1321,22 @@ namespace Transmission {
 		public bool lastAnnounceTimedOut;
 
 		/**
-		 * When the last announce was completed. If {@link TrackerStat.hasAnnounced} is false, this field is undefined
+		 * When the last announce was completed. If {@link tracker_stat.hasAnnounced} is false, this field is undefined
 		 */
 		public time_t lastAnnounceTime;
 
 		/**
-		 * Human-readable string with the result of the last scrape. If {@link TrackerStat.hasScraped} is false, this field is undefined.
+		 * Human-readable string with the result of the last scrape. If {@link tracker_stat.hasScraped} is false, this field is undefined.
 		 */
 		public unowned char lastScrapeResult[128];
 
 		/**
-		 * When the last scrape was sent to the tracker. If {@link TrackerStat.hasScraped} is false, this field is undefined.
+		 * When the last scrape was sent to the tracker. If {@link tracker_stat.hasScraped} is false, this field is undefined.
 		 */
 		public time_t lastScrapeStartTime;
 
 		/**
-		 * Whether or not the last scrape was a success. If {@link TrackerStat.hasAnnounced} is false, this field is undefined.
+		 * Whether or not the last scrape was a success. If {@link tracker_stat.hasAnnounced} is false, this field is undefined.
 		 */
 		public bool lastScrapeSucceeded;
 
@@ -1083,7 +1346,7 @@ namespace Transmission {
 		public bool lastScrapeTimedOut;
 
 		/**
-		 * When the last scrape was completed. If {@link TrackerStat.hasScraped} is false, this field is undefined.
+		 * When the last scrape was completed. If {@link tracker_stat.hasScraped} is false, this field is undefined.
 		 */
 		public time_t lastScrapeTime;
 
@@ -1093,12 +1356,12 @@ namespace Transmission {
 		public int leecherCount;
 
 		/**
-		 * When the next periodic announce message will be sent out. If {@link TrackerStat.announceState} isn't {@link TrackerState.WAITING}, this field is undefined.
+		 * When the next periodic announce message will be sent out. If {@link tracker_stat.announceState} isn't {@link TrackerState.WAITING}, this field is undefined.
 		 */
 		public time_t nextAnnounceTime;
 
 		/**
-		 * when the next periodic scrape message will be sent out. If {@link TrackerStat.scrapeState} isn't {@link TrackerState.WAITING}, this field is undefined.
+		 * when the next periodic scrape message will be sent out. If {@link tracker_stat.scrapeState} isn't {@link TrackerState.WAITING}, this field is undefined.
 		 */
 		public time_t nextScrapeTime;
 
@@ -1112,14 +1375,13 @@ namespace Transmission {
 		 */
 		public int tier;
 		/**
-		 * Used to match to a {@link TrackerInfo}
+		 * Used to match to a {@link tracker_info}
 		 */
 		public uint32 id;
 	}
 
 	[CCode(cname = "tr_file_stat", has_destroy_function = false, has_copy_function = false)]
-	[Compact]
-	public struct FileStat {
+	public struct file_stat {
 		public uint64 bytesCompleted;
 		public float progress;
 	}
@@ -1128,7 +1390,6 @@ namespace Transmission {
 	 * A single file of the torrent's content
 	 */
 	[CCode(cname = "tr_file", has_destroy_function = false, has_copy_function = false)]
-	[Compact]
 	public struct File {
 		/**
 		 * Length of the file, in bytes
@@ -1181,8 +1442,7 @@ namespace Transmission {
 	 * Information about a torrent that comes from its metainfo file
 	 */
 	[CCode(cname = "tr_info", has_destroy_function = false, has_copy_function = false)]
-	[Compact]
-	public struct Info {
+	public struct info {
 		/**
 		 * Total size of the torrent, in bytes
 		 */
@@ -1210,7 +1470,7 @@ namespace Transmission {
 		 * These trackers are sorted by tier
 		 */
 		[CCode(array_length_type = "int", array_length_cname = "trackerCount")]
-		public unowned TrackerInfo[] trackers;
+		public unowned tracker_info[] trackers;
 
 		public time_t dateCreated;
 
@@ -1317,11 +1577,10 @@ namespace Transmission {
 	 * A torrent's state and statistics
 	 */
 	[CCode(cname = "tr_stat")]
-	[Compact]
-	public class Stat {
+	public struct stat {
 		/**
 		 * The torrent's unique Id.
-		 * @see Torrent.Id
+		 * @see Torrent.id
 		 */
 		public int id;
 		/**
@@ -1337,7 +1596,7 @@ namespace Transmission {
 		 */
 		public char errorString[512];
 		/**
-		 * When {@link Stat.activity} is {@link Activity.CHECK} or {@link Activity.CHECK_WAIT}, this is the percentage of how much of the files has been verified. When it gets to 1, the verify process is done.
+		 * When {@link stat.activity} is {@link Activity.CHECK} or {@link Activity.CHECK_WAIT}, this is the percentage of how much of the files has been verified. When it gets to 1, the verify process is done.
 		 */
 		public float recheckProgress;
 		/**
@@ -1349,7 +1608,7 @@ namespace Transmission {
 		 */
 		public float metadataPercentComplete;
 		/**
-		 * How much has been downloaded of the files the user wants. This differs from {@link Stat.percentComplete} if the user wants only some of the torrent's files.
+		 * How much has been downloaded of the files the user wants. This differs from {@link stat.percentComplete} if the user wants only some of the torrent's files.
 		 */
 		public float percentDone;
 		/**
@@ -1401,7 +1660,7 @@ namespace Transmission {
 		 */
 		public int webseedsSendingToUs;
 		/**
-		 * Byte count of all the piece data we'll have downloaded when we're done, whether or not we have it yet. This may be less than {@link Info.totalSize} if only some of the torrent's files are wanted.
+		 * Byte count of all the piece data we'll have downloaded when we're done, whether or not we have it yet. This may be less than {@link info.totalSize} if only some of the torrent's files are wanted.
 		 */
 		public uint64 sizeWhenDone;
 		/**
@@ -1475,127 +1734,188 @@ namespace Transmission {
 	}
 
 
-	[CCode(cname = "tr_torrent", cprefix = "tr_torrent", free_function = "tr_torrentFree")]
+	[CCode(cname = "tr_torrent", cprefix = "tr_torrent", free_function = "")]
 	[Compact]
 	public class Torrent {
-		/**
-		 * Instantiate a single torrent.
-		 */
-		[CCode(cname = "tr_torrentNew")]
-		public Torrent(TorrentConstructor ctor, out ParseResult error);
+
+		[PrintfFormat]
+		[CCode(header_filename = "libtransmission/utils.h", cname = "tr_torerr")]
+		public void show_error(string fmt, ...);
+		[PrintfFormat]
+		[CCode(header_filename = "libtransmission/utils.h", cname = "tr_torinf")]
+		public void show_info(string fmt, ...);
+		[PrintfFormat]
+		[CCode(header_filename = "libtransmission/utils.h", cname = "tr_tordbg")]
+		public void show_debug(string fmt, ...);
 
 		/**
 		 * Removes our .torrent and .resume files for this torrent and frees it.
 		 */
 		[DestroysInstance]
-		public void Remove(bool removeLocalData, FileFunc removeFunc);
+		[CCode(cname = "tr_torrentRemove")]
+		public void remove();
 
 		/**
 		 * Start a torrent
 		 */
-		public void Start();
+		[CCode(cname = "tr_torrentStart")]
+		public void start();
 
 		/**
 		 * Stop (pause) a torrent
 		 */
-		public void Stop();
+		[CCode(cname = "tr_torrentStop")]
+		public void stop();
 
 		/**
 		 * Tell transmsision where to find this torrent's local data.
 		 *
 		 * @param move_from_previous_location If `true', the torrent's incompleteDir will be clobberred such that additional files being added will be saved to the torrent's downloadDir.
 		 */
-		public void SetLocation(string location, bool move_from_previous_location, out double progress, out LocationStatus state);
+		[CCode(cname = "tr_torrentSetLocation")]
+		public void set_location(string location, bool move_from_previous_location, out double progress, out LocationStatus state);
 
-		public uint64 GetBytesLeftToAllocate();
+		public uint64 bytes_left_to_allocate {
+			[CCode(cname = "tr_torrentGetBytesLeftToAllocate")]
+			get;
+		}
 
 		/**
-		 * Returns this torrent's unique ID.
+		 * This torrent's unique ID.
 		 *
-		 * IDs are good as simple lookup keys, but are not persistent between sessions. If you need that, use {@link Info.hash} or {@link Info.hashString}.
+		 * IDs are good as simple lookup keys, but are not persistent between sessions. If you need that, use {@link info.hash} or {@link info.hashString}.
 		 */
-		int Id();
-
-		public static unowned Torrent FindFromId(Session session, int id );
-		public static unowned Torrent FindFromHash(Session session, [CCode(array_length = false)] uint8[] hash);
-		public static unowned Torrent FindFromMagnetLink(Session session, string link);
+		public int id {
+			[CCode(cname = "tr_torrentId")]
+			get;
+		}
 
 		/**
 		 * This torrent's name.
 		 */
-		public unowned string Name();
+		public string name {
+			[CCode(cname = "tr_torrentName")]
+			get;
+		}
 
 		/**
 		 * Find the location of a torrent's file by looking with and without the ".part" suffix, looking in downloadDir and incompleteDir, etc.
-		 * @param fileNum The index into {@link Info.files}
+		 * @param fileNum The index into {@link info.files}
 		 * @return The location of this file on disk, or null if no file exists yet.
 		 */
-		public string? FindFile(int fileNo);
+		[CCode(cname = "tr_torrentFindFile")]
+		public string? get(int fileNo);
 
-		public void SetSpeedLimit_KBps(Direction direction, int kBps);
-		public int GetSpeedLimit_KBps(Direction direction);
+		[CCode(cname = "tr_torrentSetSpeedLimit_KBps")]
+		public void set_speed_limit(Direction direction, int kBps);
+		[CCode(cname = "tr_torrentGetSpeedLimit_KBps")]
+		public int get_speed_limit(Direction direction);
 
-		public void UseSpeedLimit(Direction direction, bool use);
-		public bool UsesSpeedLimit(Direction direction);
+		[CCode(cname = "tr_torrentUseSpeedLimit")]
+		public void use_speed_limit(Direction direction, bool use);
+		[CCode(cname = "tr_torrentUsesSpeedLimit")]
+		public bool uses_speed_limit(Direction direction);
 
-		public void UseSessionLimits(bool use);
-		public bool UsesSessionLimits();
+		public bool use_session_limits {
+			[CCode(cname = "tr_torrentUseSessionLimits")]
+			set;
+			[CCode(cname = "tr_torrentUsesSessionLimits")]
+			get;
+		}
 
-		public void SetRatioMode(RatioLimit mode);
-		public RatioLimit GetRatioMode();
+		public RatioLimit ratio_mode {
+			[CCode(cname = "tr_torrentSetRatioMode")]
+			set;
+			[CCode(cname = "tr_torrentGetRatioMode")]
+			get;
+		}
 
-		public void SetRatioLimit(double ratio);
-		public double GetRatioLimit();
+		public double ratio_limit {
+			[CCode(cname = "tr_torrentSetRatioLimit")]
+			set;
+			[CCode(cname = "tr_torrentGetRatioLimit")]
+			get;
+		}
 
-		public bool GetSeedRatio(out double ratio);
+		[CCode(cname = "tr_torrentGetSeedRatio")]
+		public bool get_seed_ratio(out double ratio);
 
-		public void SetIdleMode(IdleLimit mode);
-		public IdleLimit GetIdleMode();
+		public IdleLimit idlde_mode {
+			[CCode(cname = "tr_torrentSetIdleMode")]
+			set;
+			[CCode(cname = "tr_torrentGetIdleMode")]
+			get;
+		}
 
-		public void SetIdleLimit(uint16 idleMinutes);
-		public uint16 GetIdleLimit();
-		public bool GetSeedIdle(out uint16 minutes);
+		public uint16 idle_limit {
+			[CCode(cname = "tr_torrentSetIdleLimit")]
+			set;
+			[CCode(cname = "tr_torrentGetIdleLimit")]
+			get;
+		}
 
-		public void SetPeerLimit(uint16 peerLimit);
-		public uint16 GetPeerLimit();
+		[CCode(cname = "tr_torrentGetSeedIdle")]
+		public bool get_seed_idle(out uint16 minutes);
+
+		public uint16 peer_limit {
+			[CCode(cname = "tr_torrentSetPeerLimit")]
+			set;
+			[CCode(cname = "tr_torrentGetPeerLimit")]
+			get;
+		}
 
 		/**
-		* Set a batch of files to a particular priority.
-		*/
-		public void SetFilePriorities([CCode(array_length_type = "tr_file_index_t")] FileIndex[] files, Priority priority);
+		 * Set a batch of files to a particular priority.
+		 */
+		[CCode(cname = "tr_torrentSetFilePriorities")]
+		public void set_file_priorities([CCode(array_length_type = "tr_file_index_t")] file_index[] files, Priority priority);
 
 		/**
 		 * Get this torrent's file priorities.
 		 */
-		public Priority[] GetFilePriorities();
+		[CCode(cname = "tr_torrentGetFilePriorities")]
+		public Priority[] get_file_priorities();
 
 		/**
 		 * Set a batch of files to be downloaded or not.
 		 */
-		public void SetFileDLs([CCode(array_length_type = "tr_file_index_t")] FileIndex[] files, bool download);
+		[CCode(cname = "tr_torrentSetFileDLs")]
+		public void set_file_downloads([CCode(array_length_type = "tr_file_index_t")] file_index[] files, bool download);
 
-		public unowned Info* Info();
+		public info? info {
+			[CCode(cname = "tr_torrentInfo")]
+			get;
+		}
 
 		/**
 		 * Raw function to change the torrent's downloadDir field.
 		 *
 		 * This should only be used by libtransmission or to bootstrap a newly-instantiated object.
 		 */
-		public void SetDownloadDir(string path);
-
-		public unowned string GetDownloadDir();
+		public string download_dir {
+			[CCode(cname = "tr_torrentSetDownloadDir")]
+			set;
+			[CCode(cname = "tr_torrentGetDownloadDir")]
+			get;
+		}
 
 		/**
 		 * Returns the root directory of where the torrent is.
 		 *
 		 * This will usually be the downloadDir. However if the torrent has an incompleteDir enabled and hasn't finished downloading yet, that will be returned instead.
 		 */
-		public unowned string GetCurrentDir();
+		public string current_dir {
+			[CCode(cname = "tr_torrentGetCurrentDir")]
+			get;
+		}
 
 		/**
 		 * Returns a string with a magnet link of the torrent.
 		 */
-		public string GetMagnetLink();
+		public string magnet_link {
+			[CCode(cname = "tr_torrentGetMagnetLink")]
+			owned get;
+		}
 
 		/**
 		 * Modify a torrent's tracker list.
@@ -1606,7 +1926,8 @@ namespace Transmission {
 		 * NOTE: only the `tier' and `announce' fields are used. libtransmission derives `scrape' from `announce' and reassigns 'id'.
 		 * @param trackers An array of trackers, sorted by tier from first to last.
 		 */
-		public bool SetAnnounceList([CCode(array_length_type = "int")] TrackerInfo[] trackers);
+		[CCode(cname = "tr_torrentSetAnnounceList")]
+		public bool set_announce_list([CCode(array_length_type = "int")] tracker_info[] trackers);
 
 		/**
 		 * Register to be notified whenever a torrent's "completeness" changes.
@@ -1616,97 +1937,131 @@ namespace Transmission {
 		 *
 		 * The function is invoked FROM LIBTRANSMISSION'S THREAD! This means the function must be fast (to avoid blocking peers), shouldn't call libtransmission functions (to avoid deadlock), and shouldn't modify client-level memory without using a mutex!
 		 */
-		public void SetCompletenessCallback(CompletnessFunc func);
-
-		public void ClearCompletenessCallback();
+		[CCode(cname = "tr_torrentSetCompletenessCallback")]
+		public void set_completeness_callback(CompletnessFunc func);
+		[CCode(cname = "tr_torrentClearCompletenessCallback")]
+		public void clear_completeness_callback();
 
 		/**
 		 * Register to be notified whenever a torrent changes from having incomplete metadata to having complete metadata.
 		 *
 		 * This happens when a magnet link finishes downloading metadata from its peers.
 		 */
-		public void SetMetadataCallback(MetadataFunc func);
+		[CCode(cname = "tr_torrentSetMetadataCallback")]
+		public void set_metadata_callback(MetadataFunc func);
 
 		/**
 		 * Register to be notified whenever a torrent's ratio limit has been hit.
 		 *
 		 * This will be called when the torrent's upload/download ratio has met or exceeded the designated ratio limit.
 		 *
-		 * Has the same restrictions as {@link Torrent.SetCompletenessCallback}
+		 * Has the same restrictions as {@link Torrent.set_completeness_callback}
 		 */
-		public void SetRatioLimitHitCallback( RatioLimitHitFunc func);
-
-		public void ClearRatioLimitHitCallback();
+		[CCode(cname = "tr_torrentSetRatioLimitHitCallback")]
+		public void set_ratio_limit_callback(RatioLimitHitFunc func);
+		[CCode(cname = "tr_torrentClearRatioLimitHitCallback")]
+		public void clear_ratio_limit_callback();
 
 		/**
 		 * Register to be notified whenever a torrent's idle limit has been hit.
 		 *
 		 * This will be called when the seeding torrent's idle time has met or exceeded the designated idle limit.
 		 *
-		 * Has the same restrictions as {@link Torrent.SetCompletenessCallback}
+		 * Has the same restrictions as {@link Torrent.set_completeness_callback}
 		 */
-		public void SetIdleLimitHitCallback(IdleLimitHitFunc func);
+		[CCode(cname = "tr_torrentSetIdleLimitHitCallback")]
+		public void set_idle_limit_hit_callback(IdleLimitHitFunc func);
 
-		public void ClearIdleLimitHitCallback();
+		[CCode(cname = "tr_torrentClearIdleLimitHitCallback")]
+		public void clear_idle_limit_hit_callback();
 
 		/**
 		 * Perform a manual announce
 		 *
 		 * Trackers usually set an announce interval of 15 or 30 minutes. Users can send one-time announce requests that override this interval by calling this method.
 		 *
-		 * The wait interval for manual announce is much smaller. You can test whether or not a manual update is possible (for example, to desensitize the button) by calling {@link Torrent.CanManualUpdate}.
+		 * The wait interval for manual announce is much smaller. You can test whether or not a manual update is possible (for example, to desensitize the button) by calling {@link Torrent.can_manual_update}.
 		 */
-		public void ManualUpdate();
-		public bool CanManualUpdate();
+		[CCode(cname = "tr_torrentManualUpdate")]
+		public void manual_update();
+		public bool can_manual_update {
+			[CCode(cname = "tr_torrentCanManualUpdate")]
+			get;
+		}
 
-		public Priority GetPriority();
-		public void SetPriority(Priority priority);
+		public Priority priority {
+			[CCode(cname = "tr_torrentSetPriority")]
+			set;
+			[CCode(cname = "tr_torrentGetPriority")]
+			get;
+		}
 
-		[CCode(array_length_pos = 0.9)]
-		public PeerStat[] Peers();
+		public peer_stat[] peers {
+			[CCode(array_length_pos = 0.9, cname = "tr_torrentPeers")]
+			owned get;
+		}
 
-		[CCode(array_length_pos = 0.9)]
-		public TrackerStat[] Trackers();
+		public tracker_stat[] trackers {
+			[CCode(array_length_pos = 0.9, cname = "tr_torrentTrackers")]
+			owned get;
+		}
 
 		/**
 		* Get the download speeds for each of this torrent's webseed sources.
 		*
 		* To differentiate "idle" and "stalled" status, idle webseeds will return -1 instead of 0 KiB/s.
-		* @return an array floats giving download speeds. Each speed in the array corresponds to the webseed at the same array index in {@link Info.webseeds}.
+		* @return an array floats giving download speeds. Each speed in the array corresponds to the webseed at the same array index in {@link info.webseeds}.
 		*/
-		public double[] WebSpeeds_KBps();
+		public double[] web_speeds {
+			[CCode(cname = "tr_torrentWebSpeeds_KBps")]
+			owned get;
+		}
 
-		[CCode(array_length_pos = 0.9)]
-		public FileStat[] Files();
+		public file_stat[] files {
+			[CCode(array_length_pos = 0.9, cname = "tr_torrentFiles")]
+			owned get;
+		}
 
 		/**
 		 * Use this to draw an advanced progress bar.
 		 *
 		 * Fills 'tab' which you must have allocated: each byte is set to either -1 if we have the piece, otherwise it is set to the number of connected peers who have the piece.
 		 */
-		public void Availability([CCode(array_length_type = "int")] int8[] tab);
-		public void AmountFinished([CCode(array_length_type = "int")] float[] tab);
-		public void Verify();
+		[CCode(cname = "tr_torrentAvailability")]
+		public void get_availability([CCode(array_length_type = "int")] int8[] tab);
+		[CCode(cname = "tr_torrentAmountFinished")]
+		public void get_amount_finished([CCode(array_length_type = "int")] float[] tab);
+		[CCode(cname = "tr_torrentVerify")]
+		public void verify();
 
-		public bool HasMetadata();
+		public bool has_metadata {
+			[CCode(cname = "tr_torrentHasMetadata")]
+			get;
+		}
 
 		/**
 		 * Get updated information on the torrent.
 		 *
 		 * This is typically called by the GUI clients every second or so to get a new snapshot of the torrent's status.
 		*/
-		public unowned Stat Stat();
+		public stat? stat {
+			[CCode(cname = "tr_torrentStat")]
+			get;
+		}
 
 		/**
 		 * Get updated information on the torrent.
 		 *
-		 * Like {@link Torrent.Stat}, but only recalculates the statistics if it's been longer than a second since they were last calculated. This can reduce the CPU load if you're calling it frequently.
+		 * Like {@link Torrent.stat}, but only recalculates the statistics if it's been longer than a second since they were last calculated. This can reduce the CPU load if you're calling it frequently.
 		 */
-		public unowned Stat StatCached();
+		public stat? stat_cached {
+			[CCode(cname = "tr_torrentStatCached")]
+			get;
+		}
 	}
 
 	[CCode(cheader_filename = "libtorrent/makemeta.h", cname = "tr_metainfo_builder_file", has_destroy_function = false, has_copy_function = false)]
-	public struct BuilderFile {
+	public struct builder_file {
 		public unowned string filename;
 		public uint64 size;
 	}
@@ -1728,21 +2083,30 @@ namespace Transmission {
 
 		public string top;
 		[CCode(array_length_cname = "fileCount", array_length_type = "uint32")]
-		public BuilderFile[] files;
-		public uint64 totalSize;
-		public uint32 pieceSize;
-		public uint32 pieceCount;
-		public int isSingleFile;
+		public builder_file[] files;
+		[CCode(cname = "totalSize")]
+		public uint64 total_size;
+		[CCode(cname = "pieceSize")]
+		public uint32 piece_size;
+		[CCode(cname = "pieceCount")]
+		public uint32 piece_count;
+		[CCode(cname = "isSingleFile")]
+		public bool is_single_file;
 
 		[CCode(array_length_cname = "trackerCount", array_length_type = "int")]
-		public TrackerInfo[] trackers;
+		public tracker_info[] trackers;
 		public string comment;
+		[CCode(cname = "outputFile")]
 		public string outputFile;
-		public int isPrivate;
+		[CCode(cname = "isPrivate")]
+		public bool is_private;
 
-		public uint32 pieceIndex;
-		public int abortFlag;
-		public int isDone;
+		[CCode(cname = "pieceIndex")]
+		public uint32 piece_index;
+		[CCode(cname = "abortFlag")]
+		public bool abort_flag;
+		[CCode(cname = "isDone")]
+		public bool is_done;
 		public BuilderError result;
 
 		/**
@@ -1761,61 +2125,62 @@ namespace Transmission {
 		 * This is actually done in a worker thread, not the main thread!
 		 * Otherwise the client's interface would lock up while this runs.
 		 *
-		 * It is the caller's responsibility to poll {@link Builder.isDone} from time to time! When the worker thread sets that flag, the caller must destroy the builder.
+		 * It is the caller's responsibility to poll {@link Builder.is_done} from time to time! When the worker thread sets that flag, the caller must destroy the builder.
 		 *
 		 * @param outputFile If null, {@link Builder.top} + ".torrent" will be used.
 		 * @param trackers An array of trackers, sorted by tier from first to last.
 		 */
 		[CCode(cname = "tr_makeMetaInfo")]
-		public void MakeInfo(string outputFile, TrackerInfo[] trackers, string comment, int isPrivate);
+		public void make_file(string outputFile, tracker_info[] trackers, string comment, bool is_private);
 	}
 
 	[CCode(cheader_filename = "libtransmission/utils.h", cprefix = "tr_", lower_case_cprefix = "tr_")]
-	namespace Utils {
+	namespace Log {
 		[CCode(cname = "TR_MAX_MSG_LOG")]
 		public const int MAX_MSG_LOG;
 
-		public MessageLevel getMessageLevel();
-		public bool msgLoggingIsActive(MessageLevel level);
+		[PrintfFormat]
+		[CCode(cname = "tr_msg")]
+		public void message(string file, int line, MessageLevel level, string torrent, string fmt, ... );
 
 		[PrintfFormat]
-		public void msg(string file, int line, MessageLevel level, string torrent, string fmt, ... );
+		[CCode(cname = "tr_nerr")]
+		public void named_error(string name, string fmt, ...);
+		[PrintfFormat]
+		[CCode(cname = "tr_ninf")]
+		public void named_info(string name, string fmt, ...);
+		[PrintfFormat]
+		[CCode(cname = "tr_ndbg")]
+		public void named_debug(string name, string fmt, ...);
 
 		[PrintfFormat]
-		public void nerr(string name, string fmt, ...);
+		[CCode(cname = "tr_err")]
+		public void error(string fmt, ...);
 		[PrintfFormat]
-		public void ninf(string name, string fmt, ...);
+		[CCode(cname = "tr_inf")]
+		public void info(string fmt, ...);
 		[PrintfFormat]
-		public void ndbg(string name, string fmt, ...);
-
-		[PrintfFormat]
-		public void torerr(Torrent torrent, string fmt, ...);
-		[PrintfFormat]
-		public void torinf(Torrent torrent, string fmt, ...);
-		[PrintfFormat]
-		public void tordbg(Torrent torrent, string fmt, ...);
-
-		[PrintfFormat]
-		public void err(string fmt, ...);
-		[PrintfFormat]
-		public void inf(string fmt, ...);
-		[PrintfFormat]
-		public void dbg(string fmt, ...);
+		[CCode(cname = "tr_dbg")]
+		public void debug(string fmt, ...);
 
 		/**
 		 * Return true if deep logging has been enabled by the user; false otherwise
 		 */
-		public bool deepLoggingIsActive();
+		[CCode(cname = "tr_deepLoggingIsActive")]
+		public bool is_deep_logging();
 
 		[PrintfFormat]
-		public void deepLog(string file, int line, string name, string fmt,... );
+		[CCode(cname = "tr_deepLog")]
+		public void deep_log(string file, int line, string name, string fmt,... );
 
 		/**
 		 * Set the buffer with the current time formatted for deep logging.
 		 */
-		public unowned string getLogTimeStr([CCode(array_length_type = "size_t")] char[] buf);
+		public unowned string get_log_time([CCode(array_length_type = "size_t")] char[] buf);
+	}
 
-
+	[CCode(cheader_filename = "libtransmission/utils.h", cprefix = "tr_", lower_case_cprefix = "tr_")]
+	namespace Path {
 		/**
 		 * Rich Salz's classic implementation of shell-style pattern matching for ?, \, [], and * characters.
 		 * @return 1 if the pattern matches, 0 if it doesn't, or -1 if an error occurred
@@ -1849,20 +2214,35 @@ namespace Transmission {
 		 */
 		public int mkdirp(string path, int permissions);
 
-
 		/**
 		 * Loads a file and returns its contents.
 		 * @return The file's contents. On failure, null is returned and errno is set.
 		 */
-		[CCode(array_length_type = "size_t", array_length_pos = 1.9)]
-		uint8[]? loadFile(string filename);
-
+		[CCode(cname = "tr_loadFile", array_length_type = "size_t", array_length_pos = 1.9)]
+		uint8[]? load_file(string filename);
 
 		/**
 		 * Build a filename from a series of elements using the platform's correct directory separator.
 		 */
-		[CCode(sentinel = "NULL")]
-		string buildPath(string first_element, ...);
+		[CCode(cname = "tr_buildPath", sentinel = "NULL")]
+		string build_path(string first_element, ...);
+
+		/**
+		 * Move a file
+		 * @return 0 on success; otherwise, return -1 and set errno
+		 */
+		[CCode(cname = "tr_moveFile")]
+		public int move_file(string oldpath, string newpath, out bool renamed);
+
+		/**
+		 * Test to see if the two filenames point to the same file.
+		 */
+		[CCode(cname = "tr_is_same_file")]
+		public bool is_same_file(string filename1, string filename2);
+	}
+
+	[CCode(cheader_filename = "libtransmission/utils.h", cprefix = "tr_", lower_case_cprefix = "tr_")]
+	namespace Time {
 
 		[CCode(cname = "struct event", cprefix = "tr_")]
 		[Compact]
@@ -1873,33 +2253,71 @@ namespace Transmission {
 			 * @param seconds
 			 * @param microseconds
 			 */
-			public void timerAdd(int seconds, int microseconds);
+			[CCode(cname = "tr_timerAdd")]
+			public void add(int seconds, int microseconds);
 
 			/**
 			 * Convenience wrapper around timer_add() to have a timer wake up in a number of milliseconds
 			 * @param timer
 			 * @param milliseconds
 			 */
-			public void timerAddMsec(int milliseconds);
+			[CCode(cname = "tr_timerAddMsec")]
+			public void add_msec(int milliseconds);
 		}
 
 		/**
 		 * Return the current date in milliseconds
 		 */
-		public uint64 time_msec();
+		[CCode(cname = "tr_time_msec")]
+		public uint64 get_time_msec();
 
 		/**
 		 * Sleep the specified number of milliseconds
 		 */
+		[CCode(cname = "tr_wait_msec")]
 		public void wait_msec(long delay_milliseconds);
+		/**
+		 * Very inexpensive form of time(NULL)
+		 *
+		 * This function returns a second counter that is updated once per second. If something blocks the libtransmission thread for more than a second, that counter may be thrown off, so this function is not guaranteed to always be accurate. However, it is *much* faster when 100% accuracy isn't needed.
+		 * @return the current epoch time in seconds
+		 */
+		public time_t get_time();
+	}
 
+	[CCode(cheader_filename = "libtransmission/utils.h", cprefix = "tr_", lower_case_cprefix = "tr_")]
+	namespace Url {
+
+		/**
+		 * Return true if the URL is a http or https URL that Transmission understands
+		 */
+		[CCode(cname = "tr_urlIsValidTracker")]
+		public bool is_valid_tracker(string url);
+
+		/**
+		 * Return true if the URL is a [ http, https, ftp, ftps ] URL that Transmission understands
+		 */
+		[CCode(cname = "tr_urlIsValid")]
+		public bool is_valid(uint8[] url);
+
+		/**
+		 * Parse a URL into its component parts
+		 * @return zero on success or an error number if an error occurred
+		 */
+		[CCode(cname = "tr_urlParse")]
+		public int parse(string url, int url_len, out string scheme, out string host, out int port, out string path );
+	}
+
+	[CCode(cheader_filename = "libtransmission/utils.h", cprefix = "tr_", lower_case_cprefix = "tr_")]
+	namespace String {
 		/**
 		 * Make a copy of 'str' whose non-utf8 content has been corrected or stripped
 		 * @return a new string
 		 * @param str the string to make a clean copy of
 		 * @param len the length of the string to copy. If -1, the entire string is used.
 		 */
-		public string utf8clean(string str, int len = -1);
+		[CCode(cname = "utf8clean")]
+		public string make_utf8_clean(string str, int len = -1);
 
 		public void sha1_to_hex([CCode(array_null_terminated = true)] char[] result, uint8[] sha1);
 
@@ -1908,29 +2326,15 @@ namespace Transmission {
 		/**
 		 * Convenience function to determine if an address is an IP address (IPv4 or IPv6)
 		 */
-		public bool addressIsIP(string address);
-
-		/**
-		 * Return true if the URL is a http or https URL that Transmission understands
-		 */
-		public bool urlIsValidTracker(string url);
-
-		/**
-		 * Return true if the URL is a [ http, https, ftp, ftps ] URL that Transmission understands
-		 */
-		public bool urlIsValid(string url, int url_len );
-
-		/**
-		 * Parse a URL into its component parts
-		 * @return zero on success or an error number if an error occurred
-		 */
-		public int urlParse(string url, int url_len, out string scheme, out string host, out int port, out string path );
+		[CCode(cname = "tr_addressIsIP")]
+		public bool address_is_ip(string address);
 
 		/**
 		 * Compute a ratio given a numerator and denominator.
 		 * @return {@link RATIO_NA}, {@link RATIO_INF}, or a number in [0..1]
 		 */
-		public double getRatio(uint64 numerator, uint64 denominator);
+		[CCode(cname = "tr_getRatio")]
+		public double get_ratio(uint64 numerator, uint64 denominator);
 
 		/**
 		 * Given a string like "1-4" or "1-4,6,9,14-51", this returns an array of all the integers in the set.
@@ -1938,9 +2342,8 @@ namespace Transmission {
 		 * For example, "5-8" will return [ 5, 6, 7, 8 ].
 		 * @return an array of integers or null if a fragment of the string can't be parsed.
 		 */
-		[CCode(array_length_type = "int", array_length_pos = 2.9)]
-		public int[]? parseNumberRange(string str, int str_len);
-
+		[CCode(array_length_type = "int", array_length_pos = 2.9, cname = "parseNumberRange")]
+		public int[]? parse_number_range(string str, int str_len);
 
 		/**
 		 * Truncate a double value at a given number of decimal places.
@@ -1953,12 +2356,14 @@ namespace Transmission {
 		 * * printf("%.2f%%", tr_truncd(99.999, 2)) ==> "99.99%"
 		 * These should match
 		 */
-		public double truncd(double x, int decimal_places);
+		[CCode(cname = "tr_truncd")]
+		public double truncate(double x, int decimal_places);
 
 		/**
 		 * Return a percent formatted string of either x.xx, xx.x or xxx
 		 */
-		public unowned string strpercent([CCode(array_length_type = "size_t", array_length_pos = 2.9)] char[] buf, double x);
+		[CCode(cname = "tr_strpercent")]
+		public unowned string format_precent([CCode(array_length_type = "size_t", array_length_pos = 2.9)] char[] buf, double x);
 
 		/**
 		 * Convert ratio to a string
@@ -1966,33 +2371,15 @@ namespace Transmission {
 		 * @param ratio the ratio to convert to a string
 		 * @param the string representation of "infinity"
 		 */
-		public unowned string strratio([CCode(array_length_type = "size_t")] char[] buf, double ratio, string infinity);
-
-		/**
-		 * Move a file
-		 * @return 0 on success; otherwise, return -1 and set errno
-		 */
-		public int moveFile(string oldpath, string newpath, out bool renamed);
-
-		/**
-		 * Test to see if the two filenames point to the same file.
-		 */
-		public bool is_same_file(string filename1, string filename2);
-
-		/**
-		 * Very inexpensive form of time(NULL)
-		 *
-		 * This function returns a second counter that is updated once per second. If something blocks the libtransmission thread for more than a second, that counter may be thrown off, so this function is not guaranteed to always be accurate. However, it is *much* faster when 100% accuracy isn't needed.
-		 * @return the current epoch time in seconds
-		 */
-		public time_t time();
+		[CCode(cname = "tr_strratio")]
+		public unowned string format_ratio([CCode(array_length_type = "size_t")] char[] buf, double ratio, string infinity);
 
 		public uint speed_K;
 		public uint mem_K;
 		public uint size_K;
 
 		[CCode(cprefix = "tr_formatter_")]
-		namespace Formatter {
+		namespace Units {
 			public void size_init(uint kilo, string kb, string mb, string gb, string tb);
 			public void speed_init(uint kilo, string kb, string mb, string gb, string tb);
 			public void mem_init(uint kilo, string kb, string mb, string gb, string tb);
@@ -2017,7 +2404,7 @@ namespace Transmission {
 			 */
 			public unowned string size_B([CCode(array_length_type = "size_t", array_length_pos = 2.9)] char[] buf, int64 bytes);
 
-			public void get_units(Benc dict);
+			public void get_units(benc dict);
 		}
 	}
 }
