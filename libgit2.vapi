@@ -2902,10 +2902,13 @@ namespace Git {
 		int offset;
 	}
 
+	/**
+	 * The changes between two trees for a particular path
+	 */
 	[CCode(cname = "git_tree_diff_data")]
 	public struct tree_diff {
-		uint old_attr;
-		uint new_attr;
+		FileMode old_attr;
+		FileMode new_attr;
 		[CCode(cname = "old_oid")]
 		object_id old_id;
 		[CCode(cname = "new_oid")]
@@ -2925,6 +2928,9 @@ namespace Git {
 		public string path;
 	}
 
+	/**
+	 * Default port for git: protocol.
+	 */
 	[CCode(cname = "GIT_DEFAULT_PORT")]
 	public const string DEFAULT_PORT;
 
@@ -3141,28 +3147,97 @@ namespace Git {
 	[CCode(cname = "unsigned int", cheader_filename = "sys/stat.h", cprefix = "S_I")]
 	[Flags]
 	public enum FileMode {
+		/**
+		 * This is the mask to isolate only the F modes.
+		 */
 		FMT,
+		/**
+		 * A block device
+		 */
 		FBLK,
+		/**
+		 * A character device
+		 */
 		FCHR,
+		/**
+		 * A directory
+		 */
 		FDIR,
+		/**
+		 * A FIFO special
+		 */
 		FIFO,
+		/**
+		 * A symbolic link
+		 */
 		FLNK,
+		/**
+		 * A regular file
+		 */
 		FREG,
+		/**
+		 * A socket
+		 */
 		FSOCK,
+		/**
+		 * Read, write, and execute by owner
+		 */
 		RWXU,
+		/**
+		 * Read by owner
+		 */
 		RUSR,
+		/**
+		 * Write by owner
+		 */
 		WUSR,
+		/**
+		 * Execute by owner
+		 */
 		XUSR,
+		/**
+		 * Read, write, and execute by group
+		 */
 		RWXG,
+		/**
+		 * Read by group
+		 */
 		RGRP,
+		/**
+		 * Write by group
+		 */
 		WGRP,
+		/**
+		 * Execute by group
+		 */
 		XGRP,
+		/**
+		 * Read, write, and execute by others
+		 */
 		RWXO,
+		/**
+		 * Read by others
+		 */
 		ROTH,
+		/**
+		 * Write by others
+		 */
 		WOTH,
+		/**
+		 * Execute by others
+		 */
 		XOTH,
+		/**
+		 * Set user-id on execution
+		 */
 		SUID,
+		/**
+		 * Set group-id on execution
+		 */
 		SGID,
+		/**
+		 * Restricted delition on directories
+		 */
 		SVTX;
 		[CCode(cname = "S_ISBLK")]
 		public bool is_block_dev();
@@ -3178,6 +3253,9 @@ namespace Git {
 		public bool is_link();
 		[CCode(cname = "S_ISSOCK")]
 		public bool is_sock();
+		/**
+		 * Converts the format mode to an ls-style long mode.
+		 */
 		public string to_string() {
 			char attr[11];
 			switch (this&FileMode.FMT) {
@@ -3389,6 +3467,9 @@ namespace Git {
 		RW
 	}
 
+	/**
+	 * The reason for the difference between two parts of a tree
+	 */
 	[CCode(cname = "git_status_t", cprefix = "GIT_STATUS_")]
 	public enum TreeStatus {
 		ADDED,
