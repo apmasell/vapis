@@ -110,6 +110,56 @@ namespace Git {
 		public void set_utf8();
 	}
 
+	/*
+	 * Attribute management routines
+	 */
+	[CCode(cname = "git_repository", cheader_filename = "git2/attr.h")]
+	public class Attr {
+		[CCode(cname = "GIT_ATTR_TRUE")]
+		public const string TRUE;
+		[CCode(cname = "GIT_ATTR_FALSE")]
+		public const string FALSE;
+
+		/**
+		 * Add a macro definition.
+		 *
+		 * Macros will automatically be loaded from the top level .gitattributes
+		 * file of the repository (plus the build-in "binary" macro).  This
+		 * function allows you to add others.  For example, to add the default
+		 * macro, you would call:
+		 *
+		 *    git_attr_add_macro(repo, "binary", "-diff -crlf");
+		 */
+		[CCode(cname = "git_attr_add_macro")]
+		public Error add_macro(string name, string val);
+
+		/**
+		 * Lookup attribute for path returning string caller must free
+		 */
+		[CCode(cname = "git_attr_get")]
+		public Error lookup(string path, string name, out string val);
+
+		/**
+		 * Lookup list of attributes for path, populating array of strings
+		 */
+		public Error lookup_many(string path, [CCode(array_length_pos = 1.1, array_length_type = "size_t")] string[] names, [CCode(array_length = false)] string[] values);
+
+		/**
+		 * Perform an operation on each attribute of a path.
+		 */
+		[CCode(cname = "git_attr_foreach")]
+		public Error foreach(string path, AttributeCallback callback);
+
+		/**
+		 * Flush the gitattributes cache.
+		 *
+		 * Call this if you have reason to believe that the attributes files
+		 * on disk no longer match the cached contents of memory.
+		 */
+		[CCode(cname = "git_attr_cache_flush")]
+		public void flush();
+	}
+
 	/**
 	 * A custom backend in an ODB
 	 */
@@ -529,7 +579,7 @@ namespace Git {
 	[Compact]
 	public class ConfigFile {
 		public unowned Config cfg;
-		[CCode(cname = "delete")]
+		[CCode(cname = "del")]
 		public DeleteHandler delete_func;
 		[CCode(cname = "foreach")]
 		public ForEachHandler foreach_func;
@@ -965,6 +1015,16 @@ namespace Git {
 		 */
 		[CCode(cname = "git_index_read")]
 		public Error read();
+
+		/**
+		 * Read a tree into the index file
+		 *
+		 * The current index contents will be replaced by the specified tree.
+		 *
+		 * @param tree tree to read
+		 */
+		[CCode(cname = "git_index_read_tree")]
+		public Error read_tree(Tree tree);
 
 		/**
 		 * Remove an entry from the index
@@ -1550,6 +1610,10 @@ namespace Git {
 	[CCode(cname = "git_repository", free_function = "git_repository_free")]
 	[Compact]
 	public class Repository {
+		public Attr attributes {
+			[CCode(cname = "")]
+			get;
+		}
 		/**
 		 * Check if a repository is bare
 		 */
@@ -3486,6 +3550,7 @@ namespace Git {
 		POST
 	}
 
+	public delegate Error AttributeCallback(string name, string val);
 	public delegate int ConfigCallback(string var_name, string val);
 	public delegate bool Filter(TreeEntry entry);
 	[CCode(cname = "git_headlist_cb")]
