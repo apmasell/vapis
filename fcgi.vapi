@@ -11,7 +11,7 @@ namespace FastCGI {
 	/**
 	 * FastCGI's abstraction over a file I/O
 	 */
-	[CCode(cname = "FCGI_FILE", cheader_filename = "fcgi_stdio.h", free_function = "FCGI_pclose")]
+	[CCode(cname = "FCGI_FILE", cheader_filename = "fcgi_stdio.h", free_function = "FCGI_pclose", has_type_id = false)]
 	public class FileStream {
 		public int descriptor {
 			[CCode (cname = "FCGI_fileno")]
@@ -80,7 +80,7 @@ namespace FastCGI {
 	 * The state of a stream is private and should only be accessed
 	 * by the procedures defined below.
 	 */
-	[CCode(cname = "FCGX_Stream", free_function = "FCGX_FClose")]
+	[CCode(cname = "FCGX_Stream", free_function = "FCGX_FClose", has_type_id = false)]
 	[Compact]
 	public class Stream {
 		[CCode(cname = "isReader")]
@@ -226,7 +226,7 @@ namespace FastCGI {
 	/**
 	 * CGI parameters
 	 */
-	[CCode(cname = "FCGX_ParamArray")]
+	[CCode(cname = "FCGX_ParamArray", has_type_id = false)]
 	[SimpleType]
 	public struct parameters {
 		[CCode(cname = "FCGX_GetParam", instance_pos = -1)]
@@ -348,7 +348,7 @@ namespace FastCGI {
 		}
 	}
 
-	[CCode(cname = "int", cprefix = "FCGI_")]
+	[CCode(cname = "int", cprefix = "FCGI_", has_type_id = false)]
 	[Flags]
 	public enum RequestFlags {
 		[CCode(cname = "0")]

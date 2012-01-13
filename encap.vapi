@@ -13,7 +13,7 @@ namespace Encap {
 	/**
 	 * Result of package operation.
 	 */
-	[CCode(cname = "int", cprefix = "ENCAP_STATUS_")]
+	[CCode(cname = "int", cprefix = "ENCAP_STATUS_", has_type_id = false)]
 	public enum Status {
 		/**
 		 * Operation failed.
@@ -38,7 +38,7 @@ namespace Encap {
 	/**
 	 * Result of most operations
 	 */
-	[CCode(cname = "int")]
+	[CCode(cname = "int", has_type_id = false)]
 	public enum Result {
 		/**
 		 * No error occured
@@ -55,7 +55,7 @@ namespace Encap {
 	/**
 	 * An Encap package handle
 	 */
-	[CCode(cname = "ENCAP", free_function = "encap_close")]
+	[CCode(cname = "ENCAP", free_function = "encap_close", has_type_id = false)]
 	[Compact]
 	public class Package {
 		/**
@@ -151,14 +151,14 @@ TODO
 	 * @param format Format argument.
 	 * @return The number of characters written.
 	 */
-	[CCode(cname = "encap_print_func_t", has_target = false)]
+	[CCode(cname = "encap_print_func_t", has_target = false, has_type_id = false)]
 	[PrintfFormat]
 	public delegate int PrintFunc(Package package, source_info? source, target_info? target, Message type, string format, ...);
 
 	/**
 	 * Recursion actions returned by decision functions
 	 */
-	[CCode(cname = "int", cprefix = "R_")]
+	[CCode(cname = "int", cprefix = "R_", has_type_id = false)]
 	public enum Decision {
 		/**
 		 * Fatal error.
@@ -194,7 +194,7 @@ TODO
 	 * @param source The description of the Encap source file which is returned by {@link Package.check_source}.
 	 * @param target The description of the Encap target link which is returned by {@link check_target}.
 	 */
-	[CCode(cname = "encap_decision_func_t", has_target = false)]
+	[CCode(cname = "encap_decision_func_t", has_target = false, has_type_id = false)]
 	public delegate Decision DecisionFunction(Package package, source_info source, target_info target);
 
 	/**
@@ -203,7 +203,7 @@ TODO
 	 * @param name the package name
 	 * @param version the version found
 	 */
-	[CCode(cname = "verfunc_t", instance_pos = 0)]
+	[CCode(cname = "verfunc_t", instance_pos = 0, has_type_id = false)]
 	public delegate Result VersionFunc(string name, string version);
 
 	/**
@@ -248,7 +248,7 @@ which is found, the supplied function is called.  If the function returns {@link
 	/**
 	 * Description of source file
 	 */
-	[CCode(cname = "encap_source_info_t", destroy_function = "")]
+	[CCode(cname = "encap_source_info_t", destroy_function = "", has_type_id = false)]
 	public struct source_info {
 		[CCode(cname = "src_flags")]
 		SourceFlags flags;
@@ -282,7 +282,7 @@ which is found, the supplied function is called.  If the function returns {@link
 	/**
 	 * State of a source file.
 	 */
-	[CCode(cname = "int", cprefix = "SRC_")]
+	[CCode(cname = "int", cprefix = "SRC_", has_type_id = false)]
 	[Flags]
 	public enum SourceFlags {
 		/**
@@ -310,7 +310,7 @@ which is found, the supplied function is called.  If the function returns {@link
 	/**
 	 * Description of a target file
 	 */
-	[CCode(cname = "encap_target_info_t", destroy_function = "")]
+	[CCode(cname = "encap_target_info_t", destroy_function = "", has_type_id = false)]
 	public struct target_info {
 		[CCode(cname = "tgt_flags")]
 		TargetFlags flags;
@@ -331,7 +331,7 @@ which is found, the supplied function is called.  If the function returns {@link
 	/**
 	 * State of a target file.
 	 */
-	[CCode(cname = "int", cprefix = "TGT_")]
+	[CCode(cname = "int", cprefix = "TGT_", has_type_id = false)]
 	[Flags]
 	public enum TargetFlags {
 		/**
@@ -381,7 +381,7 @@ which is found, the supplied function is called.  If the function returns {@link
 	/**
 	 * Error message types
 	 */
-	[CCode(cname = "uint", cprefix = "EPT_")]
+	[CCode(cname = "uint", cprefix = "EPT_", has_type_id = false)]
 	public enum Message {
 		/**
 		 * Installation of the link or directory corresponding to the file described by {@link source_info} has succeeded.
@@ -478,7 +478,7 @@ which is found, the supplied function is called.  If the function returns {@link
 	/**
 	 * Package information
 	 */
-	[CCode(cname = "encapinfo_t", destroy_function = "encapinfo_free")]
+	[CCode(cname = "encapinfo_t", destroy_function = "encapinfo_free", has_type_id = false)]
 	public struct info {
 		/**
 		 * Package format
@@ -552,7 +552,7 @@ which is found, the supplied function is called.  If the function returns {@link
 	/**
 	 * Package action options
 	 */
-	[CCode(cname = "unsigned long", cprefix = "OPT_")]
+	[CCode(cname = "unsigned long", cprefix = "OPT_", has_type_id = false)]
 	[Flags]
 	public enum Options {
 		/**
@@ -622,7 +622,7 @@ which is found, the supplied function is called.  If the function returns {@link
 	[CCode(cname = "encap_target_clean")]
 	public Result target_clean(string target, string source, Message message, PrintFunc print_func, DecisionFunction decision);
 
-	[CCode(cname = "linkname_t", free_function = "")]
+	[CCode(cname = "linkname_t", free_function = "", has_type_id = false)]
 	[Compact]
 	public class LinkName {
 		[CCode(cname = "ln_pkgdir_path")]
@@ -634,7 +634,7 @@ which is found, the supplied function is called.  If the function returns {@link
 	/**
 	 * Package prequisite definition
 	 */
-	[CCode(cname = "ENCAP_PREREQ", free_function = "")]
+	[CCode(cname = "ENCAP_PREREQ", free_function = "", has_type_id = false)]
 	public class Prerequisite {
 		[CCode(cname = "ep_type")]
 		public Type type;
@@ -694,28 +694,28 @@ which is found, the supplied function is called.  If the function returns {@link
 	 *
 	 * @return less than, equal to, or greater than 0 if ''a'' is less than, equal to, or greater than ''b''
 	 */
-	[CCode(cname = "encap_cmpfunc_t", simple_generics = true, has_target = false)]
+	[CCode(cname = "encap_cmpfunc_t", simple_generics = true, has_target = false, has_type_id = false)]
 	public delegate int CompareFunc<T>(T a, T b);
 
 	/**
 	 * Free function (for freeing allocated memory in each element)
 	 */
-	[CCode(cname = "encap_freefunc_t", simple_generics = true, has_target = false)]
+	[CCode(cname = "encap_freefunc_t", simple_generics = true, has_target = false, has_type_id = false)]
 	public delegate void FreeFunc<T>(owned T data);
 
-	[CCode(cname = "encap_iterate_func_t", simple_generics = true)]
+	[CCode(cname = "encap_iterate_func_t", simple_generics = true, has_type_id = false)]
 	public delegate Result IterateFunc<T>(T data);
 
 	/**
 	 * Matching function (used to find elements in a list)
 	 */
-	[CCode(cname = "encap_matchfunc_t", simple_generics = true, has_target = false)]
+	[CCode(cname = "encap_matchfunc_t", simple_generics = true, has_target = false, has_type_id = false)]
 	public delegate bool MatchFunc<T>(T a, T b);
 
 	/**
 	 * Reference to an item in a {@link List}
 	 */
-	[CCode(cname = "encap_listptr_t", simple_generics = true, destroy_function = "")]
+	[CCode(cname = "encap_listptr_t", simple_generics = true, destroy_function = "", has_type_id = false)]
 	public struct list_item<T> {
 		[CCode(cname = "encap_listptr_reset")]
 		public list_item();
@@ -731,10 +731,10 @@ which is found, the supplied function is called.  If the function returns {@link
 	/**
 	 * A list of items
 	 */
-	[CCode(cname = "encap_list_t", simple_generics = true)]
+	[CCode(cname = "encap_list_t", simple_generics = true, has_type_id = false)]
 	[Compact]
 	public class List<T> {
-		[CCode(cname = "int", cprefix = "LIST_")]
+		[CCode(cname = "int", cprefix = "LIST_", has_type_id = false)]
 		public enum Format {
 		/**
 		 * The user-supplied function which determines the ordering of the list.
@@ -834,13 +834,13 @@ which is found, the supplied function is called.  If the function returns {@link
 	 * @param the total number of buckets
 	 * @return the bucket number
 	 */
-	[CCode(cname = "encap_hashfunc_t", simple_generics = true, has_target = false)]
+	[CCode(cname = "encap_hashfunc_t", simple_generics = true, has_target = false, has_type_id = false)]
 	public delegate uint HashFunc<T>(T data, uint buckets);
 
 	/**
 	 * Reference to an item in a {@link Hash}
 	 */
-	[CCode(cname = "encap_hashptr_t", simple_generics = true, destroy_function = "")]
+	[CCode(cname = "encap_hashptr_t", simple_generics = true, destroy_function = "", has_type_id = false)]
 	public struct hash_item<T> {
 		[CCode(cname = "encap_hashptr_reset")]
 		public hash_item();
@@ -861,7 +861,7 @@ which is found, the supplied function is called.  If the function returns {@link
 	/**
 	 * A hashtable
 	 */
-	[CCode(cname = "encap_hash_t")]
+	[CCode(cname = "encap_hash_t", has_type_id = false)]
 	[Compact]
 	public class Hash<T> {
 		/**

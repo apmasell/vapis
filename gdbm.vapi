@@ -5,7 +5,7 @@ namespace GDBM {
 	 * Configuration mode for opening a database.
 	 */
 	[Flags]
-	[CCode(cprefix = "GDBM_", type = "int")]
+	[CCode(cprefix = "GDBM_", type = "int", has_type_id = false)]
 	public enum OpenFlag {
 		/**
 		 * Open file as reader.
@@ -39,14 +39,14 @@ namespace GDBM {
 	}
 
 	[SimpleType]
-	[CCode(cname = "datum", destroy_function = "")]
+	[CCode(cname = "datum", destroy_function = "", has_type_id = false)]
 	private struct rdatum {
 		[CCode(cname = "dptr", array_length_cname = "dsize", array_length_type = "int")]
 		uint8[] data;
 	}
 
 	[SimpleType]
-	[CCode(cname = "datum", has_destroy_function = false)]
+	[CCode(cname = "datum", has_destroy_function = false, has_type_id = false)]
 	private struct datum {
 		[CCode(array_length = false)]
 		unowned uint8[] dptr;
@@ -60,7 +60,7 @@ namespace GDBM {
 	[CCode(cname = "gdbm_version")]
 	public const string VERSION;
 
-	[CCode(type = "int", cprefix = "GDBM_")]
+	[CCode(type = "int", cprefix = "GDBM_", has_type_id = false)]
 	private enum Option {
 		CACHESIZE,
 		FASTMODE,
@@ -72,7 +72,7 @@ namespace GDBM {
 	/**
 	 * Delegate for the handler when database opening fails
 	 */
-	[CCode(has_target = false)]
+	[CCode(has_target = false, has_type_id = false)]
 	public delegate void FatalHandler();
 
 	/**
@@ -82,7 +82,7 @@ namespace GDBM {
 	 * A process that opens a gdbm file is designated as a "reader" or a "writer". Only one writer may open a gdbm file and many readers may open the file. Readers and writers can not open the gdbm file at the same time.
 	 */
 	[Compact]
-	[CCode(cname = "void", cprefix = "gdbm_", free_function = "gdbm_close")]
+	[CCode(cname = "void", cprefix = "gdbm_", free_function = "gdbm_close", has_type_id = false)]
 	public class Database {
 
 		private int @delete (datum key);
@@ -280,7 +280,7 @@ namespace GDBM {
 	/**
 	 * Error codes set by database operations.
 	 */
-	[CCode(type = "gdbm_error", cprefix = "GDBM_")]
+	[CCode(type = "gdbm_error", cprefix = "GDBM_", has_type_id = false)]
 	public enum Error {
 		/**
 		 * No error

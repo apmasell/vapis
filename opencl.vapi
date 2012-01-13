@@ -19,11 +19,11 @@
 [CCode(cheader_filename = "CL/cl.h")]
 #endif
 namespace OpenCL {
-	[CCode(cname = "pfn_event_notify", always_declare = true)]
+	[CCode(cname = "pfn_event_notify", always_declare = true, has_type_id = false)]
 	public delegate void EventNotify(Event event, Event.State exec_status);
-	[CCode(cname = "user_func", has_target = false, always_declare = true)]
+	[CCode(cname = "user_func", has_target = false, always_declare = true, has_type_id = false)]
 	public delegate void NativeFunction([CCode(array_length = false)] uint8[] args);
-	[CCode(cname = "pfn_notify", always_declare = true)]
+	[CCode(cname = "pfn_notify", always_declare = true, has_type_id = false)]
 	public delegate void Notify(string error, [CCode(array_length_type = "size_t")] uint8[] data);
 
 	[CCode(cname = "struct _cl_command_queue", ref_function = "clRetainCommandQueue", unref_function = "clReleaseCommandQueue", ref_function_void = true, has_type_id = false)]
@@ -52,7 +52,7 @@ namespace OpenCL {
 			PROPERTIES
 		}
 
-		[CCode(cname = "cl_map_flags", cprefix = "CL_MAP_")]
+		[CCode(cname = "cl_map_flags", cprefix = "CL_MAP_", has_type_id = false)]
 		[Flags]
 		public enum MapFlags {
 			/**
@@ -65,7 +65,7 @@ namespace OpenCL {
 			WRITE
 		}
 
-		[CCode(cname = "cl_command_queue_properties", cprefix = "CL_QUEUE_")]
+		[CCode(cname = "cl_command_queue_properties", cprefix = "CL_QUEUE_", has_type_id = false)]
 		[Flags]
 		public enum Properties {
 			/**
@@ -1030,7 +1030,7 @@ namespace OpenCL {
 
 	[CCode(cname = "struct _cl_context", ref_function = "clRetainContext", unref_function = "clReleaseContext", ref_function_void = true, has_type_id = false)]
 	public class Context {
-		[CCode(cname = "cl_context_info", cprefix = "CL_CONTEXT_")]
+		[CCode(cname = "cl_context_info", cprefix = "CL_CONTEXT_", has_type_id = false)]
 		public enum Info {
 			/**
 			 * The context reference count. (uint)
@@ -1062,7 +1062,7 @@ namespace OpenCL {
 			 */
 			D3D10_PREFER_SHARED_RESOURCES_KHR
 		}
-		[CCode(cname = "cl_context_properties", cprefix = "CL_CONTEXT_")]
+		[CCode(cname = "cl_context_properties", cprefix = "CL_CONTEXT_", has_type_id = false)]
 		public enum Properties {
 			/**
 			 * Specifies the platform to use. ({@link Platform})
@@ -1309,7 +1309,7 @@ namespace OpenCL {
 
 	}
 
-	[CCode(cname = "cl_device_info", cprefix = "CL_DEVICE_")]
+	[CCode(cname = "cl_device_info", cprefix = "CL_DEVICE_", has_type_id = false)]
 	public enum DeviceInfo {
 		TYPE,
 		VENDOR_ID,
@@ -1374,13 +1374,13 @@ namespace OpenCL {
 		OPENCL_C_VERSION
 	}
 
-	[CCode(cname = "cl_device_exec_capabilities", cprefix = "CL_EXEC_")]
+	[CCode(cname = "cl_device_exec_capabilities", cprefix = "CL_EXEC_", has_type_id = false)]
 	public enum ExecutionCapabilities {
 		KERNEL,
 		NATIVE_KERNEL
 	}
 
-	[CCode(cname = "cl_device_fp_config", cprefix = "CL_FP_")]
+	[CCode(cname = "cl_device_fp_config", cprefix = "CL_FP_", has_type_id = false)]
 	public enum FloatingPointConfig {
 		DENORM,
 		FMA,
@@ -1390,20 +1390,20 @@ namespace OpenCL {
 		ROUND_TO_ZERO
 	}
 
-	[CCode(cname = "cl_device_local_mem_type", cprefix = "CL_")]
+	[CCode(cname = "cl_device_local_mem_type", cprefix = "CL_", has_type_id = false)]
 	public enum LocalMemoryType {
 		GLOBAL,
 		LOCAL
 	}
 
-	[CCode(cname = "cl_device_mem_cache_type", cprefix = "CL_")]
+	[CCode(cname = "cl_device_mem_cache_type", cprefix = "CL_", has_type_id = false)]
 	public enum MemoryCacheType {
 		NONE,
 		READ_ONLY_CACHE,
 		READ_WRITE_CACHE
 	}
 
-	[CCode(cname = "cl_device_type", cprefix = "CL_DEVICE_TYPE_")]
+	[CCode(cname = "cl_device_type", cprefix = "CL_DEVICE_TYPE_", has_type_id = false)]
 	[Flags]
 	public enum DeviceType {
 		/**
@@ -1495,7 +1495,7 @@ namespace OpenCL {
 			 */
 			REFERENCE_COUNT
 		}
-		[CCode(cname = "cl_profiling_info", cprefix = "CL_PROFILING_COMMAND_")]
+		[CCode(cname = "cl_profiling_info", cprefix = "CL_PROFILING_COMMAND_", has_type_id = false)]
 		public enum State {
 			/**
 			 * The current device time counter in nanoseconds when the command
@@ -1520,7 +1520,7 @@ namespace OpenCL {
 			 */
 			END
 		}
-		[CCode(cname = "cl_int", cprefix = "CL_")]
+		[CCode(cname = "cl_int", cprefix = "CL_", has_type_id = false)]
 		public enum Status {
 			COMPLETE,
 			RUNNING,
@@ -1590,7 +1590,7 @@ cl_int clSetEventCallback (	cl_event event,
 	}
 	[CCode(cname = "struct _cl_kernel", ref_function = "clRetainKernel", unref_function = "clReleaseKernel", ref_function_void = true, has_type_id = false)]
 	public class Kernel {
-		[CCode(cname = "cl_kernel_info", cprefix = "CL_KERNEL_")]
+		[CCode(cname = "cl_kernel_info", cprefix = "CL_KERNEL_", has_type_id = false)]
 		public enum Info {
 			/**
 			 * The kernel function name. (char[])
@@ -1618,7 +1618,7 @@ cl_int clSetEventCallback (	cl_event event,
 			PROGRAM
 		}
 
-		[CCode(cname = "cl_kernel_work_group_info")]
+		[CCode(cname = "cl_kernel_work_group_info", has_type_id = false)]
 		public enum WorkgroupInfo {
 			/**
 			 * The maximum work-group size that can be used to execute a kernel on a
@@ -1820,7 +1820,7 @@ cl_int clSetEventCallback (	cl_event event,
 			[CCode(cname = "clSetMemObjectDestructorCallback")]
 			public set;
 		}
-		[CCode(cname = "cl_mem_info", cprefix = "CL_MEM_")]
+		[CCode(cname = "cl_mem_info", cprefix = "CL_MEM_", has_type_id = false)]
 		public enum Info {
 			/**
 			 * The type. ({@link ObjectType})
@@ -1875,7 +1875,7 @@ cl_int clSetEventCallback (	cl_event event,
 			OFFSET
 		}
 
-		[CCode(cname = "cl_image_info", cprefix = "CL_IMAGE_")]
+		[CCode(cname = "cl_image_info", cprefix = "CL_IMAGE_", has_type_id = false)]
 		public enum ImageInfo {
 			/**
 			 * Image format descriptor specified when image is created. ({@link image_format})
@@ -1913,7 +1913,7 @@ cl_int clSetEventCallback (	cl_event event,
 			 */
 			DEPTH
 		}
-		[CCode(cname = "cl_mem_flags", cprefix = "CL_MEM_")]
+		[CCode(cname = "cl_mem_flags", cprefix = "CL_MEM_", has_type_id = false)]
 		[Flags]
 		public enum Flags {
 			/**
@@ -1972,11 +1972,11 @@ cl_int clSetEventCallback (	cl_event event,
 			 */
 			COPY_HOST_PTR
 		}
-		[CCode(cname = "cl_buffer_create_type", cprefix = "CL_BUFFER_CREATE_TYPE_")]
+		[CCode(cname = "cl_buffer_create_type", cprefix = "CL_BUFFER_CREATE_TYPE_", has_type_id = false)]
 		public enum CreationType {
 			REGION
 		}
-		[CCode(cname = "cl_mem_object_type", cprefix = "CL_MEM_OBJECT_")]
+		[CCode(cname = "cl_mem_object_type", cprefix = "CL_MEM_OBJECT_", has_type_id = false)]
 		public enum ObjectType {
 			BUFFER,
 			IMAGE2D,
@@ -2036,7 +2036,7 @@ cl_int clSetEventCallback (	cl_event event,
 		}
 	}
 
-	[CCode(cname = "cl_platform_info", cprefix = "CL_PLATFORM_")]
+	[CCode(cname = "cl_platform_info", cprefix = "CL_PLATFORM_", has_type_id = false)]
 	public enum PlatformInfo {
 		/**
 		 * OpenCL profile string. Returns the profile name supported by the implementation.
@@ -2107,7 +2107,7 @@ cl_int clSetEventCallback (	cl_event event,
 
 	[CCode(cname = "struct _cl_program", ref_function = "clRetainProgram", unref_function = "clReleaseProgram", ref_function_void = true, has_type_id = false)]
 	public class Program {
-		[CCode(cname = "cl_program_build_info", cprefix = "CL_PROGRAM_BUILD_")]
+		[CCode(cname = "cl_program_build_info", cprefix = "CL_PROGRAM_BUILD_", has_type_id = false)]
 		public enum BuildInfo {
 			/**
 			 * The build status of program for a specific device as given by device. (@{link BuildStatus})
@@ -2129,7 +2129,7 @@ cl_int clSetEventCallback (	cl_event event,
 			 */
 			LOG
 		}
-		[CCode(cname = "cl_build_status", cprefix = "CL_BUILD_")]
+		[CCode(cname = "cl_build_status", cprefix = "CL_BUILD_", has_type_id = false)]
 		public enum BuildStatus {
 			/**
 			 * No build has been performed on the specified program object for device.
@@ -2151,7 +2151,7 @@ cl_int clSetEventCallback (	cl_event event,
 			 */
 			IN_PROGRESS
 		}
-		[CCode(cname = "cl_program_info", cprefix = "CL_PROGRAM_")]
+		[CCode(cname = "cl_program_info", cprefix = "CL_PROGRAM_", has_type_id = false)]
 		public enum Info {
 			/**
 			 * The program reference count. (uint)
@@ -2342,19 +2342,19 @@ If an entry value in the array is NULL, the implementation skips copying the pro
 
 	[CCode(cname = "struct _cl_sampler", ref_function = "clRetainSampler", unref_function = "clReleaseSampler", ref_function_void = true, has_type_id = false)]
 	public class Sampler {
-		[CCode(cname = "cl_addressing_mode", cprefix = "CL_ADDRESS_")]
+		[CCode(cname = "cl_addressing_mode", cprefix = "CL_ADDRESS_", has_type_id = false)]
 		public enum AddressingMode {
 			NONE,
 			CLAMP_TO_EDGE,
 			CLAMP,
 			REPEAT
 		}
-		[CCode(cname = "cl_filter_mode", cprefix = "CL_FILTER_")]
+		[CCode(cname = "cl_filter_mode", cprefix = "CL_FILTER_", has_type_id = false)]
 		public enum FilterMode {
 			NEAREST,
 			LINE
 		}
-		[CCode(cname = "cl_sampler_info", cprefix = "CL_SAMPLER_")]
+		[CCode(cname = "cl_sampler_info", cprefix = "CL_SAMPLER_", has_type_id = false)]
 		public enum Info {
 			/**
 			 * The sampler reference count. (uint)
@@ -2402,20 +2402,20 @@ If an entry value in the array is NULL, the implementation skips copying the pro
 	public struct buffer_create_info {
 	}
 
-	[CCode(cname = "cl_buffer_region")]
+	[CCode(cname = "cl_buffer_region", has_type_id = false)]
 	public struct buffer_region : buffer_create_info {
 		public size_t origin;
 		public size_t size;
 	}
 
-	[CCode(cname = "cl_image_format")]
+	[CCode(cname = "cl_image_format", has_type_id = false)]
 	public struct image_format {
 		[CCode(cname = "image_channel_order")]
     public ChannelOrder order;
 		[CCode(cname = "image_channel_data_type")]
 		public ChannelType type;
 	}
-	[CCode(cname = "cl_channel_order", cprefix = "CL_")]
+	[CCode(cname = "cl_channel_order", cprefix = "CL_", has_type_id = false)]
 	public enum ChannelOrder {
 		R,
 		A,
@@ -2432,7 +2432,7 @@ If an entry value in the array is NULL, the implementation skips copying the pro
 		RGBx
 	}
 
-	[CCode(cname = "cl_channel_type", cprefix = "CL_")]
+	[CCode(cname = "cl_channel_type", cprefix = "CL_", has_type_id = false)]
 	public enum ChannelType {
 		SNORM_INT8,
 		SNORM_INT16,
@@ -2451,7 +2451,7 @@ If an entry value in the array is NULL, the implementation skips copying the pro
 		FLOAT
 	}
 
-	[CCode(cname = "cl_command_type", cprefix = "CL_COMMAND_")]
+	[CCode(cname = "cl_command_type", cprefix = "CL_COMMAND_", has_type_id = false)]
 	public enum CommandType {
 		NDRANGE_KERNEL,
 		TASK,
@@ -2479,7 +2479,7 @@ If an entry value in the array is NULL, the implementation skips copying the pro
 	/**
 	 * Error Codes
 	 */
-	[CCode(cname = "int", cprefix = "CL_")]
+	[CCode(cname = "int", cprefix = "CL_", has_type_id = false)]
 	public enum Error {
 		SUCCESS,
 		DEVICE_NOT_FOUND,

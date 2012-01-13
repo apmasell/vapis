@@ -1,5 +1,5 @@
 namespace Posix {
-	[CCode(cname = "jmp_buf", cheader_filename = "setjmp.h")]
+	[CCode(cname = "jmp_buf", cheader_filename = "setjmp.h", has_type_id = false)]
 	[SimpleType]
 	public struct jump {
 		[CCode(cname = "setjmp")]
@@ -9,7 +9,7 @@ namespace Posix {
 		public void return(int val);
 	}
 
-	[CCode(cname = "sigjmp_buf", cheader_filename = "setjmp.h")]
+	[CCode(cname = "sigjmp_buf", cheader_filename = "setjmp.h", has_type_id = false)]
 	[SimpleType]
 	public struct sig_jump {
 		[CCode(cname = "sigsetjmp")]

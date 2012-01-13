@@ -1,6 +1,6 @@
 [CCode(cheader_filename = "ffi.h")]
 namespace FFI {
-	[CCode(cname = "ffi_cif")]
+	[CCode(cname = "ffi_cif", has_type_id = false)]
 	public struct call_interface {
 		[CCode(cname = "ffi_prep_cif")]
 		public static Status prepare(out call_interface cif, ABI abi, type returntype, [CCode(array_length_type = "unsigned int", array_length_pos = 2.3)] type[] argtypes);
@@ -9,7 +9,7 @@ namespace FFI {
 		public void call<T>(void *fn, out T rvalue, void ** avalue);
 	}
 
-	[CCode(cname = "ffi_type*", cprefix = "ffi_type_")]
+	[CCode(cname = "ffi_type*", cprefix = "ffi_type_", has_type_id = false)]
 	[SimpleType]
 	public struct type {
 	}
@@ -38,7 +38,7 @@ namespace FFI {
 	[CCode(cname = "&ffi_type_pointer")]
 	public const type @pointer;
 
-	[CCode(cname = "ffi_status", cprefix = "FFI_")]
+	[CCode(cname = "ffi_status", cprefix = "FFI_", has_type_id = false)]
 	public enum Status {
 		OK,
 		BAD_TYPEDEF,
@@ -50,7 +50,7 @@ namespace FFI {
 	 *
 	 * This is all possible calling conventions across all platforms. Most will not work, or even be defined, on the current platform.
 	 */
-	[CCode(cname = "ffi_abi", cprefix = "FFI_")]
+	[CCode(cname = "ffi_abi", cprefix = "FFI_", has_type_id = false)]
 	public enum ABI {
 		[CCode(cname = "FFI_DEFAULT_ABI")]
 		DEFAULT,

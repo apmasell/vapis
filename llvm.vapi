@@ -14,7 +14,7 @@ namespace LLVM {
 	 * IR Builder
 	 */
 	[Compact]
-	[CCode (cname="struct LLVMOpaqueBuilder", free_function="LLVMDisposeBuilder")]
+	[CCode (cname="struct LLVMOpaqueBuilder", free_function="LLVMDisposeBuilder", has_type_id = false)]
 	public class Builder {
 		/**
 		 * Create a new builder in the global context.
@@ -230,7 +230,7 @@ namespace LLVM {
 	 * context per thread.
 	 */
 	[Compact]
-	[CCode (cname="struct LLVMOpaqueContext", free_function="LLVMContextDispose")]
+	[CCode (cname="struct LLVMOpaqueContext", free_function="LLVMContextDispose", has_type_id = false)]
 	public class Context {
 		[CCode (cname = "LLVMContextCreate")]
 		public Context();
@@ -251,7 +251,7 @@ namespace LLVM {
 	 * (JIT) compiler implementations.
 	 */
 	[Compact]
-	[CCode (cname="struct LLVMOpaqueExecutionEngine", free_function="LLVMDisposeExecutionEngine", cheader_filename = "llvm-c/ExecutionEngine.h")]
+	[CCode (cname="struct LLVMOpaqueExecutionEngine", free_function="LLVMDisposeExecutionEngine", cheader_filename = "llvm-c/ExecutionEngine.h", has_type_id = false)]
 	public class ExecutionEngine {
 		/**
 		 * Create an execution engine which is appropriate for the current machine.
@@ -330,7 +330,7 @@ namespace LLVM {
 	}
 
 	[Compact]
-	[CCode (cname="struct LLVMOpaqueGenericValue", free_function="LLVMDisposeGenericValue", cheader_filename = "llvm-c/ExecutionEngine.h")]
+	[CCode (cname="struct LLVMOpaqueGenericValue", free_function="LLVMDisposeGenericValue", cheader_filename = "llvm-c/ExecutionEngine.h", has_type_id = false)]
 	public class GenericValue {
 		[CCode (cname = "LLVMCreateGenericValueOfFloat", cheader_filename = "llvm-c/ExecutionEngine.h")]
 		public GenericValue.of_float (Ty ty, double n);
@@ -350,7 +350,7 @@ namespace LLVM {
 	}
 
 	[Compact]
-	[CCode (cname="struct LLVMOpaqueMemoryBuffer", free_function="LLVMDisposeMemoryBuffer", cheader_filename = "llvm-c/BitReader.h")]
+	[CCode (cname="struct LLVMOpaqueMemoryBuffer", free_function="LLVMDisposeMemoryBuffer", cheader_filename = "llvm-c/BitReader.h", has_type_id = false)]
 	public class MemoryBuffer {
 		[CCode (cname = "LLVMCreateMemoryBufferWithSTDIN")]
 		public static int create_with_stdin (out MemoryBuffer membuf, out string message);
@@ -374,7 +374,7 @@ namespace LLVM {
 	 * This exists for historical reasons.
 	 */
 	[Compact]
-	[CCode (cname="struct LLVMOpaqueModuleProvider", free_function="LLVMDisposeModuleProvider")]
+	[CCode (cname="struct LLVMOpaqueModuleProvider", free_function="LLVMDisposeModuleProvider", has_type_id = false)]
 	public class ModuleProvider {
 		[CCode (cname = "LLVMCreateModuleProviderForExistingModule")]
 		public ModuleProvider (owned Module m);
@@ -395,7 +395,7 @@ namespace LLVM {
 	 * entries in this table.
 	 */
 	[Compact]
-	[CCode (cname="struct LLVMOpaqueModule", free_function="LLVMDisposeModule")]
+	[CCode (cname="struct LLVMOpaqueModule", free_function="LLVMDisposeModule", has_type_id = false)]
 	public class Module {
 		[CCode (cname = "LLVMModuleCreateWithName")]
 		public Module (string name);
@@ -474,7 +474,7 @@ namespace LLVM {
 	 * An abstract interface to allow code to add passes to a pass manager without having to hard-code what kind of pass manager it is.
 	 */
 	[Compact]
-	[CCode (cname="struct LLVMOpaquePassManager", free_function="LLVMDisposePassManager")]
+	[CCode (cname="struct LLVMOpaquePassManager", free_function="LLVMDisposePassManager", has_type_id = false)]
 	public class PassManagerBase {
 		[CCode (cname = "LLVMAddTargetData", instance_pos = -1)]
 		public void add_target_data (TargetData target);
@@ -556,7 +556,7 @@ namespace LLVM {
 	 * Manages module PassManagers.
 	 */
 	[Compact]
-	[CCode (cname="struct LLVMOpaquePassManager", free_function="LLVMDisposePassManager")]
+	[CCode (cname="struct LLVMOpaquePassManager", free_function="LLVMDisposePassManager", has_type_id = false)]
 	public class PassManager: PassManagerBase {
 		[CCode (cname = "LLVMCreatePassManager")]
 		public PassManager ();
@@ -573,7 +573,7 @@ namespace LLVM {
 	 * Manages function and basic block pass managers.
 	 */
 	[Compact]
-	[CCode (cname="struct LLVMOpaquePassManager", free_function="LLVMDisposePassManager")]
+	[CCode (cname="struct LLVMOpaquePassManager", free_function="LLVMDisposePassManager", has_type_id = false)]
 	public class FunctionPassManager: PassManagerBase {
 		[CCode (cname = "LLVMCreateFunctionPassManager")]
 		public FunctionPassManager (ModuleProvider mp);
@@ -605,7 +605,7 @@ namespace LLVM {
 	}
 
 	[Compact]
-	[CCode (cheader_filename = "llvm-c/Target.h", cname="struct LLVMOpaqueTargetData", free_function="LLVMDisposeTargetData")]
+	[CCode (cheader_filename = "llvm-c/Target.h", cname="struct LLVMOpaqueTargetData", free_function="LLVMDisposeTargetData", has_type_id = false)]
 	public class TargetData {
 		/**
 		 * Constructs a TargetData from a specification string.
@@ -646,7 +646,7 @@ namespace LLVM {
 	 * llvm::AbstractTypeHolder class.
 	 */
 	[Compact]
-	[CCode (cname="struct LLVMOpaqueTypeHandle", free_function="LLVMDisposeTypeHandle")]
+	[CCode (cname="struct LLVMOpaqueTypeHandle", free_function="LLVMDisposeTypeHandle", has_type_id = false)]
 	public class TyHandle {
 		[CCode (cname = "LLVMCreateTypeHandle")]
 		public TyHandle (Ty potentially_abstract_ty);
@@ -656,7 +656,7 @@ namespace LLVM {
 	}
 
 	[SimpleType]
-	[CCode (cname="LLVMTypeRef")]
+	[CCode (cname="LLVMTypeRef", has_type_id = false)]
 	public struct Ty {
 		/* array */
 		[CCode (cname = "LLVMArrayType")]
@@ -758,7 +758,7 @@ namespace LLVM {
 	}
 
 	[SimpleType]
-	[CCode (cname="LLVMUseRef")]
+	[CCode (cname="LLVMUseRef", has_type_id = false)]
 	public struct UseIterator {
 		[CCode (cname = "LLVMGetNextUse")]
 		public UseIterator? next_value ();
@@ -783,7 +783,7 @@ namespace LLVM {
 	 * objects that watch it and listen to RAUW and Destroy events. See
 	 * llvm/Support/ValueHandle.h for details.
 	 */
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class Value {
 		public string name {
 			[CCode (cname = "LLVMGetValueName")]
@@ -883,7 +883,7 @@ namespace LLVM {
 	}
 
 	[SimpleType]
-	[CCode (cname="LLVMBasicBlockRef")]
+	[CCode (cname="LLVMBasicBlockRef", has_type_id = false)]
 	public struct BasicBlock {
 		public Value parent { [CCode (cname = "LLVMGetBasicBlockParent")] get; }
 		public Value @value { [CCode (cname = "LLVMBasicBlockAsValue")] get; }
@@ -900,7 +900,7 @@ namespace LLVM {
 		public BasicBlock insert_before (string name);
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class User: Value {
 		public int count { [CCode(cname = "LLVMGetNumOperands")] get; }
 		[CCode (cname = "LLVMSetOperand")]
@@ -909,104 +909,104 @@ namespace LLVM {
 		public Value set(uint index, Value val);
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class Instruction: User {
 		public BasicBlock parent { [CCode (cname = "LLVMGetInstructionParent")] get; }
 		public Instruction next { [CCode (cname = "LLVMGetNextInstruction")] get; }
 		public Instruction previous { [CCode (cname = "LLVMGetPreviousInstruction")] get; }
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class CmpInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class ICmpInst: CmpInst {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class FCmpInst: CmpInst {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class ReturnInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class BranchInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class SwitchInst: Instruction {
 		[CCode (cname = "LLVMAddCase")]
 		public void add_case (Value on_val, BasicBlock dest);
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class InvokeInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class UnwindInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class UnreachableInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class UnaryInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class AllocaInst: UnaryInst {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class LoadInst: UnaryInst {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class CastInst: UnaryInst {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class StoreInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class GEPInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class SelectInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class VAArgInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class ExtractElementInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class InsertElementInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class ShuffleVectorInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class ExtractValueInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class InsertValueInst: Instruction {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class CallInst: Instruction {
 		public CallConv call_conv {
 			[CCode (cname = "LLVMSetInstructionCallConv")]
@@ -1030,7 +1030,7 @@ namespace LLVM {
 		}
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class PHINode: Instruction {
 		[CCode (cname = "LLVMAddIncoming")]
 		public void add_incoming ([CCode (array_length_pos = 3.9)] LLVM.Value[] incoming_values, [CCode (array_length = false)] BasicBlock[] incoming_blocks);
@@ -1042,7 +1042,7 @@ namespace LLVM {
 	}
 
 	// FIXME: Argument or Parameter - there is a mix in the bindings
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class Argument: Value {
 		public Function parent { [CCode (cname = "LLVMGetParamParent")] get; }
 		public Attribute attribute { [CCode (cname = "LLVMGetAttribute")] get; }
@@ -1057,7 +1057,7 @@ namespace LLVM {
 		public void set_alignment (uint align);
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class Constant: User {
 		public LLVM.Opcode opcode { [CCode (cname = "LLVMGetConstOpcode")] get; }
 		public int64 sext_value { [CCode (cname = "LLVMConstIntGetSExtValue")] get; }
@@ -1210,7 +1210,7 @@ namespace LLVM {
 		public static Constant inline_asm (LLVM.Ty ty, string asm_string, string constraints, bool has_side_effects);
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class GlobalValue: Constant {
 		public Module global_parent { [CCode (cname = "LLVMGetGlobalParent")] get; }
 		public Linkage linkage {
@@ -1239,7 +1239,7 @@ namespace LLVM {
 		}
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class GlobalVariable: GlobalValue {
 		public GlobalVariable next { [CCode (cname = "LLVMGetNextGlobal")] get; }
 		public GlobalVariable previous { [CCode (cname = "LLVMGetPreviousGlobal")] set; }
@@ -1262,11 +1262,11 @@ namespace LLVM {
 		}
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class GlobalAlias: GlobalValue {
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class Function: GlobalValue {
 		public Attribute attribute {
 			[CCode (cname = "LLVMGetFunctionAttr")]
@@ -1307,7 +1307,7 @@ namespace LLVM {
 		public void view_cfg_only ();
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class FunctionParams {
 		public uint count { [CCode (cname = "LLVMCountParams")] get; }
 		[CCode (cname = "LLVMGetParams")]
@@ -1319,7 +1319,7 @@ namespace LLVM {
 		public Argument last { [CCode (cname = "LLVMGetLastParam")] get; }
 	}
 
-	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "")]
+	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class FunctionBlocks {
 		public uint count { [CCode (cname = "LLVMCountBasicBlocks")] get; }
 		[CCode (cname = "LLVMGetBasicBlocks")]
@@ -1673,7 +1673,7 @@ namespace LLVM {
 		}
 
 		[Compact]
-		[CCode (cname="llvm_lto_t", free_function="llvm_destroy_optimizer", cheader_filename = "llvm-c/LinkTimeOptimizer.h")]
+		[CCode (cname="llvm_lto_t", free_function="llvm_destroy_optimizer", cheader_filename = "llvm-c/LinkTimeOptimizer.h", has_type_id = false)]
 		public class Optimizer {
 			[CCode (cname="llvm_create_optimizer")]
 			public Optimizer ();
@@ -1684,7 +1684,7 @@ namespace LLVM {
 		}
 
 		[Compact]
-		[CCode (cname = "lto_code_gen_t", free_function = "lto_codegen_dispose")]
+		[CCode (cname = "lto_code_gen_t", free_function = "lto_codegen_dispose", has_type_id = false)]
 		public class CodeGen {
 			[CCode (cname = "lto_codegen_create")]
 			public CodeGen ();
@@ -1710,7 +1710,7 @@ namespace LLVM {
 		}
 
 		[Compact]
-		[CCode (cname = "lto_module_t", free_function="lto_module_dispose")]
+		[CCode (cname = "lto_module_t", free_function="lto_module_dispose", has_type_id = false)]
 		public class Module {
 			[CCode (cname = "lto_module_create")]
 			public Module (string path);

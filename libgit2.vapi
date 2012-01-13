@@ -113,7 +113,7 @@ namespace Git {
 	/*
 	 * Attribute management routines
 	 */
-	[CCode(cname = "git_repository", cheader_filename = "git2/attr.h")]
+	[CCode(cname = "git_repository", cheader_filename = "git2/attr.h", has_type_id = false)]
 	public class Attr {
 		[CCode(cname = "GIT_ATTR_TRUE")]
 		public const string TRUE;
@@ -163,7 +163,7 @@ namespace Git {
 	/**
 	 * A custom backend in an ODB
 	 */
-	[CCode(cname = "git_odb_backend")]
+	[CCode(cname = "git_odb_backend", has_type_id = false)]
 	[Compact]
 	public class Backend {
 		public unowned Database odb;
@@ -190,13 +190,13 @@ namespace Git {
 		[CCode(cname = "git_odb_backend_pack")]
 		public static Error create_pack(out Backend backend, string objects_dir);
 
-		[CCode(has_target = false)]
+		[CCode(has_target = false, has_type_id = false)]
 		public delegate bool ExistsHandler(Backend self, object_id id);
 
-		[CCode(has_target = false)]
+		[CCode(has_target = false, has_type_id = false)]
 		public delegate void FreeHandler(owned Backend self);
 
-		[CCode(has_target = false)]
+		[CCode(has_target = false, has_type_id = false)]
 		public delegate int ReadHandler([CCode(array_length_type = "size_t")] out uint8[] data, out ObjectType type, Backend self, object_id id);
 
 		/**
@@ -205,19 +205,19 @@ namespace Git {
 		 * The id given must be so that the remaining
 		 * ({@link object_id.HEX_SIZE} - len)*4 bits are 0s.
 		 */
-		[CCode(has_target = false)]
+		[CCode(has_target = false, has_type_id = false)]
 		public delegate int ReadHeaderHandler(out size_t size, out ObjectType type, Backend self, object_id id);
 
-		[CCode(has_target = false)]
+		[CCode(has_target = false, has_type_id = false)]
 		public delegate int ReadPrefixHandler(out object_id id, [CCode(array_length_type = "size_t")] out uint8[] data, out ObjectType type, Backend self, object_id id_prefix, uint len);
 
-		[CCode(has_target = false)]
+		[CCode(has_target = false, has_type_id = false)]
 		public delegate int ReadStreamHandler(out Stream stream, Backend self, object_id id);
 
-		[CCode(has_target = false)]
+		[CCode(has_target = false, has_type_id = false)]
 		public delegate int WriteHandler(out object_id id, Backend self, [CCode(array_length_type = "size_t")] out uint8[] data, ObjectType type);
 
-		[CCode(has_target = false)]
+		[CCode(has_target = false, has_type_id = false)]
 		public delegate int WriteStreamHandler(out Stream stream, Backend self, size_t size, ObjectType type);
 
 		~Backend() {
@@ -252,7 +252,7 @@ namespace Git {
 	/**
 	 * In-memory representation of a blob object.
 	 */
-	[CCode(cname = "git_blob", free_function = "git_blob_free")]
+	[CCode(cname = "git_blob", free_function = "git_blob_free", has_type_id = false)]
 	[Compact]
 	public class Blob : Object {
 		/**
@@ -279,7 +279,7 @@ namespace Git {
 	/**
 	 * Parsed representation of a commit object.
 	 */
-	[CCode(cname = "git_commit", free_function = "git_commit_free")]
+	[CCode(cname = "git_commit", free_function = "git_commit_free", has_type_id = false)]
 	[Compact]
 	public class Commit : Object {
 		/**
@@ -380,7 +380,7 @@ namespace Git {
 	/**
 	 * Memory representation of a set of config files
 	 */
-	[CCode(cname = "git_config", free_function = "git_config_free")]
+	[CCode(cname = "git_config", free_function = "git_config_free", has_type_id = false)]
 	[Compact]
 	public class Config {
 		/**
@@ -575,7 +575,7 @@ namespace Git {
 	 * Generic backend that implements the interface to
 	 * access a configuration file
 	 */
-	[CCode(cname = "git_config_file")]
+	[CCode(cname = "git_config_file", has_type_id = false)]
 	[Compact]
 	public class ConfigFile {
 		public unowned Config cfg;
@@ -606,24 +606,24 @@ namespace Git {
 		[CCode(cname = "git_config_file__ondisk")]
 		public static Error open(out ConfigFile file, string path);
 
-		[CCode(cname = "git_config_file_delete_cb")]
+		[CCode(cname = "git_config_file_delete_cb", has_type_id = false)]
 		public delegate int DeleteHandler(ConfigFile file, string key);
-		[CCode(cname = "git_config_file_foreach_cb")]
+		[CCode(cname = "git_config_file_foreach_cb", has_type_id = false)]
 		public delegate int ForEachHandler(ConfigFile file, ConfigCallback callback);
-		[CCode(cname = "git_config_file_free_cb")]
+		[CCode(cname = "git_config_file_free_cb", has_type_id = false)]
 		public delegate void FreeHandler(ConfigFile file);
-		[CCode(cname = "git_config_file_get_cb")]
+		[CCode(cname = "git_config_file_get_cb", has_type_id = false)]
 		public delegate int GetHandler(ConfigFile file, string key, out string value);
-		[CCode(cname = "git_config_file_open_cb")]
+		[CCode(cname = "git_config_file_open_cb", has_type_id = false)]
 		public delegate int OpenHandler(ConfigFile file);
-		[CCode(cname = "git_config_file_set_cb")]
+		[CCode(cname = "git_config_file_set_cb", has_type_id = false)]
 		public delegate int SetHandler(ConfigFile file, string key, string value);
 	}
 
 	/**
 	 * An open object database handle
 	 */
-	[CCode(cname = "git_odb", free_function = "git_odb_close")]
+	[CCode(cname = "git_odb", free_function = "git_odb_close", has_type_id = false)]
 	[Compact]
 	public class Database {
 		/**
@@ -811,7 +811,7 @@ namespace Git {
 	/**
 	 * An object read from the database
 	 */
-	[CCode(cname = "git_odb_object", free_function = "git_odb_object_free")]
+	[CCode(cname = "git_odb_object", free_function = "git_odb_object_free", has_type_id = false)]
 	[Compact]
 	public class DbObject {
 
@@ -846,7 +846,7 @@ namespace Git {
 	/**
 	 * Object ID Shortener object
 	 */
-	[CCode(cname = "git_oid_shorten", free_function = "git_oid_shorten_free")]
+	[CCode(cname = "git_oid_shorten", free_function = "git_oid_shorten_free", has_type_id = false)]
 	[Compact]
 	public class IdShortener {
 		/**
@@ -885,7 +885,7 @@ namespace Git {
 	/**
 	 * Memory representation of an index file.
 	 */
-	[CCode(cname = "git_index", free_function = "git_index_free")]
+	[CCode(cname = "git_index", free_function = "git_index_free", has_type_id = false)]
 	[Compact]
 	public class Index {
 		/**
@@ -1060,7 +1060,7 @@ namespace Git {
 	/**
 	 * Task to build an index from a pack file
 	 */
-	[CCode(cname = "git_indexer", free_function = "git_indexer_free")]
+	[CCode(cname = "git_indexer", free_function = "git_indexer_free", has_type_id = false)]
 	public class Indexer {
 
 		/**
@@ -1108,7 +1108,7 @@ namespace Git {
 	/**
 	 * Memory representation of a file entry in the index.
 	 */
-	[CCode(cname = "git_index_entry")]
+	[CCode(cname = "git_index_entry", has_type_id = false)]
 	[Compact]
 	public class IndexEntry {
 		public Attributes flags;
@@ -1137,7 +1137,7 @@ namespace Git {
 	/**
 	 * Representation of a generic object in a repository
 	 */
-	[CCode(cname = "git_object", free_function = "git_object_free")]
+	[CCode(cname = "git_object", free_function = "git_object_free", has_type_id = false)]
 	[Compact]
 	public class Object {
 		/**
@@ -1169,7 +1169,7 @@ namespace Git {
 	 * The list of parents of a commit
 	 */
 	[Compact]
-	[CCode(cname = "git_commit")]
+	[CCode(cname = "git_commit", has_type_id = false)]
 	public class Parents {
 		/**
 		 * Get the number of parents of this commit
@@ -1204,7 +1204,7 @@ namespace Git {
 	/**
 	 * Reference specification (i.e., some kind of local or remote branch)
 	 */
-	[CCode(cname = "git_refspec")]
+	[CCode(cname = "git_refspec", has_type_id = false)]
 	[Compact]
 	public class RefSpec {
 		/**
@@ -1247,7 +1247,7 @@ namespace Git {
 	/**
 	 * In-memory representation of a reference.
 	 */
-	[CCode(cname = "git_reference", free_function = "git_reference_free")]
+	[CCode(cname = "git_reference", free_function = "git_reference_free", has_type_id = false)]
 	[Compact]
 	public class Reference {
 		/**
@@ -1425,7 +1425,7 @@ namespace Git {
 	/**
 	 * Representation of a reference log
 	 */
-	[CCode(cname = "git_reflog", free_function = "git_reflog_free")]
+	[CCode(cname = "git_reflog", free_function = "git_reflog_free", has_type_id = false)]
 	[Compact]
 	public class ReferenceLog {
 		/**
@@ -1457,7 +1457,7 @@ namespace Git {
 	/**
 	 * Representation of a reference log entry
 	 */
-	[CCode(cname = "git_reflog_entry")]
+	[CCode(cname = "git_reflog_entry", has_type_id = false)]
 	[Compact]
 	public class ReferenceLogEntry {
 
@@ -1497,7 +1497,7 @@ namespace Git {
 	/**
 	 * Reference to a remote repository
 	 */
-	[CCode(cname = "git_remote", free_function = "git_remote_free")]
+	[CCode(cname = "git_remote", free_function = "git_remote_free", has_type_id = false)]
 	[Compact]
 	public class Remote {
 		/**
@@ -1607,7 +1607,7 @@ namespace Git {
 	 * Representation of an existing git repository,
 	 * including all its object contents
 	 */
-	[CCode(cname = "git_repository", free_function = "git_repository_free")]
+	[CCode(cname = "git_repository", free_function = "git_repository_free", has_type_id = false)]
 	[Compact]
 	public class Repository {
 		public Attr attributes {
@@ -2215,7 +2215,7 @@ namespace Git {
 	/**
 	 * An in-progress walk through the commits in a repo
 	 */
-	[CCode(cname = "git_revwalk", free_function = "git_revwalk_free")]
+	[CCode(cname = "git_revwalk", free_function = "git_revwalk_free", has_type_id = false)]
 	[Compact]
 	public class RevisionWalker {
 
@@ -2299,7 +2299,7 @@ namespace Git {
 	/**
 	 * An action signature (e.g. for committers, taggers, etc)
 	 */
-	[CCode(cname = "git_signature", free_function = "git_signature_free", copy_function = "git_signature_dup")]
+	[CCode(cname = "git_signature", free_function = "git_signature_free", copy_function = "git_signature_dup", has_type_id = false)]
 	[Compact]
 	public class Signature {
 		/**
@@ -2341,7 +2341,7 @@ namespace Git {
 	/**
 	 * A stream to read/write from the ODB
 	 */
-	[CCode(cname = "git_odb_stream")]
+	[CCode(cname = "git_odb_stream", has_type_id = false)]
 	[Compact]
 	public class Stream {
 		public unowned Backend backend;
@@ -2392,7 +2392,7 @@ namespace Git {
 	/**
 	 * Parsed representation of a tag object.
 	 */
-	[CCode(cname = "git_tag", free_function = "git_tag_free")]
+	[CCode(cname = "git_tag", free_function = "git_tag_free", has_type_id = false)]
 	[Compact]
 	public class Tag : Object {
 		/**
@@ -2458,7 +2458,7 @@ namespace Git {
 	/**
 	 * Representation of a tree object.
 	 */
-	[CCode(cname = "git_tree", free_function = "git_tree_free")]
+	[CCode(cname = "git_tree", free_function = "git_tree_free", has_type_id = false)]
 	[Compact]
 	public class Tree : Object {
 		/**
@@ -2543,7 +2543,7 @@ namespace Git {
 	/**
 	 * Constructor for in-memory trees
 	 */
-	[CCode(cname = "git_treebuilder", free_function = "git_treebuilder_free")]
+	[CCode(cname = "git_treebuilder", free_function = "git_treebuilder_free", has_type_id = false)]
 	[Compact]
 	public class TreeBuilder {
 		/**
@@ -2619,7 +2619,7 @@ namespace Git {
 	/**
 	 * Representation of each one of the entries in a tree object.
 	 */
-	[CCode(cname = "git_tree_entry")]
+	[CCode(cname = "git_tree_entry", has_type_id = false)]
 	[Compact]
 	public class TreeEntry {
 		/**
@@ -2671,7 +2671,7 @@ namespace Git {
 	/**
 	 * List of unmerged index entries
 	 */
-	[CCode(cname = "git_index")]
+	[CCode(cname = "git_index", has_type_id = false)]
 	[Compact]
 	public class UnmergedIndex {
 		/**
@@ -2704,7 +2704,7 @@ namespace Git {
 	/**
 	 * Time used in a index entry
 	 */
-	[CCode(cname = "git_index_time")]
+	[CCode(cname = "git_index_time", has_type_id = false)]
 	public struct index_time {
 		public int64 seconds;
 		public uint nanoseconds;
@@ -2714,7 +2714,7 @@ namespace Git {
 	 * This is passed as the first argument to the callback to allow the
 	 * user to see the progress.
 	 */
-	[CCode(cname = "git_indexer_stats")]
+	[CCode(cname = "git_indexer_stats", has_type_id = false)]
 	public struct indexer_stats {
 		uint total;
 		uint processed;
@@ -2723,7 +2723,7 @@ namespace Git {
 	/**
 	 * Unique identity of any object (commit, tree, blob, tag).
 	 */
-	[CCode(cname = "git_oid")]
+	[CCode(cname = "git_oid", has_type_id = false)]
 	public struct object_id {
 		/**
 		 * Raw binary formatted id
@@ -2932,7 +2932,7 @@ namespace Git {
 	/**
 	 * Remote head description, given out on //ls// calls.
 	 */
-	[CCode(cname = "struct git_remote_head")]
+	[CCode(cname = "struct git_remote_head", has_type_id = false)]
 	public struct remote_head {
 		public bool local;
 		[CCode(cname = "oid")]
@@ -2945,7 +2945,7 @@ namespace Git {
 	/**
 	 * Collection of strings
 	 */
-	[CCode(cname = "git_strarray", destroy_function = "git_strarray_free")]
+	[CCode(cname = "git_strarray", destroy_function = "git_strarray_free", has_type_id = false)]
 	public struct string_array {
 		[CCode(array_length_cname = "count", array_length_type = "size_t")]
 		string[] strings;
@@ -2954,7 +2954,7 @@ namespace Git {
 	/**
 	 * Time in a signature
 	 */
-	[CCode(cname = "git_time")]
+	[CCode(cname = "git_time", has_type_id = false)]
 	public struct time {
 		/**
 		 * time in seconds from epoch
@@ -2969,7 +2969,7 @@ namespace Git {
 	/**
 	 * The changes between two trees for a particular path
 	 */
-	[CCode(cname = "git_tree_diff_data")]
+	[CCode(cname = "git_tree_diff_data", has_type_id = false)]
 	public struct tree_diff {
 		FileMode old_attr;
 		FileMode new_attr;
@@ -2984,7 +2984,7 @@ namespace Git {
 	/**
 	 * Representation of an unmerged file entry in the index.
 	 */
-	[CCode(cname = "git_index_entry_unmerged")]
+	[CCode(cname = "git_index_entry_unmerged", has_type_id = false)]
 	public struct unmerged_index_entry {
 		uint mode[3];
 		[CCode(cname = "oid")]
@@ -3016,7 +3016,7 @@ namespace Git {
 	/**
 	 * States for a file in the index
 	 */
-	[CCode(cname = "int", cprefix = "GIT_IDXENTRY_")]
+	[CCode(cname = "int", cprefix = "GIT_IDXENTRY_", has_type_id = false)]
 	[Flags]
 	public enum Attributes {
 		EXTENDED,
@@ -3040,7 +3040,7 @@ namespace Git {
 	/**
 	 * Transfer direction in a transport
 	 */
-	[CCode(cname = "int", cprefix = "GIT_DIR_")]
+	[CCode(cname = "int", cprefix = "GIT_DIR_", has_type_id = false)]
 	public enum Direction {
 		FETCH, PUSH
 	}
@@ -3048,7 +3048,7 @@ namespace Git {
 	/**
 	 * Return codes for many functions.
 	 */
-	[CCode(cname = "git_error", cprefix = "GIT_E")]
+	[CCode(cname = "git_error", cprefix = "GIT_E", has_type_id = false)]
 	public enum Error {
 		[CCode(cname = "GIT_SUCCESS")]
 		SUCCESS,
@@ -3208,7 +3208,7 @@ namespace Git {
 	 *
 	 * Consult the mode_t manual page.
 	 */
-	[CCode(cname = "unsigned int", cheader_filename = "sys/stat.h", cprefix = "S_I")]
+	[CCode(cname = "unsigned int", cheader_filename = "sys/stat.h", cprefix = "S_I", has_type_id = false)]
 	[Flags]
 	public enum FileMode {
 		/**
@@ -3377,7 +3377,7 @@ namespace Git {
 	/**
 	 * Basic type (loose or packed) of any git object
 	 */
-	[CCode(cname = "git_otype", cprefix = "GIT_OBJ_")]
+	[CCode(cname = "git_otype", cprefix = "GIT_OBJ_", has_type_id = false)]
 	public enum ObjectType {
 		/**
 		 * Object can be any of the following
@@ -3452,7 +3452,7 @@ namespace Git {
 	/**
 	 * Basic type of any Git reference.
 	 */
-	[CCode(cname = "git_rtype", cprefix = "GIT_REF_")]
+	[CCode(cname = "git_rtype", cprefix = "GIT_REF_", has_type_id = false)]
 	[Flags]
 	public enum ReferenceType {
 		/**
@@ -3476,7 +3476,7 @@ namespace Git {
 	/**
 	 * Sort order for revision walking.
 	 */
-	[CCode(cname = "int", cprefix = "GIT_SORT_")]
+	[CCode(cname = "int", cprefix = "GIT_SORT_", has_type_id = false)]
 	[Flags]
 	public enum Sorting {
 		/**
@@ -3509,7 +3509,7 @@ namespace Git {
 	/**
 	 * Working directory file status
 	 */
-	[CCode(cname = "int", cprefix = "GIT_STATUS_")]
+	[CCode(cname = "int", cprefix = "GIT_STATUS_", has_type_id = false)]
 	public enum Status {
 		CURRENT,
 		INDEX_NEW,
@@ -3524,7 +3524,7 @@ namespace Git {
 	/**
 	 * Streaming mode
 	 */
-	[CCode(cname = "git_odb_streammode", cprefix = "GIT_STREAM_")]
+	[CCode(cname = "git_odb_streammode", cprefix = "GIT_STREAM_", has_type_id = false)]
 	public enum StreamMode {
 		RDONLY,
 		WRONLY,
@@ -3534,7 +3534,7 @@ namespace Git {
 	/**
 	 * The reason for the difference between two parts of a tree
 	 */
-	[CCode(cname = "git_status_t", cprefix = "GIT_STATUS_")]
+	[CCode(cname = "git_status_t", cprefix = "GIT_STATUS_", has_type_id = false)]
 	public enum TreeStatus {
 		ADDED,
 		DELETED,
@@ -3544,7 +3544,7 @@ namespace Git {
 	/**
 	 * Tree traversal modes
 	 */
-	[CCode(cname = "git_treewalk_mode", cprefix = "GIT_TREEWALK_")]
+	[CCode(cname = "git_treewalk_mode", cprefix = "GIT_TREEWALK_", has_type_id = false)]
 	public enum WalkMode {
 		PRE,
 		POST
@@ -3553,12 +3553,12 @@ namespace Git {
 	public delegate Error AttributeCallback(string name, string val);
 	public delegate int ConfigCallback(string var_name, string val);
 	public delegate bool Filter(TreeEntry entry);
-	[CCode(cname = "git_headlist_cb")]
+	[CCode(cname = "git_headlist_cb", has_type_id = false)]
 	public delegate int HeadCallback(remote_head head);
 	public delegate int ReferenceCallback(string refname);
 	public delegate Error StatusCallback(string file, Status status);
-	[CCode(cname = "git_tree_diff_cb")]
+	[CCode(cname = "git_tree_diff_cb", has_type_id = false)]
 	public delegate int TreeDiffCallback(tree_diff td);
-	[CCode(cname = "git_treewalk_cb")]
+	[CCode(cname = "git_treewalk_cb", has_type_id = false)]
 	public delegate int TreeWalker(string root, TreeEntry entry);
 }

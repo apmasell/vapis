@@ -9,18 +9,18 @@ namespace Transmission {
 	public const string RPC_SESSION_ID_HEADER;
 
 	[SimpleType]
-	[CCode (cname = "tr_file_index")]
+	[CCode (cname = "tr_file_index", has_type_id = false)]
 	public struct file_index : uint32 { }
 
 	//TODO unused
-	[CCode(cname = "tr_preallocation_mode", cprefix="TR_PREALLOCATE_")]
+	[CCode(cname = "tr_preallocation_mode", cprefix="TR_PREALLOCATE_", has_type_id = false)]
 	public enum PreallocationMode {
 		NONE,
 		SPARSE,
 		FULL
 	}
 
-	[CCode(cname = "tr_encryption_mode", cprefix="TR_")]
+	[CCode(cname = "tr_encryption_mode", cprefix="TR_", has_type_id = false)]
 	public enum EncryptionMode {
 		CLEAR_PREFERRED,
 		ENCRYPTION_PREFERRED,
@@ -142,7 +142,7 @@ namespace Transmission {
 	[CCode(cname = "tr_sessionLoadSettings")]
 	public bool load_default_settings(out benc_dict dictionary, string config_dir, string app_name);
 
-	[CCode(cheader_filename = "libtransmission/transmission.h,libtransmission/bencode.h", cprefix = "TR_FMT_", cname = "tr_fmt_mode")]
+	[CCode(cheader_filename = "libtransmission/transmission.h,libtransmission/bencode.h", cprefix = "TR_FMT_", cname = "tr_fmt_mode", has_type_id = false)]
 	public enum BencFormat {
 		BENC,
 		JSON,
@@ -155,7 +155,7 @@ namespace Transmission {
 	 * An object that acts like a union for integers, strings, lists, dictionaries, booleans, and floating-point numbers. The structure is named benc due to the historical reason that it was originally tightly coupled with bencoded data. It currently supports being parsed from, and serialized to, both bencoded notation and json notation.
 	 *
 	 */
-	[CCode(cheader_filename = "libtransmission/transmission.h,libtransmission/bencode.h", cname = "tr_benc", free_function = "tr_bencFree")]
+	[CCode(cheader_filename = "libtransmission/transmission.h,libtransmission/bencode.h", cname = "tr_benc", free_function = "tr_bencFree", has_type_id = false)]
 	public struct benc {
 		[CCode(cname = "tr_bencLoadFile")]
 		public static int load_file(out benc benc, BencFormat mode, string filename);
@@ -234,7 +234,7 @@ namespace Transmission {
 		[CCode(cname = "tr_bencIsReal")]
 		public bool is_real();
 	}
-	[CCode(cheader_filename = "libtransmission/transmission.h,libtransmission/bencode.h", cname = "tr_benc", free_function = "tr_bencFree")]
+	[CCode(cheader_filename = "libtransmission/transmission.h,libtransmission/bencode.h", cname = "tr_benc", free_function = "tr_bencFree", has_type_id = false)]
 	public struct benc_list : benc {
 		[CCode(cname = "tr_bencInitList")]
 		public benc_list(size_t reserveCount);
@@ -265,7 +265,7 @@ namespace Transmission {
 		[CCode(cname = "tr_bencListRemove")]
 		public bool remove(size_t n);
 	}
-	[CCode(cheader_filename = "libtransmission/transmission.h,libtransmission/bencode.h", cname = "tr_benc", free_function = "tr_bencFree")]
+	[CCode(cheader_filename = "libtransmission/transmission.h,libtransmission/bencode.h", cname = "tr_benc", free_function = "tr_bencFree", has_type_id = false)]
 	public struct benc_dict : benc {
 		[CCode(cname = "tr_bencInitDict")]
 		public benc_dict(size_t reserve_count);
@@ -309,7 +309,7 @@ namespace Transmission {
 		public bool find_raw(string key, [CCode(array_lengh_type = "size_t")]out uint8[]? raw);
 	}
 
-	[CCode(cname = "tr_session", cprefix = "tr_session", free_function = "tr_sessionClose")]
+	[CCode(cname = "tr_session", cprefix = "tr_session", free_function = "tr_sessionClose", has_type_id = false)]
 	[Compact]
 	public class Session {
 		/**
@@ -738,7 +738,7 @@ namespace Transmission {
 		}
 	}
 
-	[CCode(cname = "tr_session")]
+	[CCode(cname = "tr_session", has_type_id = false)]
 	[Compact]
 	public class BlockList {
 		/**
@@ -781,10 +781,10 @@ namespace Transmission {
 		}
 	}
 
-	[CCode(cname = "tr_altSpeedFunc")]
+	[CCode(cname = "tr_altSpeedFunc", has_type_id = false)]
 	public delegate void AltSpeedFunc (Session session, bool active, bool userDriven);
 
-	[CCode(cname = "tr_sched_day", cprefix = "TR_SCHED_")]
+	[CCode(cname = "tr_sched_day", cprefix = "TR_SCHED_", has_type_id = false)]
 	[Flags]
 	public enum ScheduleDay {
 		SUN,
@@ -799,7 +799,7 @@ namespace Transmission {
 		ALL
 	}
 
-	[CCode(cname = "tr_port_forwarding", cprefix = "TR_PORT_")]
+	[CCode(cname = "tr_port_forwarding", cprefix = "TR_PORT_", has_type_id = false)]
 	public enum PortForwarding {
 		ERROR,
 		UNMAPPED,
@@ -808,14 +808,14 @@ namespace Transmission {
 		MAPPED
 	}
 
-	[CCode(cname = "tr_direction", cprefix = "TR_")]
+	[CCode(cname = "tr_direction", cprefix = "TR_", has_type_id = false)]
 	public enum Direction {
 		CLIENT_TO_PEER, UP,
 		PEER_TO_CLIENT, DOWN
 	}
 
 
-	[CCode(cname = "tr_rpc_callback_type", cprefix = "TR_RPC_")]
+	[CCode(cname = "tr_rpc_callback_type", cprefix = "TR_RPC_", has_type_id = false)]
 	public enum CallbackType {
 		TORRENT_ADDED,
 		TORRENT_STARTED,
@@ -828,7 +828,7 @@ namespace Transmission {
 		SESSION_CLOSE
 	}
 
-	[CCode(cname = "tr_rpc_callback_status", cprefix = "TR_RPC_")]
+	[CCode(cname = "tr_rpc_callback_status", cprefix = "TR_RPC_", has_type_id = false)]
 	public enum CallbackStatus {
 		/**
 		 * No special handling is needed by the caller
@@ -840,10 +840,10 @@ namespace Transmission {
 		NOREMOVE
 	}
 
-	[CCode(cname = "tr_rpc_func")]
+	[CCode(cname = "tr_rpc_func", has_type_id = false)]
 	public delegate CallbackStatus Callback(Session session, CallbackType type, Torrent? torrent);
 
-	[CCode(cname = "tr_session_stats")]
+	[CCode(cname = "tr_session_stats", has_type_id = false)]
 	[Compact]
 	public class Stats {
 		public float ratio;
@@ -854,7 +854,7 @@ namespace Transmission {
 		public uint64 secondsActive;
 	}
 
-	[CCode(cname = "tr_msg_level", cprefix = "TR_MSG_")]
+	[CCode(cname = "tr_msg_level", cprefix = "TR_MSG_", has_type_id = false)]
 	public enum MessageLevel {
 		ERR,
 		INF,
@@ -867,7 +867,7 @@ namespace Transmission {
 		public bool is_logging_active();
 	}
 
-	[CCode(cname = "tr_msg_list", free_function = "freeMessageList")]
+	[CCode(cname = "tr_msg_list", free_function = "freeMessageList", has_type_id = false)]
 	[Compact]
 	public class MessageList {
 		public MessageList level;
@@ -902,7 +902,7 @@ namespace Transmission {
 	[CCode(cname = "tr_getQueuedMessages")]
 	public MessageList get_queued_messages();
 
-	[CCode(cname = "tr_ctorMode", cprefix = "TR_")]
+	[CCode(cname = "tr_ctorMode", cprefix = "TR_", has_type_id = false)]
 	public enum ConstructionMode {
 		/**
 		 * Indicates the constructor value should be used only in case of missing resume settings
@@ -929,7 +929,7 @@ namespace Transmission {
 	 *
 	 * You can reuse a single tr_ctor to create a batch of torrents -- just call one of the SetMetainfo() functions between each {@link TorrentConstructor.instantiate} call.
 	 */
-	[CCode(cname = "tr_ctor", cprefix = "tr_ctor", free_function = "tr_ctorFree")]
+	[CCode(cname = "tr_ctor", cprefix = "tr_ctor", free_function = "tr_ctorFree", has_type_id = false)]
 	[Compact]
 	public class TorrentConstructor {
 		/**
@@ -1087,24 +1087,24 @@ namespace Transmission {
 		public ParseResult parse(out info info);
 	}
 
-	[CCode(cname = "tr_parse_result", cprefix = "TR_PARSE_")]
+	[CCode(cname = "tr_parse_result", cprefix = "TR_PARSE_", has_type_id = false)]
 	public enum ParseResult {
 		OK,
 		ERR,
 		DUPLICATE
 	}
 
-	[CCode(cname = "tr_fileFunc", has_target = false)]
+	[CCode(cname = "tr_fileFunc", has_target = false, has_type_id = false)]
 	public delegate int FileFunc(string filename);
 
-	[CCode(cname = "int", cprefix = "TR_LOC_")]
+	[CCode(cname = "int", cprefix = "TR_LOC_", has_type_id = false)]
 	public enum LocationStatus {
 		MOVING,
 		DONE,
 		ERROR
 	}
 
-	[CCode(cname = "tr_ratiolimit", cprefix = "TR_RATIOLIMIT_")]
+	[CCode(cname = "tr_ratiolimit", cprefix = "TR_RATIOLIMIT_", has_type_id = false)]
 	public enum RatioLimit {
 		/**
 		 * Follow the global settings
@@ -1120,7 +1120,7 @@ namespace Transmission {
 		UNLIMITED
 	}
 
-	[CCode(cname = "tr_idlelimit", cprefix = "TR_IDLELIMIT_")]
+	[CCode(cname = "tr_idlelimit", cprefix = "TR_IDLELIMIT_", has_type_id = false)]
 	public enum IdleLimit {
 		/**
 		 * Follow the global settings
@@ -1136,7 +1136,7 @@ namespace Transmission {
 		UNLIMITED
 	}
 
-	[CCode(cname = "int", cprefix = "TR_PRI_")]
+	[CCode(cname = "int", cprefix = "TR_PRI_", has_type_id = false)]
 	public enum Priority {
 		LOW,
 		NORMAL,
@@ -1146,7 +1146,7 @@ namespace Transmission {
 	/**
 	 * Represents a single tracker
 	 */
-	[CCode(cname = "tr_tracker_info", has_destroy_function = false, has_copy_function = false)]
+	[CCode(cname = "tr_tracker_info", has_destroy_function = false, has_copy_function = false, has_type_id = false)]
 	public struct tracker_info {
 		public int tier;
 		public unowned string announce;
@@ -1157,7 +1157,7 @@ namespace Transmission {
 		public uint32 id;
 	}
 
-	[CCode(cname = "tr_completeness", cprefix = "TR_")]
+	[CCode(cname = "tr_completeness", cprefix = "TR_", has_type_id = false)]
 	public enum Completeness {
 		/**
 		 * Doesn't have all the desired pieces
@@ -1173,16 +1173,16 @@ namespace Transmission {
 		PARTIAL_SEED
 	}
 
-	[CCode(cname = "tr_torrent_completeness_func")]
+	[CCode(cname = "tr_torrent_completeness_func", has_type_id = false)]
 	public delegate void CompletnessFunc(Torrent torrent, Completeness completeness, bool wasRunning);
-	[CCode(cname = "tr_torrent_ratio_limit_hit_func")]
+	[CCode(cname = "tr_torrent_ratio_limit_hit_func", has_type_id = false)]
 	public delegate void RatioLimitHitFunc(Torrent torrent);
-	[CCode(cname = "tr_torrent_idle_limit_hit_func")]
+	[CCode(cname = "tr_torrent_idle_limit_hit_func", has_type_id = false)]
 	public delegate void IdleLimitHitFunc(Torrent torrent);
-	[CCode(cname = "tr_torrent_metadata_func")]
+	[CCode(cname = "tr_torrent_metadata_func", has_type_id = false)]
 	public delegate void MetadataFunc(Torrent torrent);
 
-	[CCode(cname = "tr_peer_stat", has_destroy_function = false, has_copy_function = false)]
+	[CCode(cname = "tr_peer_stat", has_destroy_function = false, has_copy_function = false, has_type_id = false)]
 	public struct peer_stat {
 		[CCode(cname = "isUTP")]
 		public bool is_utp;
@@ -1228,7 +1228,7 @@ namespace Transmission {
 		[CCode(cname = "pendingReqsToPeer")]
 		public int pending_reqs_to_peer;
 	}
-	[CCode(cname = "tr_tracker_state", cprefix = "TR_TRACKER_")]
+	[CCode(cname = "tr_tracker_state", cprefix = "TR_TRACKER_", has_type_id = false)]
 	public enum TrackerState {
 		/**
 		 * Won't (announce,scrape) this torrent to this tracker because the torrent is stopped, or because of an error, or whatever
@@ -1248,7 +1248,7 @@ namespace Transmission {
 		ACTIVE
 	}
 
-	[CCode(cname = "tr_tracker_stat", has_destroy_function = false, has_copy_function = false)]
+	[CCode(cname = "tr_tracker_stat", has_destroy_function = false, has_copy_function = false, has_type_id = false)]
 	public struct tracker_stat {
 		/**
 		 * How many downloads this tracker knows of (-1 means it does not know)
@@ -1380,7 +1380,7 @@ namespace Transmission {
 		public uint32 id;
 	}
 
-	[CCode(cname = "tr_file_stat", has_destroy_function = false, has_copy_function = false)]
+	[CCode(cname = "tr_file_stat", has_destroy_function = false, has_copy_function = false, has_type_id = false)]
 	public struct file_stat {
 		public uint64 bytesCompleted;
 		public float progress;
@@ -1389,7 +1389,7 @@ namespace Transmission {
 	/**
 	 * A single file of the torrent's content
 	 */
-	[CCode(cname = "tr_file", has_destroy_function = false, has_copy_function = false)]
+	[CCode(cname = "tr_file", has_destroy_function = false, has_copy_function = false, has_type_id = false)]
 	public struct File {
 		/**
 		 * Length of the file, in bytes
@@ -1421,7 +1421,7 @@ namespace Transmission {
 	/**
 	 * A single piece of the torrent's content
 	 */
-	[CCode(cname = "tr_piece", has_destroy_function = false, has_copy_function = false)]
+	[CCode(cname = "tr_piece", has_destroy_function = false, has_copy_function = false, has_type_id = false)]
 	public struct Piece {
 		/**
 		 * The last time we tested this piece
@@ -1441,7 +1441,7 @@ namespace Transmission {
 	/**
 	 * Information about a torrent that comes from its metainfo file
 	 */
-	[CCode(cname = "tr_info", has_destroy_function = false, has_copy_function = false)]
+	[CCode(cname = "tr_info", has_destroy_function = false, has_copy_function = false, has_type_id = false)]
 	public struct info {
 		/**
 		 * Total size of the torrent, in bytes
@@ -1485,7 +1485,7 @@ namespace Transmission {
 	/**
 	 * What the torrent is doing right now.
 	 */
-	[CCode(cname = "tr_torrent_activity", cprefix = "TR_STATUS_")]
+	[CCode(cname = "tr_torrent_activity", cprefix = "TR_STATUS_", has_type_id = false)]
 	[Flags]
 	public enum Activity {
 		/**
@@ -1510,7 +1510,7 @@ namespace Transmission {
 		STOPPED,
 	}
 
-	[CCode(cname = "int", cprefix = "TR_PEER_FROM_")]
+	[CCode(cname = "int", cprefix = "TR_PEER_FROM_", has_type_id = false)]
 	public enum PeerFrom {
 		/**
 		 * Connections made to the listening port
@@ -1543,7 +1543,7 @@ namespace Transmission {
 	}
 
 
-	[CCode(cname = "tr_stat_errtype", cprefix = "TR_STAT_")]
+	[CCode(cname = "tr_stat_errtype", cprefix = "TR_STAT_", has_type_id = false)]
 	public enum StatError {
 		/**
 		 * Everything's fine
@@ -1576,7 +1576,7 @@ namespace Transmission {
 	/**
 	 * A torrent's state and statistics
 	 */
-	[CCode(cname = "tr_stat")]
+	[CCode(cname = "tr_stat", has_type_id = false)]
 	public struct stat {
 		/**
 		 * The torrent's unique Id.
@@ -1734,7 +1734,7 @@ namespace Transmission {
 	}
 
 
-	[CCode(cname = "tr_torrent", cprefix = "tr_torrent", free_function = "")]
+	[CCode(cname = "tr_torrent", cprefix = "tr_torrent", free_function = "", has_type_id = false)]
 	[Compact]
 	public class Torrent {
 
@@ -2060,13 +2060,13 @@ namespace Transmission {
 		}
 	}
 
-	[CCode(cheader_filename = "libtorrent/makemeta.h", cname = "tr_metainfo_builder_file", has_destroy_function = false, has_copy_function = false)]
+	[CCode(cheader_filename = "libtorrent/makemeta.h", cname = "tr_metainfo_builder_file", has_destroy_function = false, has_copy_function = false, has_type_id = false)]
 	public struct builder_file {
 		public unowned string filename;
 		public uint64 size;
 	}
 
-	[CCode(cheader_filename = "libtorrent/makemeta.h", cname = "tr_metainfo_builder_err", cprefix = "TR_MAKEMETA_")]
+	[CCode(cheader_filename = "libtorrent/makemeta.h", cname = "tr_metainfo_builder_err", cprefix = "TR_MAKEMETA_", has_type_id = false)]
 	public enum BuilderError {
 		OK,
 		URL,
@@ -2075,7 +2075,7 @@ namespace Transmission {
 		IO_WRITE
 	}
 
-	[CCode(cheader_filename = "libtorrent/makemeta.h", cname = "tr_metainfo_builder", cprefix = "tr_metaInfoBuilder", free_function = "tr_metaInfoBuilderFree")]
+	[CCode(cheader_filename = "libtorrent/makemeta.h", cname = "tr_metainfo_builder", cprefix = "tr_metaInfoBuilder", free_function = "tr_metaInfoBuilderFree", has_type_id = false)]
 	[Compact]
 	public class Builder {
 		[CCode(cname = "tr_metaInfoBuilderCreate")]
@@ -2244,7 +2244,7 @@ namespace Transmission {
 	[CCode(cheader_filename = "libtransmission/utils.h", cprefix = "tr_", lower_case_cprefix = "tr_")]
 	namespace Time {
 
-		[CCode(cname = "struct event", cprefix = "tr_")]
+		[CCode(cname = "struct event", cprefix = "tr_", has_type_id = false)]
 		[Compact]
 		class Event {
 			/**

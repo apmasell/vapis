@@ -24,7 +24,7 @@ namespace Buffer {
 	public unowned T[] from_array<T>(uint8[] @value);
 }
 
-[CCode(cname = "InitialisationFunction", cheader_filename = "tricks.h")]
+[CCode(cname = "InitialisationFunction", cheader_filename = "tricks.h", has_type_id = false)]
 public delegate size_t InitialisationFunction();
 
 /**
