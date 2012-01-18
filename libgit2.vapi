@@ -2200,6 +2200,23 @@ namespace Git {
 		public void set_index(Index index);
 
 		/**
+		 * Test if the ignore rules apply to a given file.
+		 *
+		 * This function simply checks the ignore rules to see if they would apply
+		 * to the given file.  Unlike {@link get_file_status}, this indicates if
+		 * the file would be ignored regardless of whether the file is already in
+		 * the index or in the repository.
+		 *
+		 * @param path the file to check ignores for, rooted at the repo's workdir
+		 * @param ignored false if the file is not ignored, true if it is
+		 * @return {@link Error.SUCCESS} if the ignore rules could be processed
+		 * for the file (regardless of whether it exists or not), or an error if
+		 * they could not.
+		 */
+		[CCode(cname = "git_status_should_ignore")]
+		public Error should_ignore(string path, out bool ignored);
+
+		/**
 		 * Write the contents of the tree builder as a tree object
 		 *
 		 * The tree builder will be written to the repositrory, and it's
