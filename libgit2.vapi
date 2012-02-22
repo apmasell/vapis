@@ -1135,6 +1135,29 @@ namespace Git {
 	}
 
 	/**
+	 * A note attached to an object
+	 */
+	[CCode(cname = "git_note", free_function = "git_note_free", has_type_id = false)]
+	[Compact]
+	public class Note {
+		/**
+		 * The message for this note
+		 */
+		public string message {
+			[CCode(cname = "git_note_message")]
+			get;
+		}
+
+		/**
+		 * The note object OID
+		 */
+		public object_id? id {
+			[CCode(cname = "git_note_oid")]
+			get;
+		}
+	}
+
+	/**
 	 * Representation of a generic object in a repository
 	 */
 	[CCode(cname = "git_object", free_function = "git_object_free", has_type_id = false)]
@@ -1517,6 +1540,8 @@ namespace Git {
 		public RefSpec? fetch_spec {
 			[CCode(cname = "git_remote_fetchspec")]
 			get;
+			[CCode(cname = "git_remote_set_fetchspec")]
+			set;
 		}
 
 		/**
@@ -1533,6 +1558,8 @@ namespace Git {
 		public RefSpec? push_spec {
 			[CCode(cname = "git_remote_pushspec")]
 			get;
+			[CCode(cname = "git_remote_set_pushspec")]
+			set;
 		}
 
 		/**
@@ -1592,6 +1619,12 @@ namespace Git {
 		 */
 		[CCode(cname = "git_remote_ls", instance_pos = -1)]
 		public Error list(HeadCallback headcb);
+
+		/**
+		 * Save a remote to its repository's configuration
+		 */
+		[CCode(cname = "git_remote_save")]
+		public Error save();
 
 		/**
 		 * Update the tips to the new state
@@ -1794,6 +1827,19 @@ namespace Git {
 		 */
 		[CCode(cname = "git_tag_create_lightweight", instance_pos = 1.2)]
 		public Error create_lightweight_tag(object_id id, string tag_name, Object target, bool force);
+
+		/**
+		 * Add a note for an object
+		 *
+		 * @param note_id the object id of the note crated
+		 * @param author signature of the notes commit author
+		 * @param committer signature of the notes commit committer
+		 * @param notes_ref ID reference to update (optional); defaults to "refs/notes/commits"
+		 * @param id The ID of the object
+		 * @param note The note to add for the object
+		 */
+		[CCode(cname = "git_note_create", instance_pos = 1.2)]
+		public Error create_note(out object_id note_id, Signature author, Signature committer, string? notes_ref, object_id id, string note);
 
 		/**
 		 * Create a new object id reference.
@@ -2165,6 +2211,25 @@ namespace Git {
 		 */
 		[CCode(cname = "git_reference_packall")]
 		public Error pack_all_references();
+
+		/**
+		 * Read the note for an object
+		 * @param notes_ref ID reference to use (optional); defaults to "refs/notes/commits"
+		 * @param id ID of the object
+		 */
+		[CCode(cname = "git_note_read", instance_pos = 1.2)]
+		public Error read_note(out Note? note, string? notes_ref, object_id id);
+
+		/**
+		 * Remove the note for an object
+		 *
+		 * @param notes_ref ID reference to use (optional); defaults to "refs/notes/commits"
+		 * @param author signature of the notes commit author
+		 * @param committer signature of the notes commit committer
+		 * @param id the id which note's to be removed
+		 */
+		[CCode(cname = "git_note_remove")]
+		public Error remove_note(string? notes_ref, Signature author, Signature committer, object_id id);
 
 		/**
 		 * Set the configuration file for this repository
