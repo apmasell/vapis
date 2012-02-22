@@ -1481,8 +1481,8 @@ namespace PCap {
 	 *
 	 * Returns a pointer to a string giving information about the version of the libpcap library being used; note that it contains more information than just a version number.
 	 */
-	[CCode(cname = "pcab_lib_version")]
-	public string get_version();
+	[CCode(cname = "pcap_lib_version")]
+	public unowned string get_version();
 
 	/**
 	 * Find the default device on which to capture
@@ -1511,21 +1511,22 @@ namespace PCap {
 	[CCode(cname = "pcap_handler", has_type_id = false, instance_pos = 0)]
 	public delegate void Handler(packet_header header, [CCode(array_length = false)] uint8[] packet_data);
 
-/**
- * Version number of the current version of the pcap file format.
- *
- * NOTE: this is *NOT* the version number of the libpcap library.
- * To fetch the version information for the version of libpcap
- * you're using, use pcap_lib_version().
- */
+	/**
+	 * Version number of the current version of the pcap file format.
+	 *
+	 * This is ''not'' the version number of the libpcap library.
+	 * @see get_version
+	 */
 	namespace FileFormat {
 		/**
 		 * Major version number of the current version of the pcap file format.
+		 * @see Capture.major_version
 		 */
 		[CCode(cname = "PCAP_VERSION_MAJOR")]
 		public const int VERSION_MAJOR;
 		/**
 		 * Minor version number of the current version of the pcap file format.
+		 * @see Capture.minor_version
 		 */
 		[CCode(cname = "PCAP_VERSION_MINOR")]
 		public const int VERSION_MINOR;
