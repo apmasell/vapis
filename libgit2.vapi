@@ -116,9 +116,11 @@ namespace Git {
 	[CCode(cname = "git_repository", cheader_filename = "git2/attr.h", has_type_id = false)]
 	public class Attr {
 		[CCode(cname = "GIT_ATTR_TRUE")]
-		public const string TRUE;
+		public static bool is_true(string attr);
 		[CCode(cname = "GIT_ATTR_FALSE")]
-		public const string FALSE;
+		public static bool is_false(string attr);
+		[CCode(cname = "GIT_ATTR_UNSPECIFIED")]
+		public static bool is_unspecified(string attr);
 
 		/**
 		 * Add a macro definition.
@@ -274,6 +276,11 @@ namespace Git {
 			[CCode(cname = "git_blob_rawsize")]
 			get;
 		}
+		/**
+		 * Directly run a text diff on two blobs.
+		 */
+		[CCode(cname = "git_diff_blobs", simple_generics = true)]
+		public Error diff<T>(Blob new_blob, diff_options options, T context, DiffHunkHandler<T> hunk_cb, DiffLineHandler<T> line_cb);
 	}
 
 	/**
@@ -524,6 +531,18 @@ namespace Git {
 		public Error get_int64(string name, out int64 value);
 
 		/**
+		 * Get each value of a multivar.
+		 *
+		 * The callback will be called on each variable found
+		 *
+		 * @param name the variable's name
+		 * @param regexp regular expression to filter which variables we're interested in. Use NULL to indicate all
+		 * @param fn the function to be called on each value of the variable
+		 */
+		[CCode(cname = "git_config_get_multivar")]
+		public Error get_multivar(string name, string? regexp, ConfigFile.Setter fn);
+
+		/**
 		 * Get the value of a string config variable.
 		 *
 		 * @param name the variable's name
@@ -559,6 +578,15 @@ namespace Git {
 		public Error set_int64(string name, int64 value);
 
 		/**
+		 * Set a multivar
+		 *
+		 * @param name the variable's name
+		 * @param regexp a regular expression to indicate which values to replace
+		 * @param value the new value.
+		 */
+		[CCode(cname = "git_config_set_multivar")]
+		public Error set_multivar(string name, string regexp, string val);
+		/**
 		 * Set the value of a string config variable.
 		 *
 		 * A copy of the string is made and the user is free to use it
@@ -569,6 +597,41 @@ namespace Git {
 		 */
 		[CCode(cname = "git_config_set_string")]
 		public Error set_string(string name, string value);
+		/**
+		 * Query the value of a config variable and return it mapped to an integer
+		 * constant.
+		 *
+		 * This is a helper method to easily map different possible values to a
+		 * variable to integer constants that easily identify them.
+		 *
+		 * A mapping array looks as follows:
+		 * {{{
+		 *     var autocrlf_mapping = Git.config_var_map[] {
+		 *             {Git.ConfigVar.FALSE, null, GIT_AUTO_CRLF_FALSE},
+		 *             {Git.ConfigVar.TRUE, null, GIT_AUTO_CRLF_TRUE},
+		 *             {Git.ConfigVar.STRING, "input", GIT_AUTO_CRLF_INPUT},
+		 *             {Git.ConfigVar.STRING, "default", GIT_AUTO_CRLF_DEFAULT}};
+		 * }}}
+		 *
+		 * On any "false" value for the variable (e.g. "false", "FALSE", "no"), the
+		 * mapping will store `GIT_AUTO_CRLF_FALSE` in the `out` parameter.
+		 *
+		 * The same thing applies for any "true" value such as "true", "yes" or "1", storing
+		 * the `GIT_AUTO_CRLF_TRUE` variable.
+		 *
+		 * Otherwise, if the value matches the string "input" (with case insensitive comparison),
+		 * the given constant will be stored in `out`, and likewise for "default".
+		 *
+		 * If not a single match can be made to store in `out`, an error code will be
+		 * returned.
+		 *
+		 * @param name name of the config variable to lookup
+		 * @param map array of objects specifying the possible mappings
+		 * @param result place to store the result of the mapping
+		 */
+		[CCode(cname = "git_config_get_mapped")]
+		public Error get_mapped(string name, config_var_map[] map, out int result);
+
 	}
 
 	/**
@@ -587,10 +650,14 @@ namespace Git {
 		public FreeHandler free_func;
 		[CCode(cname = "get")]
 		public GetHandler get_func;
+		[CCode(cname = "get_multivar")]
+		public GetMultiHandler get_multi_func;
 		[CCode(cname = "open")]
 		public OpenHandler open_func;
 		[CCode(cname = "set")]
 		public SetHandler set_func;
+		[CCode(cname = "set_multivar")]
+		public SetMultiHandler set_multi_func;
 
 		/**
 		 * Create a configuration file backend for on-disk files
@@ -614,10 +681,16 @@ namespace Git {
 		public delegate void FreeHandler(ConfigFile file);
 		[CCode(cname = "git_config_file_get_cb", has_type_id = false)]
 		public delegate int GetHandler(ConfigFile file, string key, out string value);
+		[CCode(cname = "git_config_file_get_mulivar_cb", has_type_id = false)]
+		public delegate int GetMultiHandler(ConfigFile file, string key, string? regexp, Setter func);
+		[CCode(cname = "git_config_file_set_cb", has_type_id = false)]
+		public delegate int Setter(string val);
 		[CCode(cname = "git_config_file_open_cb", has_type_id = false)]
 		public delegate int OpenHandler(ConfigFile file);
 		[CCode(cname = "git_config_file_set_cb", has_type_id = false)]
 		public delegate int SetHandler(ConfigFile file, string key, string value);
+		[CCode(cname = "git_config_file_set_multivar_cb", has_type_id = false)]
+		public delegate int SetMultiHandler(ConfigFile file, string name, string regexp, string val);
 	}
 
 	/**
@@ -841,6 +914,52 @@ namespace Git {
 			[CCode(cname = "git_odb_object_type")]
 			get;
 		}
+	}
+
+	/**
+	 * The diff list object that contains all individual file deltas.
+	 */
+	[CCode(cname = "git_diff_list", free_function = "git_diff_list_free")]
+	[Compact]
+	public class DiffList {
+		/**
+		 * Merge one diff list into another.
+		 *
+		 * This merges items from the "from" list into the current list.  The
+		 * resulting diff list will have all items that appear in either list.
+		 * If an item appears in both lists, then it will be "merged" to appear
+		 * as if the old version was from the "onto" list and the new version
+		 * is from the "from" list (with the exception that if the item has a
+		 * pending DELETE in the middle, then it will show as deleted).
+		 *
+		 * @param from Diff to merge.
+		 */
+		[CCode(cname = "git_diff_merge")]
+		public Error merge(DiffList from);
+
+		/**
+		 * Iterate over a diff list issuing callbacks.
+		 *
+		 * If the hunk and/or line callbacks are not null, then this will calculate
+		 * text diffs for all files it thinks are not binary.  If those are both
+		 * null, then this will not bother with the text diffs, so it can be
+		 * efficient.
+		 */
+		[CCode(cname = "git_diff_foreach", simple_generics = true)]
+		public Error foreach<T>(T context, DiffFileHandler<T>? file_cb, DiffHunkHandler<T> hunk_cb, DiffLineHandler<T>? line_cb);
+
+		/**
+		 * Iterate over a diff generating text output like "git diff --name-status".
+		 */
+		[CCode(cname = "git_diff_print_compact")]
+		public Error print_compact(DiffOutputHandler print_cb);
+
+		/**
+		 * Iterate over a diff generating text output like "git diff".
+		 *
+		 * This is a super easy way to generate a patch from a diff.
+		 */
+		public Error print_patch(DiffOutputHandler print_cb);
 	}
 
 	/**
@@ -1579,6 +1698,14 @@ namespace Git {
 		public static bool is_valid_url(string url);
 
 		/**
+		 * Return whether the passed URL is supported by this version of the library.
+		 *
+		 * @param url the url to check
+		*/
+		[CCode(cname = "git_remote_supported_url")]
+		public static bool is_supported_url(string url);
+
+		/**
 		 * Open a connection to a remote
 		 *
 		 * The transport is selected based on the URL. The direction argument is
@@ -1915,6 +2042,55 @@ namespace Git {
 		public Error delete_tag(string tag_name);
 
 		/**
+		 * Compute a difference between two tree objects.
+		 *
+		 * @param opts Structure with options to influence diff or null for defaults.
+		 * @param old_tree A tree to diff from.
+		 * @param new_tree A tree to diff to.
+		 * @param diff The diff that will be allocated.
+		 */
+		[CCode(cname = "git_diff_tree_to_tree")]
+		public Error diff_tree_to_tree(diff_options? opts, Tree old_tree, Tree new_tree, out DiffList? diff);
+
+		/**
+		 * Compute a difference between a tree and the index.
+		 *
+		 * @param opts Structure with options to influence diff or null for defaults.
+		 * @param old_tree A tree object to diff from.
+		 * @param diff The diff that will be allocated.
+		 */
+		[CCode(cname = "git_diff_index_to_tree")]
+		public Error diff_index_to_tree(diff_options? opts, Tree old_tree, out DiffList? diff);
+
+		/**
+		 * Compute a difference between the working directory and the index.
+		 *
+		 * @param opts Structure with options to influence diff or NULL for defaults.
+		 * @param diff A pointer to a git_diff_list pointer that will be allocated.
+		 */
+		[CCode(cname = "git_diff_workdir_to_index")]
+		public Error diff_workdir_to_index(diff_options? opts, out DiffList? diff);
+
+		/**
+		 * Compute a difference between the working directory and a tree.
+		 *
+		 * This returns strictly the differences between the tree and the
+		 * files contained in the working directory, regardless of the state
+		 * of files in the index.  There is no direct equivalent in C git.
+		 *
+		 * This is ''NOT'' the same as 'git diff HEAD' or 'git diff <SHA>'.  Those
+		 * commands diff the tree, the index, and the workdir.  To emulate those
+		 * functions, call {@link diff_index_to_tree} and {@link diff_workdir_to_index},
+		 * then call {@link DiffList.merge} on the results.
+		 *
+		 * @param opts Structure with options to influence diff or null for defaults.
+		 * @param old_tree A tree to diff from.
+		 * @param diff The DiffList that will be allocated.
+		 */
+		[CCode(cname = "git_diff_workdir_to_tree")]
+		public Error diff_workdir_to_tree(diff_options? opts, Tree old_tree, out DiffList? diff);
+
+		/**
 		 * Perform an operation on each reference in the repository
 		 *
 		 * The processed references may be filtered by type, or using a bitwise OR
@@ -2002,6 +2178,14 @@ namespace Git {
 		 */
 		[CCode(cname = "git_remote_load", instance_pos = 1.2)]
 		public Error get_remote(out Remote remote, string name);
+
+		/**
+		 * Get a list of the configured remotes for a repo
+		 *
+		 * @param remotes_list a string array with the names of the remotes
+		 */
+		[CCode(cname = "git_remote_list", instance_pos = -1)]
+		public Error get_remote_list(out string_array remotes_list);
 
 		/**
 		 * Fill a list with all the tags in the Repository
@@ -2292,6 +2476,7 @@ namespace Git {
 		 */
 		[CCode(cname = "git_treebuilder_write", instance_pos = 1.2)]
 		public Error write(object_id id, TreeBuilder builder);
+
 	}
 
 	/**
@@ -2355,6 +2540,26 @@ namespace Git {
 		public Error push(object_id id);
 
 		/**
+		 * Push matching references
+		 *
+		 * The OIDs pinted to by the references that match the given glob
+		 * pattern will be pushed to the revision walker.
+		 *
+		 * A leading 'refs/' is implied it not present as well as a trailing
+		 * '/ *' if the glob lacks '?', '*' or '['.
+		 *
+		 * @param glob the glob pattern references should match
+		 */
+		[CCode(cname = "git_revwalk_push_glob")]
+		public Error push_glob(string glob);
+
+		/**
+		 * Push the repository's HEAD
+		 */
+		[CCode(cname = "git_revwalk_push_head")]
+		public Error push_head();
+
+		/**
 		 * Reset the revision walker for reuse.
 		 *
 		 * This will clear all the pushed and hidden commits, and leave the walker
@@ -2376,6 +2581,27 @@ namespace Git {
 		 */
 		[CCode(cname = "git_revwalk_sorting")]
 		public void set_sorting(Sorting sort);
+
+		/**
+		 * Hide matching references.
+		 *
+		 * The OIDs pinted to by the references that match the given glob
+		 * pattern and their ancestors will be hidden from the output on the
+		 * revision walk.
+		 *
+		 * A leading 'refs/' is implied it not present as well as a trailing
+		 * '/ *' if the glob lacks '?', '*' or '['.
+		 *
+		 * @param glob the glob pattern references should match
+		 */
+		[CCode(cname = "git_revwalk_hide_glob")]
+		public Error hide_glob(string glob);
+
+		/**
+		 * Hide the repository's HEAD
+		 */
+		[CCode(cname = "git_revwalk_hide_head")]
+		public Error hide_head();
 	}
 
 	/**
@@ -2783,6 +3009,81 @@ namespace Git {
 		public unowned unmerged_index_entry? get_by_path(string path);
 	}
 
+	[CCode(cname = "git_cvar_map")]
+	public struct config_var_map {
+		public ConfigVar cvar_type;
+		public string? str_match;
+		public int map_value;
+	}
+
+	/**
+	 * Description of changes to one file.
+	 *
+	 * When iterating over a diff list object, this will generally be passed to
+	 * most callback functions and you can use the contents to understand
+	 * exactly what has changed.
+	 *
+	 * Under some circumstances, not all fields will be filled in, but the code
+	 * generally tries to fill in as much as possible.  One example is that the
+	 * "binary" field will not actually look at file contents if you do not
+	 * pass in hunk and/or line callbacks to the {@link DiffList.foreach} iteration function.
+	 * It will just use the git attributes for those files.
+	 */
+	[CCode(cname = "git_diff_delta", has_type_id = false)]
+	public struct diff_delta {
+		public diff_file old_file;
+		public diff_file new_file;
+		public DeltaType status;
+		/**
+		 * For RENAMED and COPIED, value 0-100
+		 */
+		public uint similarity;
+		public bool binary;
+	}
+
+	/**
+	 * Description of one side of a diff.
+	 */
+	[CCode(cname = "git_diff_file")]
+	public struct diff_file {
+		[CCode(cname = "oid")]
+		public object_id id;
+		public string path;
+		public uint16 mode;
+		public int size;
+		public DiffFile flags;
+	}
+
+	/**
+	 * Structure describing options about how the diff should be executed.
+	 *
+	 * Setting all values of the structure to zero will yield the default
+	 * values.  Similarly, passing NULL for the options structure will
+	 * give the defaults.  The default values are marked below.
+	 *
+	 * Most of the parameters here are not actually supported at this time.
+	 */
+	[CCode(cname = "git_diff_options")]
+	public struct diff_options {
+		public DiffFlags flags;
+		public uint16 context_lines;
+		public uint16 interhunk_lines;
+		public string? old_prefix;
+		public string? new_prefix;
+		public string_array pathspec;
+	}
+
+	/**
+	 * Structure describing a hunk of a diff.
+	 */
+	[CCode(cname = "git_diff_range", has_type_id = false)]
+	public  struct diff_range {
+		public int old_start;
+		public int old_lines;
+		public int new_start;
+		public int new_lines;
+	}
+
 	/**
 	 * Time used in a index entry
 	 */
@@ -2909,7 +3210,7 @@ namespace Git {
 		 * @return the out buffer pointer, assuming no input parameter
 		 *         errors, otherwise a pointer to an empty string.
 		 */
-		[CCode(cname = "git_oid_to_string", instance_pos = -1)]
+		[CCode(cname = "git_oid_tostr", instance_pos = -1)]
 		public unowned string to_string_buffer([CCode(array_length_type = "size_t")] char[] buffer);
 
 		/**
@@ -3009,6 +3310,12 @@ namespace Git {
 		 */
 		[CCode(cname = "git_odb_hashfile")]
 		public static Error hashfile(out object_id id, string path, ObjectType type);
+		/**
+		 * Check is an oid is all zeros.
+		 */
+		[CCode(cname = "git_oid_iszero")]
+		public bool is_zero();
+
 	}
 
 	/**
@@ -3117,6 +3424,76 @@ namespace Git {
 		SKIP_WORKTREE,
 		EXTENDED2,
 		EXTENDED_FLAGS
+	}
+	[CCode(cname = "git_cvar_t", cprefix = "GIT_CVAR_", has_type_id = false)]
+	public enum ConfigVar{
+		FALSE,
+		TRUE,
+		INT32,
+		STRING
+	}
+
+	/**
+	 * What type of change is described?
+	 */
+	[CCode(cname = "git_delta_t", cprefix = "GIT_DELTA_")]
+	public enum DeltaType {
+		UNMODIFIED,
+		ADDED,
+		DELETED,
+		MODIFIED,
+		RENAMED,
+		COPIED,
+		IGNORED,
+		UNTRACKED
+	}
+
+	[CCode(cname = "unsigned int", cprefix = "GIT_DIFF_FILE_")]
+	public enum DiffFile {
+		VALID_OID,
+		FREE_PATH,
+		BINARY,
+		NOT_BINARY,
+		FREE_DATA,
+		UNMAP_DATA
+	}
+
+	[CCode(cname = "uint32_t", cprefix = "GIT_DIFF_")]
+	[Flags]
+	public enum DiffFlags {
+		NORMAL,
+		REVERSE,
+		FORCE_TEXT,
+		IGNORE_WHITESPACE,
+		IGNORE_WHITESPACE_CHANGE,
+		IGNORE_WHITESPACE_EOL,
+		IGNORE_SUBMODULES,
+		PATIENCE,
+		INCLUDE_IGNORED,
+		INCLUDE_UNTRACKED
+	}
+
+	/**
+	 * Line origin constants.
+	 *
+	 * These values describe where a line came from and will be passed to
+	 * the {@link DiffLineHandler} when iterating over a diff.  There are some
+	 * special origin contants at the end that are used for the text
+	 * output callbacks to demarcate lines that are actually part of
+	 * the file or hunk headers.
+	 */
+	[CCode(cname = "char", cprefix = "GIT_DIFF_LINE_")]
+	public enum DiffLine {
+		CONTEXT,
+		ADDITION,
+		DELETION,
+		ADD_EOFNL,
+		DEL_EOFNL,
+		FILE_HDR,
+		HUNK_HDR,
+		BINARY;
+		[CCode(cname = "")]
+		public char to_char();
 	}
 
 	/**
@@ -3634,6 +4011,31 @@ namespace Git {
 
 	public delegate Error AttributeCallback(string name, string val);
 	public delegate int ConfigCallback(string var_name, string val);
+	/**
+	 * When iterating over a diff, callback that will be made per file.
+	 */
+	[CCode(cname = "git_diff_file_fn", simple_generics = true, has_target = false)]
+	public delegate Error DiffFileHandler<T>(T context, diff_delta delta, float progress);
+
+	/**
+	 * When iterating over a diff, callback that will be made per hunk.
+	 */
+	[CCode(cname = "git_diff_hunk_fn", simple_generics = true, has_target = false)]
+	public delegate Error DiffHunkHandler<T>(T context, diff_delta delta, diff_range range, char[] header);
+
+	/**
+	 * When iterating over a diff, callback that will be made per text diff
+	 * line.
+	 */
+	[CCode(cname = "git_diff_line_fn", simple_generics = true, has_target = false)]
+	public delegate Error DiffLineHandler<T>(T context, diff_delta delta, DiffLine line_origin, [CCode(array_length_type = "size_t")] uint8[] content);
+
+	/**
+	 * When printing a diff, callback that will be made to output each line
+	 * of text.
+	 */
+	[CCode(cname = "git_diff_output_fn", instance_pos = 0)]
+	public delegate Error DiffOutputHandler(DiffLine line_origin, string formatted_output);
 	public delegate bool Filter(TreeEntry entry);
 	[CCode(cname = "git_headlist_cb", has_type_id = false)]
 	public delegate int HeadCallback(remote_head head);
