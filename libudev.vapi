@@ -507,7 +507,7 @@ namespace UDev {
 		 * @return false on success
 		 */
 		[CCode(cname = "udev_monitor_filter_add_match_subsystem_devtype")]
-		public bool add_match_subsystem_devtype(string subsystem, string devtype);
+		public bool add_match_subsystem_devtype(string subsystem, string? devtype = null);
 		/**
 		 * This filter is efficiently executed inside the kernel, and libudev
 		 * subscribers will usually not be woken up for devices which do not match.
