@@ -4,6 +4,7 @@
 #define OBJECT_ARRAY_TO_BUFFER(val,len,type,size) (*(size) = sizeof(type)*(len), (guint8*)val)
 #define OBJECT_ARRAY_TO_ARRAY(val,len,typea,typeb,size) (*(size) = sizeof(typea)*(len)/sizeof(typeb), (void*)val)
 #define OBJECT_ARRAY_FROM_BUFFER(val,len,type,size) (*(size) = (len)/sizeof(type), (void*)val)
+#define BUFFER_SUB_CHUNK(val,len,idx,size) (((idx) < (len)) ? (*(size) = (len) - (idx), &(val)[(idx)]) : (*(size) = 0, NULL))
 
 typedef gsize (*InitialisationFunction)(void*);
 #define ONCE_MERGE_(a,b)  a##b

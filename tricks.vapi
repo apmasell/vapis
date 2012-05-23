@@ -22,6 +22,9 @@ namespace Buffer {
 	 */
 	[CCode(generic_type_pos = 1.9, cname = "OBJECT_ARRAY_FROM_BUFFER")]
 	public unowned T[] from_array<T>(uint8[] @value);
+
+	[CCode(cname = "BUFFER_SUB_CHUNK")]
+	public unowned uint8[]? index(uint8[] buffer, int index);
 }
 
 [CCode(cname = "InitialisationFunction", cheader_filename = "tricks.h", has_type_id = false)]
