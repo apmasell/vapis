@@ -1092,7 +1092,7 @@ namespace Git {
 		 * distribution), which should be enough for any kind of program, and keeps
 		 * the algorithm fast and memory-efficient.
 		 *
-		 * Attempting to add more than those ids will result in a {@link Error.NOMEM} error
+		 * Attempting to add more than those ids will result in a {@link ErrClass.NOMEMORY} error
 		 *
 		 * @param text_id an id in text form
 		 * @return the minimal length to uniquely identify all ids added so far to the set; or an error code (<0) if an error occurs.
@@ -1125,8 +1125,7 @@ namespace Git {
 		 * index file in the index path, without a repository to back it.
 		 *
 		 * Since there is no ODB or working directory behind this index, any index
-		 * methods which rely on these (e.g., {@link add}) will fail with the
-		 * {@link Error.BAREINDEX} error code.
+		 * methods which rely on these (e.g., {@link add}) will fail.
 		 *
 		 * If you need to access the index of an actual repository, use {@link Repository.get_index}.
 		 *
@@ -2385,7 +2384,7 @@ namespace Git {
 		 *
 		 * @param status the status value
 		 * @param path the file to retrieve status for, rooted at the repo's workdir
-		 * @return {@link Error.INVALIDPATH} when //path// points at a folder, {@link Error.NOTFOUND} when the file doesn't exist in any of HEAD, the index or the worktree, {@link Error.SUCCESS} otherwise
+		 * @return {@link Error.ERROR} when //path// points at a folder, {@link Error.NOTFOUND} when the file doesn't exist in any of HEAD, the index or the worktree, {@link Error.SUCCESS} otherwise
 		 */
 		[CCode(cname = "git_status_file", instance_pos = 1.2)]
 		public Error get_file_status(out Status status, string path);
@@ -3173,7 +3172,7 @@ namespace Git {
 		 *
 		 * @param subtree where to store the parent tree
 		 * @param path Path to the tree entry from which to extract the last tree object
-		 * @return {@link Error.SUCCESS} on success; {@link Error.NOTFOUND} if the path does not lead to an entry, {@link Error.INVALIDPATH}; otherwise, an error code
+		 * @return {@link Error.SUCCESS} on success; {@link Error.NOTFOUND} if the path does not lead to an entry; otherwise, an error code
 		 */
 		[CCode(cname = "git_tree_get_subtree", instance_pos = 1.2)]
 		public Error get_subtree(out Tree subtree, string path);
@@ -3507,7 +3506,7 @@ namespace Git {
 		 * @param str input hex string; must be pointing at the start of
 		 *        the hex sequence and have at least the number of bytes
 		 *        needed for an id encoded in hex (40 bytes).
-		 * @return {@link Error.SUCCESS} if valid; {@link Error.NOTID} on failure.
+		 * @return {@link Error.SUCCESS} if valid.NOTID} on failure.
 		 */
 		[CCode(cname = "git_oid_fromstr")]
 		public static Error from_string(out object_id id, string str);
@@ -3520,7 +3519,7 @@ namespace Git {
 		 *
 		 * @param id id structure the result is written into.
 		 * @param data input hex string
-		 * @return {@link Error.SUCCESS} if valid; {@link Error.NOTID} on failure.
+		 * @return {@link Error.SUCCESS} if valid.
 		 */
 		[CCode(cname = "git_oid_fromstrn")]
 		public static Error from_array(out object_id id, [CCode(array_length_type = "size_t")] uint8[] data);
@@ -3646,7 +3645,7 @@ namespace Git {
 		 * Check if an oid equals an hex formatted object id.
 		 *
 		 * @param str input hex string of an object id.
-		 * @return {@link Error.NOTID} if the string is not a valid hex string, {@link Error.SUCCESS} in case of a match, {@link Error.ERROR} otherwise.
+		 * @return {@link Error.SUCCESS} in case of a match, {@link Error.ERROR} otherwise.
 		 */
 		[CCode(cname = "git_oid_streq")]
 		public Error compare_string(string str);
