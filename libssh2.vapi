@@ -17,7 +17,7 @@ namespace SSH2 {
 		 * This is the numeric version of the libssh2 version number, meant for
 		 * easier parsing and comparions by programs.
 		 *
-		 * The LIBSSH2_VERSION_NUM define will always follow this syntax: 0xXXYYZZ
+		 * This will always follow this syntax: 0xXXYYZZ
 		 * Where XX, YY and ZZ are the main version, release and patch numbers in
 		 * hexadecimal (using 8 bits each). All three numbers are always
 		 * represented using two digits. 1.2 would appear as "0x010200" while
@@ -48,39 +48,8 @@ namespace SSH2 {
 		[CCode(cname = "LIBSSH2_VERSION")]
 		public const string STRING;
 		[CCode(cname = "libssh2_version")]
-		public unowned string version(int req_version_num);
+		public unowned string check(int req_version_num = NUM);
 	}
-#if 0
-/* Extended Data Handling TODO*/
-define LIBSSH2_CHANNEL_EXTENDED_DATA_NORMAL 0
-define LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE 1
-define LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE 2
-
-
-/* Part of every banner, user specified or not */
-define LIBSSH2_SSH_BANNER "SSH-2.0-libssh2_" LIBSSH2_VERSION
-
-/* We *could* add a comment here if we so chose */
-define LIBSSH2_SSH_DEFAULT_BANNER LIBSSH2_SSH_BANNER
-define LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF LIBSSH2_SSH_DEFAULT_BANNER "\r\n"
-
-/* Default generate and safe prime sizes for diffie-hellman-group-exchange-sha1 */
-define LIBSSH2_DH_GEX_MINGROUP 1024
-define LIBSSH2_DH_GEX_OPTGROUP 1536
-define LIBSSH2_DH_GEX_MAXGROUP 2048
-
-/* Maximum size to allow a payload to compress to, plays it safe by falling
- short of spec limits */
-define LIBSSH2_PACKET_MAXCOMP 32000
-
-/* Maximum size to allow a payload to deccompress to, plays it safe by
- allowing more than spec requires */
-define LIBSSH2_PACKET_MAXDECOMP 40000
-
-/* Maximum size for an inbound compressed payload, plays it safe by
- overshooting spec limits */
-define LIBSSH2_PACKET_MAXPAYLOAD 40000
-#endif
 	[CCode(cname = "LIBSSH2_AGENT", free_function = "libssh2_agent_free", has_type_id = false)]
 	[Compact]
 	public class Agent {
@@ -136,6 +105,21 @@ define LIBSSH2_PACKET_MAXPAYLOAD 40000
 		public const int FLUSH_ALL;
 		[CCode(cname = "LIBSSH2_CHANNEL_PACKET_DEFAULT")]
 		public const int PACKET_DEFAULT;
+		/**
+		 * Maximum size to allow a payload to compress to, plays it safe by falling short of spec limits
+		 */
+		[CCode(cname = "LIBSSH2_PACKET_MAXCOMP")]
+		public const int PACKET_MAX_COMP;
+		/**
+		 * Maximum size to allow a payload to deccompress to, plays it safe by allowing more than spec requires
+		 */
+		[CCode(cname = "LIBSSH2_PACKET_MAXDECOMP")]
+		public const int PACKET_MAX_DECOMP;
+		/**
+		 * Maximum size for an inbound compressed payload, plays it safe by overshooting spec limits
+		 */
+		[CCode(cname = "LIBSSH2_PACKET_MAXPAYLOAD")]
+		public const int PACKET_MAX_PAYLOAD;
 		[CCode(cname = "LIBSSH2_CHANNEL_MINADJUST")]
 		public const int MIN_ADJUST;
 		[CCode(cname = "LIBSSH2_CHANNEL_WINDOW_DEFAULT")]
@@ -251,6 +235,15 @@ define LIBSSH2_PACKET_MAXPAYLOAD 40000
 		 */
 		[CCode(cname = "libssh2_channel_setenv_ex")]
 		public Error set_env_ex([CCode(array_length_type = "unsigned int")] uint8[] varname, [CCode(array_length_type = "unsigned int")] uint8[] @value);
+		/**
+		 * Set extended data handling mode
+		 *
+		 * Change how a channel deals with extended data packets.
+		 *
+		 * By default all extended data is queued until read by {@link read_stream}.
+		 */
+		[CCode(cname = "libssh2_channel_handle_extended_data2")]
+		public Error set_handle_extended_data(ExtendedData mode);
 		[CCode(cname = "libssh2_channel_exec")]
 		public Error start_command(string command);
 		/**
@@ -1209,6 +1202,21 @@ define LIBSSH2_PACKET_MAXPAYLOAD 40000
 		ENCRYPT,
 		BAD_SOCKET
 	}
+	[CCode(cname = "int", cprefix = "LIBSSH2_CHANNEL_EXTENDED_DATA_", has_type_id = false)]
+	public enum ExtendedData {
+		/**
+		 * Queue extended data for eventual reading
+		 */
+		NORMAL,
+		/**
+		 * Treat  extended  data and ordinary data the same. Merge all substreams such that calls to {@link Channel.read} will pull from all substreams on  a first-in/first-out basis.
+		 */
+		MERGE,
+		/**
+		 * Discard all extended data as it arrives.
+		 */
+		IGNORE
+	}
 	[CCode(cname = "int", cprefix = "LIBSSH2_HOSTKEY_HASH_", has_type_id = false)]
 	public enum HashType {
 		MD5,
@@ -1385,6 +1393,15 @@ define LIBSSH2_PACKET_MAXPAYLOAD 40000
 	public void exit();
 	[CCode(cname = "libssh2_trace_handler_func*", instance_pos = 1.1, simple_generics = true)]
 	public delegate void TraceFunc<T>(Session<T> session, [CCode(array_length_type = "size_t")] uint8[] message);
+	/**
+	 * Part of every banner, user specified or not
+	 */
+	[CCode(cname = "LIBSSH2_SSH_BANNER")]
+	public const string BANNER;
+	[CCode(cname = "LIBSSH2_SSH_DEFAULT_BANNER")]
+	public const string DEFAULT_BANNER;
+	[CCode(cname = "LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF")]
+	public const string DEFAULT_BANNER_WITH_CRLF;
 	[CCode(cname = "LIBSSH2_TERM_HEIGHT")]
 	public const int TERM_HEIGHT;
 	[CCode(cname = "LIBSSH2_TERM_HEIGHT_PX")]
