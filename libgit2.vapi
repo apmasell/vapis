@@ -197,6 +197,7 @@ namespace Git {
 			return e;
 		}
 
+		[CCode(cname = "git_attr_get_many")]
 		public Error _lookup_many(AttrCheck flags, string path, [CCode(array_length_pos = 2.1, array_length_type = "size_t")] string[] names, void* values);
 
 		/**
