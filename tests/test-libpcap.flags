@@ -1,0 +1,1 @@
+$(for each in $(pcap-config --cflags --libs); do echo -X "$each"; done)

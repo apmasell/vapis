@@ -1,0 +1,1 @@
+-X -I/usr/include/nvidia-current -X -L/usr/include/nvidia-current -X -lOpenCL
