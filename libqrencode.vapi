@@ -4,6 +4,49 @@
 [CCode(cheader_filename = "qrencode.h")]
 namespace QR {
 	/**
+	 * The state of each module (dot).
+	 *
+	 * Only {@link Dot.BLACK} is useful for usual applications.
+	 */
+	[CCode(cname = "unsigned char", has_type_id = false)]
+	[Flags]
+	public enum Dot {
+		[CCode(cname = "1")]
+		BLACK,
+		[CCode(cname = "2")]
+		DATA_AND_ECC,
+	 	[CCode(cname = "4")]
+		FORMAT,
+		[CCode(cname = "8")]
+		VERSION,
+		[CCode(cname = "16")]
+		TIMING,
+		[CCode(cname = "32")]
+		ALIGNMENT,
+		[CCode(cname = "64")]
+		FINDER,
+		[CCode(cname = "128")]
+		NON_DATA
+	}
+
+	/**
+	 * Level of error correction.
+	 */
+	[CCode(cname = "QRecLevel", cprefix = "QR_ECLEVEL_")]
+	public enum ECLevel {
+		/**
+		 * Lowest
+		 */
+		L,
+		M,
+		Q,
+		/**
+		 * Highest
+		 */
+		H
+	}
+
+	/**
 	 * Encoding mode.
 	 */
 	[CCode(cname = "QRencodeMode", cprefix = "QR_MODE_")]
@@ -32,40 +75,10 @@ namespace QR {
 	}
 
 	/**
-	 * Level of error correction.
-	 */
-	[CCode(cname = "QRecLevel", cprefix = "QR_ECLEVEL_")]
-	public enum ECLevel {
-		/**
-		 * Lowest
-		 */
-		L,
-		M,
-		Q,
-		/**
-		 * Highest
-		 */
-		H
-	}
-	/**
 	 * Symbol data is represented as an array contains width*width {@link uint8}.
 	 *
-	 * Each point represents a module (dot). If the less significant bit of the
-	 * uchar is 1, the corresponding module is black. The other bits are
-	 * meaningless for usual applications, but here its specification is
+	 * Each point represents a module (dot).
 	 * described.
-	 *
-	 * <pre>
-	 * MSB 76543210 LSB
-	 *     |||||||`- 1=black/0=white
-	 *     ||||||`-- data and ecc code area
-	 *     |||||`--- format information
-	 *     ||||`---- version information
-	 *     |||`----- timing pattern
-	 *     ||`------ alignment pattern
-	 *     |`------- finder pattern and separator
-	 *     `-------- non-data modules (format, timing, etc.)
-	 * </pre>
 	 */
 	[CCode(cname = "QRcode", free_function = "QRcode_free", has_type_id = false)]
 	[Compact]
@@ -73,7 +86,7 @@ namespace QR {
 		public int version;
 		public int width;
 		[CCode(array_length = false)]
-		public uint8[] data;
+		public Dot[] data;
 		/**
 		 * Create a symbol from the string.
 		 *
