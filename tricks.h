@@ -11,4 +11,5 @@ typedef gsize (*InitialisationFunction)(void*);
 #define ONCE_LABEL_(a) ONCE_MERGE_(initval__, a)
 #define ONCE_UNIQUE_NAME ONCE_LABEL_(__LINE__)
 #define ONCE(res,func,data) do { static volatile gsize ONCE_UNIQUE_NAME = 0; if (g_once_init_enter (&ONCE_UNIQUE_NAME)) g_once_init_leave (&ONCE_UNIQUE_NAME, func(data)); *res = ONCE_UNIQUE_NAME; } while (0)
+#define VALA_SWAP(a, b, t) do { t _swap_temp = *(a); *(a) = *(b); *(b) = _swap_temp; } while (0)
 #endif
