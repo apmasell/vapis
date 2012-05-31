@@ -116,6 +116,12 @@ namespace QR {
 		 */
 		[CCode(cname = "QRcode_encodeString8bit")]
 		public static Code? encode_string_8bit(string str, int version, ECLevel level);
+		public bool get(int x, int y) {
+			if (x < width && y < width) {
+				return Dot.BLACK in data[x * width + y];
+			} else
+				return false;
+		}
 	}
 
 	/**
