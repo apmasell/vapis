@@ -13,7 +13,7 @@ namespace Cookie {
 	/**
 	 * Allows the programmer to create a custom implementation for a standard I/O stream.
 	 *
-	 * This implementation can store the stream's data at a location of its own choosing; for example, it is used to implement {@link open_mem}, which provides a stream interface to data that is stored in a buffer in memory.
+	 * This implementation can store the stream's data at a location of its own choosing; for example, it is used to implement {@link open_buffer}, which provides a stream interface to data that is stored in a buffer in memory.
 	 *
 	 * In order to create a custom stream the programmer must:
 	 * * Implement four hook functions that are used internally by the standard I/O library when performing I/O on the stream.
@@ -45,7 +45,7 @@ namespace Cookie {
 	 *
 	 * In a stream opened for reading, null bytes ('\0') in the buffer do not cause read operations to return an end-of-file indication. A read from the buffer will only indicate end-of-file when the file pointer advances size bytes past the start of the buffer.
 	 *
-	 * @param mode is the same as for {@link FileStream.open}. If mode specifies an append mode, then the initial file position is set to the location of the first null byte ('\0') in the buffer; otherwise the initial file position is set to the start of the buffer. Since glibc 2.9, the letter 'b' may be specified as the second character in mode. This provides "binary" mode: writes don't implicitly add a terminating null byte, and {@link FileStream.seek} when {@link FileSeek.END} is relative to the end of the buffer (i.e., the value specified by the size argument), rather than the current string length.
+	 * @param mode is the same as for {@link GLib.FileStream.open}. If mode specifies an append mode, then the initial file position is set to the location of the first null byte ('\0') in the buffer; otherwise the initial file position is set to the start of the buffer. Since glibc 2.9, the letter 'b' may be specified as the second character in mode. This provides "binary" mode: writes don't implicitly add a terminating null byte, and {@link GLib.FileStream.seek} when {@link GLib.FileSeek.END} is relative to the end of the buffer (i.e., the value specified by the size argument), rather than the current string length.
 	 */
 	[CCode(cname = "fmemopen")]
 	public
