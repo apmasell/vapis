@@ -1,0 +1,1 @@
+-X -D_GNU_SOURCE=1 -X -DGFileSeek=int
