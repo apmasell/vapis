@@ -121,7 +121,7 @@ namespace Git {
 		 * In core git parlance, this the value for "Set" attributes.
 		 */
 		[CCode(cname = "GIT_ATTR_TRUE")]
-		public static bool is_true(string attr);
+		public static bool is_true(string? attr);
 		/**
 		 * Checks if an attribute is set off.
 		 *
@@ -129,20 +129,20 @@ namespace Git {
 		 * (not to be confused with values that a "Unspecified").
 		 */
 		[CCode(cname = "GIT_ATTR_FALSE")]
-		public static bool is_false(string attr);
+		public static bool is_false(string? attr);
 		/**
 		 * Checks if an attribute is set to a value (as opposied to TRUE, FALSE or
 		 * UNSPECIFIED).
 		 */
 		[CCode(cname = "GIT_ATTR_SET_TO_VALUE")]
-		public static bool is_set(string attr);
+		public static bool is_set(string? attr);
 		/*
 		 * Checks if an attribute is unspecified.  This may be due to the attribute
 		 * not being mentioned at all or because the attribute was explicitly set
 		 * unspecified via the `!` operator.
 		 */
 		[CCode(cname = "GIT_ATTR_UNSPECIFIED")]
-		public static bool is_unspecified(string attr);
+		public static bool is_unspecified(string? attr);
 
 		/**
 		 * Add a macro definition.
@@ -162,7 +162,7 @@ namespace Git {
 		 * Lookup attribute for path returning string caller must free
 		 */
 		[CCode(cname = "git_attr_get")]
-		public Error lookup(AttrCheck flags, string path, string name, out string val);
+		public Error lookup(AttrCheck flags, string path, string name, out unowned string? val);
 
 		/**
 		 * Lookup list of attributes for path, populating array of strings
