@@ -1,5 +1,5 @@
 /*
- * API for LLVM
+ * API for LLVM 3.0
  *
  * Maintained by Andre Masella <https://github.com/apmasell/vapis>
  * Based on Marc-André Lureau <http://gitorious.org/llvm-vapi>
@@ -54,8 +54,10 @@ namespace LLVM {
 		[CCode (cname = "LLVMBuildInvoke")]
 		public InvokeInst build_invoke (Value Fn, [CCode (array_length_pos = 2.9)] Value[] args, BasicBlock then, BasicBlock @catch, string name = "");
 
-		[CCode (cname = "LLVMBuildUnwind")]
-		public UnwindInst build_unwind ();
+		[CCode(cname = "LLVMBuildLandingPad")]
+		public Value build_landing_pad(Ty ty, Value pers_fn, uint num_clauses, string name);
+		[CCode(cname = "LLVMBuildResume")]
+		public Value build_resume(Value exn);
 
 		[CCode (cname = "LLVMBuildUnreachable")]
 		public UnreachableInst build_unreachable ();
@@ -419,13 +421,6 @@ namespace LLVM {
 			set;
 		}
 
-		[CCode (cname = "LLVMAddTypeName")]
-		public int add_type_name (string name, Ty ty);
-		[CCode (cname = "LLVMDeleteTypeName")]
-		public void delete_type_name (string name);
-		[CCode (cname = "LLVMGetTypeByName")]
-		public Ty? get_type_by_name (string name);
-
 		[CCode (cname = "LLVMAddAlias")]
 		public GlobalAlias add_alias (LLVM.Ty ty, LLVM.Value aliasee, string name);
 
@@ -492,14 +487,14 @@ namespace LLVM {
 		public void add_dead_arg_elimination ();
 		[CCode (cname = "LLVMAddDeadStoreEliminationPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
 		public void add_dead_store_elimination ();
-		[CCode (cname = "LLVMAddDeadTypeEliminationPass", cheader_filename = "llvm-c/Transforms/IPO.h")]
-		public void add_dead_type_elimination ();
 		[CCode (cname = "LLVMAddDemoteMemoryToRegisterPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
 		public void add_demote_memory_to_register ();
 		[CCode (cname = "LLVMAddFunctionAttrsPass", cheader_filename = "llvm-c/Transforms/IPO.h")]
 		public void add_function_attrs ();
 		[CCode (cname = "LLVMAddFunctionInliningPass", cheader_filename = "llvm-c/Transforms/IPO.h")]
 		public void add_function_inlining ();
+		[CCode(cname = "LLVMAddAlwaysInlinerPass")]
+		public void add_always_inliner();
 		[CCode (cname = "LLVMAddGVNPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
 		public void add_gvn ();
 		[CCode (cname = "LLVMAddGlobalDCEPass", cheader_filename = "llvm-c/Transforms/IPO.h")]
@@ -526,22 +521,22 @@ namespace LLVM {
 		public void add_loop_unroll ();
 		[CCode (cname = "LLVMAddLoopUnswitchPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
 		public void add_loop_unswitch ();
-		[CCode (cname = "LLVMAddLowerSetJmpPass", cheader_filename = "llvm-c/Transforms/IPO.h")]
-		public void add_lower_setjmp ();
 		[CCode (cname = "LLVMAddMemCpyOptPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
 		public void add_memcpy_opt ();
 		[CCode (cname = "LLVMAddPromoteMemoryToRegisterPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
 		public void add_promote_memory_to_register ();
+		[CCode(cname = "LLVMAddLoopIdiomPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
+		public void add_loop_idiom();
 		[CCode (cname = "LLVMAddPruneEHPass", cheader_filename = "llvm-c/Transforms/IPO.h")]
 		public void add_prune_eh ();
-		[CCode (cname = "LLVMAddRaiseAllocationsPass", cheader_filename = "llvm-c/Transforms/IPO.h")]
-		public void add_raise_allocations ();
 		[CCode (cname = "LLVMAddReassociatePass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
 		public void add_reassociate ();
 		[CCode (cname = "LLVMAddSCCPPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
 		public void add_sccp ();
 		[CCode (cname = "LLVMAddScalarReplAggregatesPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
 		public void add_scalar_repl_aggregates ();
+		[CCode (cname = "LLVMAddScalarReplAggregatesPassSSA", cheader_filename = "llvm-c/Transforms/Scalar.h")]
+		public void add_scalar_repl_aggregates_ssa();
 		[CCode (cname = "LLVMAddSimplifyLibCallsPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
 		public void add_simplify_lib_calls ();
 		[CCode (cname = "LLVMAddStripDeadPrototypesPass", cheader_filename = "llvm-c/Transforms/IPO.h")]
@@ -550,6 +545,16 @@ namespace LLVM {
 		public void add_strip_symbols ();
 		[CCode (cname = "LLVMAddTailCallEliminationPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
 		public void add_tailcall_elimination ();
+		[CCode (cname = "LLVMAddCorrelatedValuePropagationPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
+		public void add_correlated_value_propagation();
+		[CCode (cname = "LLVMAddEarlyCSEPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
+		public void add_early_cse();
+		[CCode (cname = "LLVMAddLowerExpectIntrinsicPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
+		public void add_lower_expect_intrinsic();
+		[CCode (cname = "LLVMAddTypeBasedAliasAnalysisPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
+		public void add_type_based_alias_analysis();
+		[CCode (cname = "LLVMAddBasicAliasAnalysisPass", cheader_filename = "llvm-c/Transforms/Scalar.h")]
+		public void add_basic_alias_analysis();
 	}
 
 	/**
@@ -630,29 +635,10 @@ namespace LLVM {
 		public uint call_frame_alignment_of_type (Ty ty);
 		[CCode (cname = "LLVMElementAtOffset", cheader_filename = "llvm-c/Target.h")]
 		public uint element_at_offset (Ty struct_ty, uint offset);
-		[CCode (cname = "LLVMInvalidateStructLayout", cheader_filename = "llvm-c/Target.h")]
-		public void invalidate_struct_layout (Ty struct_ty);
 		[CCode (cname = "LLVMPreferredAlignmentOfGlobal", cheader_filename = "llvm-c/Target.h")]
 		public uint preferred_alignment_of_global (GlobalVariable global_var);
 		[CCode (cname = "LLVMPreferredAlignmentOfType", cheader_filename = "llvm-c/Target.h")]
 		public uint preferred_alignment_of_type (Ty ty);
-	}
-
-	/**
-	 * Handle for refining types.
-	 *
-	 * When building recursive types using {@link Ty.refine}, {@link Ty}
-	 * values may become invalid; use this class to resolve this problem. See the
-	 * llvm::AbstractTypeHolder class.
-	 */
-	[Compact]
-	[CCode (cname="struct LLVMOpaqueTypeHandle", free_function="LLVMDisposeTypeHandle", has_type_id = false)]
-	public class TyHandle {
-		[CCode (cname = "LLVMCreateTypeHandle")]
-		public TyHandle (Ty potentially_abstract_ty);
-
-		[CCode (cname = "LLVMResolveTyHandle")]
-		public Ty resolve ();
 	}
 
 	[SimpleType]
@@ -709,10 +695,6 @@ namespace LLVM {
 		public static Ty label ();
 		[CCode (cname = "LLVMLabelTypeInContext")]
 		public static Ty label_in_context (Context c);
-		[CCode (cname = "LLVMOpaqueType")]
-		public static Ty opaque ();
-		[CCode (cname = "LLVMOpaqueTypeInContext")]
-		public static Ty opaque_in_context (Context c);
 		[CCode (cname = "LLVMPPCFP128Type")]
 		public static Ty ppcfp128 ();
 		[CCode (cname = "LLVMPPCFP128TypeInContext")]
@@ -721,6 +703,8 @@ namespace LLVM {
 		public static Ty pointer (Ty element_type, uint address_space);
 		[CCode (cname = "LLVMStructType")]
 		public static Ty struct (Ty[] element_types, bool packed);
+		[CCode(cname = "LLVMStructCreateNamed")]
+		public static Ty struct_named(Context C, string name);
 		[CCode (cname = "LLVMStructTypeInContext")]
 		public static Ty struct_in_context (Context c, Ty[] element_types, bool packed);
 		[CCode (cname = "LLVMVectorType")]
@@ -736,7 +720,10 @@ namespace LLVM {
 
 		public uint array_length { [CCode (cname = "LLVMGetArrayLength")] get; }
 		public bool is_function_var_arg { [CCode (cname = "LLVMIsFunctionVarArg")] get; }
+		public bool is_sized { [CCode (cname = "LLVMTypeIsSized")] get; }
+		public bool is_opaque_struct { [CCode (cname = "LLVMIsOpaqueStruct")] get; }
 		public Ty return_type { [CCode (cname = "LLVMGetReturnType")] get; }
+		public string struct_name { [CCode (cname = "LLVMGetStructName")] get; }
 		public uint param_count { [CCode (cname = "LLVMCountParamTypes")] get; }
 
 		public uint pointer_address_space { [CCode (cname = "LLVMGetPointerAddressSpace")] get; }
@@ -749,13 +736,15 @@ namespace LLVM {
 		public Value size { [CCode (cname = "LLVMSizeOf")] get; }
 		public uint int_width { [CCode (cname = "LLVMGetIntTypeWidth")] get; }
 
-		[CCode (cname = "LLVMRefineType")]
-		public void refine (Ty concrete_ty);
 		[CCode (cname = "LLVMGetParamTypes")]
 		public void get_param_types ([CCode(array_length = false)] Ty[] dest);
 		[CCode (cname = "LLVMGetStructElementTypes")]
 		public void get_struct_element_types ([CCode(array_length = false)] Ty[] Dest);
-	}
+		[CCode(cname = "LLVMStructSetBody")]
+		public void set_struct_body(Ty[] elements, bool packed);
+		[CCode(cname = "LLVMConstNamedStruct")]
+		public Value const_named_struct(Value[] constant_vals);
+}
 
 	[SimpleType]
 	[CCode (cname="LLVMUseRef", has_type_id = false)]
@@ -824,6 +813,7 @@ namespace LLVM {
 		public bool is_a_dbg_region_start_inst { [CCode (cname = "LLVMIsADbgRegionStartInst")] get; }
 		public bool is_a_dbg_stop_point_inst { [CCode (cname = "LLVMIsADbgStopPointInst")] get; }
 		public bool is_a_eh_selector_inst { [CCode (cname = "LLVMIsAEHSelectorInst")] get; }
+		public bool is_a_eh_exception_inst { [CCode (cname = "LLVMIsAEHExceotionInst")] get; }
 		public bool is_a_extract_element_inst { [CCode (cname = "LLVMIsAExtractElementInst")] get; }
 		public bool is_a_extract_value_inst { [CCode (cname = "LLVMIsAExtractValueInst")] get; }
 		public bool is_a_fcmp_inst { [CCode (cname = "LLVMIsAFCmpInst")] get; }
@@ -838,8 +828,11 @@ namespace LLVM {
 		public bool is_a_global_variable { [CCode (cname = "LLVMIsAGlobalVariable")] get; }
 		public bool is_a_icmp_inst { [CCode (cname = "LLVMIsAICmpInst")] get; }
 		public bool is_a_inline_asm { [CCode (cname = "LLVMIsAInlineAsm")] get; }
+		public bool is_a_md_node { [CCode (cname = "LLVMIsAMDNode")] get; }
+		public bool is_a_md_string { [CCode (cname = "LLVMIsAMDString")] get; }
 		public bool is_a_insert_element_inst { [CCode (cname = "LLVMIsAInsertElementInst")] get; }
 		public bool is_a_insert_value_inst { [CCode (cname = "LLVMIsAInsertValueInst")] get; }
+		public bool is_a_landing_pad_inst { [CCode (cname = "LLVMIsALandingPadInst")] get; }
 		public bool is_a_instruction { [CCode (cname = "LLVMIsAInstruction")] get; }
 		public bool is_a_int_to_ptr_inst { [CCode (cname = "LLVMIsAIntToPtrInst")] get; }
 		public bool is_a_intrinsic_inst { [CCode (cname = "LLVMIsAIntrinsicInst")] get; }
@@ -864,12 +857,13 @@ namespace LLVM {
 		public bool is_a_unary_instruction { [CCode (cname = "LLVMIsAUnaryInstruction")] get; }
 		public bool is_a_undef_value { [CCode (cname = "LLVMIsAUndefValue")] get; }
 		public bool is_a_unreachable_inst { [CCode (cname = "LLVMIsAUnreachableInst")] get; }
-		public bool is_a_unwind_inst { [CCode (cname = "LLVMIsAUnwindInst")] get; }
+		public bool is_a_resume_inst { [CCode (cname = "LLVMIsAResumeInst")] get; }
 		public bool is_a_user { [CCode (cname = "LLVMIsAUser")] get; }
 		public bool is_a_va_arg_inst { [CCode (cname = "LLVMIsAVAArgInst")] get; }
 		public bool is_a_zext_inst { [CCode (cname = "LLVMIsAZExtInst")] get; }
 
 		public bool is_constant { [CCode (cname = "LLVMIsConstant")] get; }
+		public bool is_block_address { [CCode (cname = "LLVMIsBlockAddress")] get; }
 		public bool is_declaration { [CCode (cname = "LLVMIsDeclaration")] get; }
 		public bool is_global_constant { [CCode (cname = "LLVMIsGlobalConstant")] get; }
 		public bool is_null { [CCode (cname = "LLVMIsNull")] get; }
@@ -878,8 +872,19 @@ namespace LLVM {
 		public bool is_undef { [CCode (cname = "LLVMIsUndef")] get; }
 		public bool is_basic_block { [CCode (cname = "LLVMValueIsBasicBlock")] get; }
 
+		public uint8[] md_string {
+			[CCode(cname = "LLVMGetMDString")]
+			get;
+		}
+		public int md_node_operands {
+			[CCode(cname = "LLVMGetMDNodeNumOperands")]
+			get;
+		}
+
 		[CCode (cname = "LLVMValueAsBasicBlock")]
 		public BasicBlock as_basic_block ();
+		[CCode(cname = "LLVMGetMDNodeOperand")]
+		public Value *get_md_node_operand(uint i);
 	}
 
 	[SimpleType]
@@ -898,6 +903,10 @@ namespace LLVM {
 		public void delete();
 		[CCode (cname = "LLVMInsertBasicBlock")]
 		public BasicBlock insert_before (string name);
+		[CCode(cname = "LLVMGetBasicBlockTerminator")]
+		public Value get_terminator();
+		[CCode(cname = "LLVMRemoveBasicBlockFromParent")]
+		public void remove_from_parent();
 	}
 
 	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
@@ -914,6 +923,10 @@ namespace LLVM {
 		public BasicBlock parent { [CCode (cname = "LLVMGetInstructionParent")] get; }
 		public Instruction next { [CCode (cname = "LLVMGetNextInstruction")] get; }
 		public Instruction previous { [CCode (cname = "LLVMGetPreviousInstruction")] get; }
+		public Opcode opcode { [CCode (cname = "LLVMGetInstructionOpcode")] get; }
+		public IntPredicate icmp_predicate { [CCode (cname = "LLVMGetICmpPredicate")] get; }
+		[CCode(cname = "LLVMInstructionEraseFromParent")]
+		public void erase_from_parent();
 	}
 
 	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
@@ -938,6 +951,7 @@ namespace LLVM {
 
 	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class SwitchInst: Instruction {
+		public BasicBlock default_dest { [CCode(cname = "LLVMGetSwitchDefaultDest")] get; }
 		[CCode (cname = "LLVMAddCase")]
 		public void add_case (Value on_val, BasicBlock dest);
 	}
@@ -947,7 +961,17 @@ namespace LLVM {
 	}
 
 	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
-	public class UnwindInst: Instruction {
+	public class LandingPadInst: Instruction {
+		/**
+		 * Add a catch or filter clause to the landingpad instruction
+		 */
+		[CCode(cname = "LLVMAddClause")]
+		public void add_clause(Value clause_val);
+		/**
+		 * Set the 'cleanup' flag in the landingpad instruction
+		 */
+		[CCode(cname = "LLVMSetCleanup")]
+		void set_cleanup(bool val);
 	}
 
 	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
@@ -1373,7 +1397,15 @@ namespace LLVM {
 		[CCode (cname="LLVMNakedAttribute")]
 		NAKED,
 		[CCode (cname="LLVMInlineHintAttribute")]
-		INLINE_HINT
+		INLINE_HINT,
+		[CCode (cname="LLVMStackAlignment")]
+		STACK_ALIGNMENT,
+		[CCode (cname="LLVMReturnsTwice")]
+		RETURNS_TWICE,
+		[CCode (cname="LLVMUWTable")]
+		UW_TABLE,
+		[CCode (cname="LLVMNonLazyBind")]
+		NON_LAZY_BIND
 	}
 
 	[CCode (cprefix = "", has_type_id = "0")]
@@ -1403,7 +1435,13 @@ namespace LLVM {
 		SLT,
 		SL
 	}
-
+	[CCode(cname = "LLVMLandingPadClauseTy", cprefix = "")]
+	public enum LandingPadClause {
+		[CCode(cname = "LLVMLandingPadCatch")]
+		CATCH,
+		[CCode(cname = "LLVMLandingPadFilter")]
+		FILTER
+	}
 	[CCode (cprefix = "", has_type_id = "0")]
 	public enum Linkage {
 		[CCode (cname="LLVMExternalLinkage")]
@@ -1444,7 +1482,6 @@ namespace LLVM {
 		Br,
 		Switch,
 		Invoke,
-		Unwind,
 		Unreachable,
 		Add,
 		FAdd,
@@ -1492,7 +1529,13 @@ namespace LLVM {
 		InsertElement,
 		ShuffleVector,
 		ExtractValue,
-		InsertValue
+		InsertValue,
+		Fence,
+		AtomicCmpXchg,
+		AtomicRMW,
+		Resume,
+		LandingPad,
+		Unwind
 	}
 
 	[CCode (cname = "LLVMRealPredicate", cprefix = "LLVMReal", has_type_id = "0")]
@@ -1543,8 +1586,6 @@ namespace LLVM {
 		ARRAY,
 		[CCode (cname="LLVMPointerTypeKind")]
 		POINTER,
-		[CCode (cname="LLVMOpaqueTypeKind")]
-		OPAQUE,
 		[CCode (cname="LLVMVectorTypeKind")]
 		VECTOR,
 		[CCode (cname="LLVMMetadataTypeKind")]
@@ -1707,6 +1748,14 @@ namespace LLVM {
 			public bool set_pic_model (CodeGenModel p2);
 			[CCode (cname = "lto_codegen_write_merged_modules")]
 			public bool write_merged_modules (string path);
+			/**
+			 * Generates code for all added modules into one native object file.
+			 *
+			 * @param name The name of the file is written to name.
+			 * @return true on error.
+			 */
+			[CCode(cname = "lto_codegen_compile_to_file")]
+			public bool compile_to_file(out unowned string name);
 		}
 
 		[Compact]
@@ -1716,6 +1765,10 @@ namespace LLVM {
 			public Module (string path);
 			[CCode (cname = "lto_module_create_from_memory")]
 			public Module.from_memory (void* mem, size_t length);
+			[CCode(cname = "lto_module_create_from_fd")]
+			public static Module? create_from_fd(int fd, string path, size_t file_size);
+			[CCode(cname = "lto_module_create_from_fd_at_offset")]
+			public static Module? create_from_fd_at_offset(int fd, string path, size_t file_size, size_t map_size, Posix.off_t offset);
 
 			public uint symbol_count { [CCode (cname = "lto_module_get_num_symbols")] get; }
 			[CCode (cname = "lto_module_get_symbol_attribute")]
@@ -1732,6 +1785,12 @@ namespace LLVM {
 			public static bool is_object_file_in_memory (void* mem, size_t length);
 			[CCode (cname = "lto_module_is_object_file_in_memory_for_target")]
 			public static bool is_object_file_in_memory_for_target (void* mem, size_t length, string target_triple_prefix);
+			[CCode(cname = "LLVMGetTypeByName")]
+			public Ty get_type(string name);
+			[CCode(cname = "LLVMGetNamedMetadataNumOperands")]
+			public uint get_named_metadata_operand_count(string name);
+			[CCode(cname = "LLVMGetNamedMetadataOperands")]
+			public void get_named_metadata_operand(string name, out Value dest);
 		}
 
 		[CCode (cname = "lto_get_error_message")]
