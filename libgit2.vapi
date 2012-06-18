@@ -15,7 +15,7 @@
  * libgit2 can access and manipulate the contents of git repositories. To begin, create an instance of a {@link Git.Repository} like so:
  * {{{
  * Git.Repository repo;
- * if (Git.Repository.open(out repo, "/path/to/repo") != Git.Error.SUCCESS) {
+ * if (Git.Repository.open(out repo, "/path/to/repo") != Git.Error.OK) {
  *   stderr.printf("Could not open repository because: %s\n", git.get_last());
  *   return false;
  * }
@@ -487,7 +487,7 @@ namespace Git {
 		 * configuration file.
 		 *
 		 * @param global_config_path Buffer of {@link PATH_MAX} length to store the path
-		 * @return {@link Error.SUCCESS} if a global configuration file has been found.
+		 * @return {@link Error.OK} if a global configuration file has been found.
 		 */
 		[CCode(cname = "git_config_find_global")]
 		public static Error find_global([CCode(array_length = false)] char[] global_config_path);
@@ -498,7 +498,7 @@ namespace Git {
 		 * If /etc/gitconfig doesn't exist, it will look for
 		 * %PROGRAMFILES%\Git\etc\gitconfig.
 		 * @param system_config_path Buffer of {@link PATH_MAX} length to store the path
-		 * @return {@link Error.SUCCESS} if a system configuration file has been found. Its path will be stored in //buffer//.
+		 * @return {@link Error.OK} if a system configuration file has been found. Its path will be stored in //buffer//.
 		 */
 		[CCode(cname = "git_config_find_system")]
 		public static Error find_system([CCode(array_length = false)] char[] system_config_path);
@@ -1517,7 +1517,7 @@ namespace Git {
 		 *
 		 * @param buffer where to store the target name
 		 * @param name the name of the reference to transform
-		 * @return {@link Error.SUCCESS}, {@link Error.SHORTBUFFER} or another error
+		 * @return {@link Error.OK}, {@link Error.SHORTBUFFER} or another error
 		 */
 		[CCode(cname = "git_refspec_transform", instance_pos = 1.3)]
 		public Error transform([CCode(array_length_type = "size_t")] char[] buffer, string name);
@@ -1631,7 +1631,7 @@ namespace Git {
 		 * become corrupted), an error code will be returned and the reference
 		 * pointer will be invalidated.
 		 *
-		 * @return GIT_SUCCESS on success, or an error code
+		 * @return GIT_OK on success, or an error code
 		 */
 		[CCode(cname = "git_reference_reload")]
 		public Error reload();
@@ -2345,10 +2345,10 @@ namespace Git {
 		 *
 		 * The callback is passed the path of the file, the status and the data
 		 * pointer passed to this function. If the callback returns something other
-		 * than {@link Error.SUCCESS}, this function will return that value.
+		 * than {@link Error.OK}, this function will return that value.
 		 *
 		 * @param callback the function to call on each file
-		 * @return {@link Error.SUCCESS} or the return value of the callback
+		 * @return {@link Error.OK} or the return value of the callback
 		 */
 		[CCode(cname = "git_status_foreach")]
 		public Error for_each_status(StatusCallback callback);
@@ -2385,7 +2385,7 @@ namespace Git {
 		 *
 		 * @param status the status value
 		 * @param path the file to retrieve status for, rooted at the repo's workdir
-		 * @return {@link Error.ERROR} when //path// points at a folder, {@link Error.NOTFOUND} when the file doesn't exist in any of HEAD, the index or the worktree, {@link Error.SUCCESS} otherwise
+		 * @return {@link Error.ERROR} when //path// points at a folder, {@link Error.NOTFOUND} when the file doesn't exist in any of HEAD, the index or the worktree, {@link Error.OK} otherwise
 		 */
 		[CCode(cname = "git_status_file", instance_pos = 1.2)]
 		public Error get_file_status(out Status status, string path);
@@ -2752,7 +2752,7 @@ namespace Git {
 		 *
 		 * @param path the file to check ignores for, rooted at the repo's workdir
 		 * @param ignored false if the file is not ignored, true if it is
-		 * @return {@link Error.SUCCESS} if the ignore rules could be processed
+		 * @return {@link Error.OK} if the ignore rules could be processed
 		 * for the file (regardless of whether it exists or not), or an error if
 		 * they could not.
 		 */
@@ -2808,7 +2808,7 @@ namespace Git {
 		 *
 		 * @param walk the walker being used for the traversal
 		 * @param refname the referece to hide
-		 * @return GIT_SUCCESS or an error code
+		 * @return GIT_OK or an error code
 		 */
 		[CCode(cname = "git_revwalk_hide_ref")]
 		public Error hide_ref(string refname);
@@ -2852,7 +2852,7 @@ namespace Git {
 		 *
 		 * @param walk the walker being used for the traversal
 		 * @param refname the referece to push
-		 * @return GIT_SUCCESS or an error code
+		 * @return GIT_OK or an error code
 		 */
 		[CCode(cname = "git_revwalk_push_ref")]
 		public Error push_ref(string refname);
@@ -3173,7 +3173,7 @@ namespace Git {
 		 *
 		 * @param subtree where to store the parent tree
 		 * @param path Path to the tree entry from which to extract the last tree object
-		 * @return {@link Error.SUCCESS} on success; {@link Error.NOTFOUND} if the path does not lead to an entry; otherwise, an error code
+		 * @return {@link Error.OK} on success; {@link Error.NOTFOUND} if the path does not lead to an entry; otherwise, an error code
 		 */
 		[CCode(cname = "git_tree_get_subtree", instance_pos = 1.2)]
 		public Error get_subtree(out Tree subtree, string path);
@@ -3192,7 +3192,7 @@ namespace Git {
 		 * @param tree The tree to walk
 		 * @param callback Function to call on each tree entry
 		 * @param mode Traversal mode (pre or post-order)
-		 * @return {@link Error.SUCCESS} or an error code
+		 * @return {@link Error.OK} or an error code
 		 */
 		[CCode(cname = "git_tree")]
 		public Error walk(TreeWalker callback, WalkMode mode);
@@ -3507,7 +3507,7 @@ namespace Git {
 		 * @param str input hex string; must be pointing at the start of
 		 *        the hex sequence and have at least the number of bytes
 		 *        needed for an id encoded in hex (40 bytes).
-		 * @return {@link Error.SUCCESS} if valid.NOTID} on failure.
+		 * @return {@link Error.OK} if valid.NOTID} on failure.
 		 */
 		[CCode(cname = "git_oid_fromstr")]
 		public static Error from_string(out object_id id, string str);
@@ -3520,7 +3520,7 @@ namespace Git {
 		 *
 		 * @param id id structure the result is written into.
 		 * @param data input hex string
-		 * @return {@link Error.SUCCESS} if valid.
+		 * @return {@link Error.OK} if valid.
 		 */
 		[CCode(cname = "git_oid_fromstrn")]
 		public static Error from_array(out object_id id, [CCode(array_length_type = "size_t")] uint8[] data);
@@ -3646,7 +3646,7 @@ namespace Git {
 		 * Check if an oid equals an hex formatted object id.
 		 *
 		 * @param str input hex string of an object id.
-		 * @return {@link Error.SUCCESS} in case of a match, {@link Error.ERROR} otherwise.
+		 * @return {@link Error.OK} in case of a match, {@link Error.ERROR} otherwise.
 		 */
 		[CCode(cname = "git_oid_streq")]
 		public Error compare_string(string str);
@@ -3919,8 +3919,8 @@ namespace Git {
 	 */
 	[CCode(cname = "git_error_t", cprefix = "GIT_E", has_type_id = false)]
 	public enum Error {
-		[CCode(cname = "GIT_SUCCESS")]
-		SUCCESS,
+		[CCode(cname = "GIT_OK")]
+		OK,
 		[CCode(cname = "GIT_ERROR")]
 		ERROR,
 		/**
