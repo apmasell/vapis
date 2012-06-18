@@ -21,13 +21,6 @@ namespace LLVM {
 		 */
 		[CCode (cname = "LLVMCreateBuilder")]
 		public Builder ();
-		/**
-		 * Create a new builder in the supplied context.
-		 *
-		 * The builder will become invalid if the context is released.
-		 */
-		[CCode (cname = "LLVMCreateBuilderInContext")]
-		public Builder.in_context (Context c);
 
 		[CCode (cname = "LLVMPositionBuilder")]
 		public void position (BasicBlock block, Instruction instr);
@@ -244,6 +237,50 @@ namespace LLVM {
 
 		[CCode (cname = "LLVMGetGlobalContext")]
 		public static unowned Context get_global ();
+
+		[CCode (cname = "LLVMModuleCreateWithNameInContext", instance_pos = -1)]
+		public Module create_module (string name);
+		/**
+		 * Create a new builder in the supplied context.
+		 *
+		 * The builder will become invalid if the context is released.
+		 */
+		[CCode (cname = "LLVMCreateBuilderInContext")]
+		public Builder create_builder (Context c);
+
+		[CCode (cname = "LLVMDoubleTypeInContext")]
+		public Ty double ();
+		[CCode (cname = "LLVMFP128TypeInContext")]
+		public Ty fp128 ();
+		[CCode (cname = "LLVMFloatTypeInContext")]
+		public Ty float ();
+		[CCode (cname = "LLVMInt16TypeInContext")]
+		public Ty int16 ();
+		[CCode (cname = "LLVMInt1TypeInContext")]
+		public Ty int1 ();
+		[CCode (cname = "LLVMInt32TypeInContext")]
+		public Ty int32 ();
+		[CCode (cname = "LLVMInt64TypeInContext")]
+		public Ty int64 ();
+		[CCode (cname = "LLVMInt8TypeInContext")]
+		public Ty int8 ();
+		[CCode (cname = "LLVMIntTypeInContext")]
+		public Ty int (uint num_bits);
+		[CCode (cname = "LLVMLabelTypeInContext")]
+		public Ty label ();
+		[CCode (cname = "LLVMPPCFP128TypeInContext")]
+		public Ty ppcfp128 ();
+		[CCode (cname = "LLVMStructTypeInContext")]
+		public Ty struct (Ty[] element_types, bool packed);
+		[CCode (cname = "LLVMVoidTypeInContext")]
+		public Ty void ();
+		[CCode (cname = "LLVMX86FP80TypeInContext")]
+		public Ty x86fp80 ();
+		[CCode (cname = "LLVMConstStringInContext")]
+		public Constant const_string (uint8[] str, bool dont_null_terminate);
+		[CCode (cname = "LLVMConstStructInContext")]
+		public Constant const_struct (LLVM.Value[] constant_vals, bool packed);
+
 	}
 
 	/**
@@ -401,8 +438,6 @@ namespace LLVM {
 	public class Module {
 		[CCode (cname = "LLVMModuleCreateWithName")]
 		public Module (string name);
-		[CCode (cname = "LLVMModuleCreateWithNameInContext")]
-		public Module.in_context (string name, Context c);
 
 		/**
 		 * The type sizes and alignments expected by this module.
@@ -650,73 +685,45 @@ namespace LLVM {
 		/* double */
 		[CCode (cname = "LLVMDoubleType")]
 		public static Ty double ();
-		[CCode (cname = "LLVMDoubleTypeInContext")]
-		public static Ty double_in_context (Context c);
 		/* fp128 */
 		[CCode (cname = "LLVMFP128Type")]
 		public static Ty fp128 ();
-		[CCode (cname = "LLVMFP128TypeInContext")]
-		public static Ty fp128_in_context (Context c);
 		/* float */
 		[CCode (cname = "LLVMFloatType")]
 		public static Ty float ();
-		[CCode (cname = "LLVMFloatTypeInContext")]
-		public static Ty float_in_context (Context c);
 		/* function */
 		[CCode (cname = "LLVMFunctionType")]
 		public static Ty function (Ty return_type, [CCode (array_length_pos = 2.9)] Ty[] param_types, bool is_var_arg = false);
 		[CCode (cname = "LLVMInt16Type")]
 		public static Ty int16 ();
-		[CCode (cname = "LLVMInt16TypeInContext")]
-		public static Ty int16_in_context (Context c);
 		[CCode (cname = "LLVMInt1Type")]
 		public static Ty int1 ();
-		[CCode (cname = "LLVMInt1TypeInContext")]
-		public static Ty int1_in_context (Context c);
 		[CCode (cname = "LLVMInt32Type")]
 		public static Ty int32 ();
-		[CCode (cname = "LLVMInt32TypeInContext")]
-		public static Ty int32_in_context (Context c);
 		[CCode (cname = "LLVMInt64Type")]
 		public static Ty int64 ();
-		[CCode (cname = "LLVMInt64TypeInContext")]
-		public static Ty int64_in_context (Context c);
 		[CCode (cname = "LLVMInt8Type")]
 		public static Ty int8 ();
-		[CCode (cname = "LLVMInt8TypeInContext")]
-		public static Ty int8_in_context (Context c);
 		[CCode (cname = "LLVMIntPtrType", cheader_filename="llvm-c/Target.h")]
 		public static Ty int_ptr (TargetData p1);
 		[CCode (cname = "LLVMIntType")]
 		public static Ty int (uint num_bits);
-		[CCode (cname = "LLVMIntTypeInContext")]
-		public static Ty int_in_context (Context c, uint num_bits);
 		[CCode (cname = "LLVMLabelType")]
 		public static Ty label ();
-		[CCode (cname = "LLVMLabelTypeInContext")]
-		public static Ty label_in_context (Context c);
 		[CCode (cname = "LLVMPPCFP128Type")]
 		public static Ty ppcfp128 ();
-		[CCode (cname = "LLVMPPCFP128TypeInContext")]
-		public static Ty ppcfp128_in_context (Context c);
 		[CCode (cname = "LLVMPointerType")]
-		public static Ty pointer (Ty element_type, uint address_space);
+		public static Ty pointer (Ty element_type, uint address_space = 0);
 		[CCode (cname = "LLVMStructType")]
 		public static Ty struct (Ty[] element_types, bool packed);
 		[CCode(cname = "LLVMStructCreateNamed")]
 		public static Ty struct_named(Context C, string name);
-		[CCode (cname = "LLVMStructTypeInContext")]
-		public static Ty struct_in_context (Context c, Ty[] element_types, bool packed);
 		[CCode (cname = "LLVMVectorType")]
 		public static Ty vector (Ty element_type, uint element_count);
 		[CCode (cname = "LLVMVoidType")]
 		public static Ty void ();
-		[CCode (cname = "LLVMVoidTypeInContext")]
-		public static Ty void_in_context (Context c);
 		[CCode (cname = "LLVMX86FP80Type")]
 		public static Ty x86fp80 ();
-		[CCode (cname = "LLVMX86FP80TypeInContext")]
-		public static Ty x86fp80_in_context (Context c);
 
 		public uint array_length { [CCode (cname = "LLVMGetArrayLength")] get; }
 		public bool is_function_var_arg { [CCode (cname = "LLVMIsFunctionVarArg")] get; }
@@ -1115,13 +1122,9 @@ namespace LLVM {
 
 		[CCode (cname = "LLVMConstString")]
 		public static Constant @string (uint8[] str, bool dont_null_terminate);
-		[CCode (cname = "LLVMConstStringInContext")]
-		public static Constant string_in_context (LLVM.Context c, uint8[] str, bool dont_null_terminate);
 
 		[CCode (cname = "LLVMConstStruct")]
 		public static Constant @struct (Value[] constant_vals, bool packed);
-		[CCode (cname = "LLVMConstStructInContext")]
-		public static Constant struct_in_context (LLVM.Context c, LLVM.Value[] constant_vals, bool packed);
 
 		[CCode (cname = "LLVMConstArray")]
 		public static Constant array (LLVM.Ty element_ty, LLVM.Value[] constant_vals);
@@ -1735,9 +1738,11 @@ namespace LLVM {
 			[CCode (cname = "lto_codegen_add_must_preserve_symbol")]
 			public void add_must_preserve_symbol (string symbol);
 			[CCode (cname = "lto_codegen_compile")]
-			public void* compile (size_t length);
+			public unowned uint8[] compile ();
 			[CCode (cname = "lto_codegen_debug_options")]
 			public void debug_options (string p2);
+			[CCode(cname = "lto_codegen_set_assembler_args")]
+			public void set_assembler_args(string[] args);
 			[CCode (cname = "lto_codegen_set_assembler_path")]
 			public void set_assembler_path (string path);
 			[CCode (cname = "lto_codegen_set_debug_model")]
