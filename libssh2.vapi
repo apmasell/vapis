@@ -330,7 +330,7 @@ namespace SSH2 {
 		 */
 		[CCode(cname = "libssh2_knownhost_del", instance_pos = -1)]
 		[DestroysInstance]
-		public Error remove_from(KnownHosts hosts);
+		public void remove_from(KnownHosts hosts);
 	}
 	/**
 	 * A collection of known hosts.
@@ -418,15 +418,14 @@ namespace SSH2 {
 		/**
 		 * Accept a queued connection
 		 */
-		[DestroysInstance]
 		[CCode(cname = "libssh2_channel_forward_accept")]
-		public Channel? accept();
+		public static Channel? accept(owned Listener listener);
 		/**
 		 * Instruct the remote host to stop listening for new connections on a previously requested host/port.
 		 */
 		[DestroysInstance]
 		[CCode(cname = "libssh2_channel_forward_cancel")]
-		public Error cancel();
+		public void cancel();
 	}
 	[CCode(cname = "LIBSSH2_PUBLICKEY", free_function = "libssh2_publickey_shutdown", has_type_id = false, cheader_filename = "libssh2_publickey.h")]
 	[Compact]

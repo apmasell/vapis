@@ -1602,7 +1602,7 @@ namespace Git {
 		 */
 		[DestroysInstance]
 		[CCode(cname = "git_reference_delete")]
-		public Error @delete();
+		public void @delete();
 
 		/**
 		 * Delete the reflog for the given reference
