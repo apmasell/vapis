@@ -1495,6 +1495,13 @@ namespace Git {
 			[CCode(cname = "git_refspec_dst")]
 			get;
 		}
+		/**
+		 * The force update setting
+		 */
+		public bool is_forced {
+			[CCode(cname = "git_refspec_force")]
+			get;
+		}
 
 		/**
 		 * The source specifier
@@ -1787,6 +1794,14 @@ namespace Git {
 	[CCode(cname = "git_remote", free_function = "git_remote_free", has_type_id = false)]
 	[Compact]
 	public class Remote {
+		/**
+		 * Choose whether to check the server's certificate (applies to HTTPS only)
+		 */
+		public bool check_cert {
+			[CCode(cname = "git_remote_check_cert")]
+			set;
+		}
+
 		/**
 		 * Whether the remote is connected
 		 *
@@ -3970,6 +3985,7 @@ namespace Git {
 		TAG,
 		TREE,
 		INDEXER,
+		SSL
 	}
 
 	/**
