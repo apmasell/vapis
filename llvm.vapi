@@ -484,11 +484,13 @@ namespace LLVM {
 		[Deprecated(replacement = "write_bitcode_to_fd")]
 		[CCode (cname = "LLVMWriteBitcodeToFileHandle", cheader_filename = "llvm-c/BitWriter.h")]
 		public bool write_bitcode_to_file_handle (int handle);
+		public bool write_bitcode_to_file_stream(
 #if POSIX
-		public bool write_bitcode_to_file_stream(Posix.FILE file) {
+Posix.FILE
 #else
-		public bool write_bitcode_to_file_stream(GLib.FileStream file) {
+GLib.FileStream
 #endif
+		file) {
 			write_bitcode_to_fd(file.fileno(), false, false);
 		}
 
