@@ -246,7 +246,7 @@ namespace LLVM {
 		 * The builder will become invalid if the context is released.
 		 */
 		[CCode (cname = "LLVMCreateBuilderInContext")]
-		public Builder create_builder (Context c);
+		public Builder create_builder ();
 
 		[CCode (cname = "LLVMDoubleTypeInContext")]
 		public Ty double ();
