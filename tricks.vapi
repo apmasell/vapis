@@ -30,6 +30,9 @@ namespace Buffer {
 [CCode(cname = "InitialisationFunction", cheader_filename = "tricks.h", has_type_id = false)]
 public delegate size_t InitialisationFunction();
 
+[CCode(cname = "TRICK_FUNC", cheader_filename = "tricks.h")]
+public unowned string c_func();
+
 /**
  * Call a function once and cache the result.
  *
