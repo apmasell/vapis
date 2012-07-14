@@ -42,5 +42,16 @@ public delegate size_t InitialisationFunction();
 [CCode(cname = "ONCE", cheader_filename = "tricks.h")]
 public void once(out size_t @value, InitialisationFunction func);
 
+/**
+ * Compute the mean of two numbers without overflow.
+ *
+ * For use only with integer types. If you do this with anything else, you're going to have a bad time.
+ */
+[CCode(cname = "TRICKY_MEAN", cheader_filename = "tricks.h", simple_generics = true)]
+public T mean<T>(T x, T y);
+
+/**
+ * Swap two values.
+ */
 [CCode(cname = "VALA_SWAP", cheader_filename = "tricks.h", generic_type_pos = 2.1)]
 public void swap<T>(ref T a, ref T b);

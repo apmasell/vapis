@@ -1,5 +1,6 @@
 #ifndef VALA_BUFFER_H
 #define VALA_BUFFER_H
+#define TRICKY_MEAN(x,y) (((x) & (y)) + (((x) ^ (y)) >> 1))
 #define OBJECT_TO_BUFFER(val,type,size) (*(size) = sizeof(type), (guint8*)val)
 #define OBJECT_ARRAY_TO_BUFFER(val,len,type,size) (*(size) = sizeof(type)*(len), (guint8*)val)
 #define OBJECT_ARRAY_TO_ARRAY(val,len,typea,typeb,size) (*(size) = sizeof(typea)*(len)/sizeof(typeb), (void*)val)
