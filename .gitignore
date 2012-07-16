@@ -1,3 +1,5 @@
 doc
 *.c
+*.h
 *-test
+introspection.vapi
