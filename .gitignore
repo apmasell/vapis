@@ -1,5 +1,6 @@
 doc
-*.c
-*.h
-*-test
+introspection.c
+introspection.h
 introspection.vapi
+*-test
+tests/*.c
