@@ -114,6 +114,7 @@ static void source_finalize(GSource *source)
 	}
 
 	g_slist_free(src->pollfds);
+	libusb_exit(src->ctx);
 }
 
 static GSourceFuncs sourcefuncs = {
@@ -143,6 +144,7 @@ GSource *glibusb_create_gsource(libusb_context *ctx) {
 
 static void callback_func(struct libusb_transfer *transfer) {
 	g_simple_async_result_complete((GSimpleAsyncResult*)transfer->user_data);
+	g_object_unref((GSimpleAsyncResult*)transfer->user_data);
 }
 
 static void start_xfer(struct libusb_transfer *xfer) {
@@ -151,14 +153,13 @@ static void start_xfer(struct libusb_transfer *xfer) {
 	if(libusb_submit_transfer(xfer) != 0) {
 		g_simple_async_result_complete_in_idle(async);
 		g_object_unref((GObject*)async);
-		libusb_free_transfer(xfer);
 	}
 }
 
 #define ASYNC_BLOCK(name) \
 	void glibusb_##name##_transfer(libusb_device_handle *dev, ASYNC_PARAMS unsigned int timeout, unsigned char *buffer, int buffer_length, GAsyncReadyCallback callback, gpointer user_data) { \
 		struct libusb_transfer *xfer = libusb_alloc_transfer(0); \
-		GSimpleAsyncResult *async = g_simple_async_result_new(NULL, callback, user_data, glibusb_control_transfer); \
+		GSimpleAsyncResult *async = g_simple_async_result_new(NULL, callback, user_data, glibusb_##name##_transfer); \
 		libusb_fill_##name##_transfer(xfer, dev, ASYNC_ARGS callback_func, async, timeout); \
 		start_xfer(xfer);\
 	}\
