@@ -14,10 +14,10 @@
  *
  * libgit2 can access and manipulate the contents of git repositories. To begin, create an instance of a {@link Git.Repository} like so:
  * {{{
- * Git.Repository repo;
+ * Git.Repository? repo;
  * if (Git.Repository.open(out repo, "/path/to/repo") != Git.Error.OK) {
- *   stderr.printf("Could not open repository because: %s\n", git.get_last());
- *   return false;
+ *  stderr.printf("Could not open repository because: %s\n", Git.ErrorInfo.get_last().message);
+ *  return false;
  * }
  * }}}
  * Then use the methods of //repo// to access the repository.
@@ -123,7 +123,7 @@ namespace Git {
 		[CCode(cname = "GIT_ATTR_SET_TO_VALUE")]
 		public static bool is_set(string? attr);
 		/*
-		 * Checks if an attribute is unspecified.  This may be due to the attribute
+		 * Checks if an attribute is unspecified. This may be due to the attribute
 		 * not being mentioned at all or because the attribute was explicitly set
 		 * unspecified via the `!` operator.
 		 */
@@ -134,11 +134,11 @@ namespace Git {
 		 * Add a macro definition.
 		 *
 		 * Macros will automatically be loaded from the top level .gitattributes
-		 * file of the repository (plus the build-in "binary" macro).  This
-		 * function allows you to add others.  For example, to add the default
+		 * file of the repository (plus the build-in "binary" macro). This
+		 * function allows you to add others. For example, to add the default
 		 * macro, you would call:
 		 * {{{
-		 *    repo.attributes.add_macro("binary", "-diff -crlf");
+		 * repo.attributes.add_macro("binary", "-diff -crlf");
 		 * }}}
 		 */
 		[CCode(cname = "git_attr_add_macro")]
@@ -154,21 +154,21 @@ namespace Git {
 		 * Lookup list of attributes for path, populating array of strings
 		 *
 		 * Use this if you have a known list of attributes that you want to
-		 * look up in a single call.  This is somewhat more efficient than
+		 * look up in a single call. This is somewhat more efficient than
 		 * calling {@link lookup} multiple times.
 		 *
 		 * For example, you might write:
 		 * {{{
-		 *     string attrs[] = { "crlf", "diff", "foo" };
-		 *     string results[];
-		 *     repo.attributes.lookup_many(AttrCheck.FILE_THEN_INDEX, "my/fun/file.c", attrs, out values);
+		 * string attrs[] = { "crlf", "diff", "foo" };
+		 * string results[];
+		 * repo.attributes.lookup_many(AttrCheck.FILE_THEN_INDEX, "my/fun/file.c", attrs, out values);
 		 * }}}
 		 * Then you could loop through the 3 values to get the settings for
 		 * the three attributes you asked about.
 		 *
-		 * @param path The path inside the repo to check attributes.  This
-		 *             does not have to exist, but if it does not, then
-		 *             it will be treated as a plain file (i.e. not a directory).
+		 * @param path The path inside the repo to check attributes. This does not
+		 * have to exist, but if it does not, then it will be treated as a plain
+		 * file (i.e. not a directory).
 		 * @param names The attribute names.
 		 * @param values The values of the attributes.
 		 */
@@ -184,24 +184,22 @@ namespace Git {
 		}
 
 		[CCode(cname = "git_attr_get_many")]
-		public Error _lookup_many(AttrCheck flags, string path, [CCode(array_length_pos = 2.1, array_length_type = "size_t")] string[] names, void* values);
+		private Error _lookup_many(AttrCheck flags, string path, [CCode(array_length_pos = 2.1, array_length_type = "size_t")] string[] names, void* values);
 
 		/**
 		 * Perform an operation on each attribute of a path.
-		 * @param path The path inside the repo to check attributes.  This
-		 *             does not have to exist, but if it does not, then
-		 *             it will be treated as a plain file (i.e. not a directory).
-		 * @param callback The function that will be invoked on each attribute
-		 *             and attribute value.  The name parameter will be the name
-		 *             of the attribute and the value will be the value it is
-		 *             set to, including possibly null if the attribute is
-		 *             explicitly set to UNSPECIFIED using the ! sign.  This
-		 *             will be invoked only once per attribute name, even if
-		 *             there are multiple rules for a given file.  The highest
-		 *             priority rule will be used.
+		 * @param path The path inside the repo to check attributes. This does not
+		 * have to exist, but if it does not, then it will be treated as a plain
+		 * file (i.e. not a directory).
+		 * @param callback The function that will be invoked on each attribute and
+		 * attribute value. The name parameter will be the name of the attribute
+		 * and the value will be the value it is set to, including possibly null if
+		 * the attribute is explicitly set to UNSPECIFIED using the ! sign.  This
+		 * will be invoked only once per attribute name, even if there are multiple
+		 * rules for a given file. The highest priority rule will be used.
 		 */
 		[CCode(cname = "git_attr_foreach")]
-		public Error foreach(AttrCheck flags, string path, AttributeCallback callback);
+		public Error for_each(AttrCheck flags, string path, AttributeCallback callback);
 
 		/**
 		 * Flush the gitattributes cache.
@@ -697,11 +695,11 @@ namespace Git {
 		 *
 		 * A mapping array looks as follows:
 		 * {{{
-		 *     var autocrlf_mapping = Git.config_var_map[] {
-		 *             {Git.ConfigVar.FALSE, null, GIT_AUTO_CRLF_FALSE},
-		 *             {Git.ConfigVar.TRUE, null, GIT_AUTO_CRLF_TRUE},
-		 *             {Git.ConfigVar.STRING, "input", GIT_AUTO_CRLF_INPUT},
-		 *             {Git.ConfigVar.STRING, "default", GIT_AUTO_CRLF_DEFAULT}};
+		 * var autocrlf_mapping = Git.config_var_map[] {
+		 *  {Git.ConfigVar.FALSE, null, GIT_AUTO_CRLF_FALSE},
+		 *  {Git.ConfigVar.TRUE, null, GIT_AUTO_CRLF_TRUE},
+		 *  {Git.ConfigVar.STRING, "input", GIT_AUTO_CRLF_INPUT},
+		 *  {Git.ConfigVar.STRING, "default", GIT_AUTO_CRLF_DEFAULT}};
 		 * }}}
 		 *
 		 * On any "false" value for the variable (e.g. "false", "FALSE", "no"), the
@@ -1039,7 +1037,7 @@ namespace Git {
 		/**
 		 * Merge one diff list into another.
 		 *
-		 * This merges items from the "from" list into the current list.  The
+		 * This merges items from the "from" list into the current list. The
 		 * resulting diff list will have all items that appear in either list.
 		 * If an item appears in both lists, then it will be "merged" to appear
 		 * as if the old version was from the "onto" list and the new version
@@ -1055,7 +1053,7 @@ namespace Git {
 		 * Iterate over a diff list issuing callbacks.
 		 *
 		 * If the hunk and/or line callbacks are not null, then this will calculate
-		 * text diffs for all files it thinks are not binary.  If those are both
+		 * text diffs for all files it thinks are not binary. If those are both
 		 * null, then this will not bother with the text diffs, so it can be
 		 * efficient.
 		 */
@@ -1092,7 +1090,7 @@ namespace Git {
 		 * that occurred in the library in this thread.
 		 */
 		[CCode(cname = "giterr_last")]
-		public static unowned ErrorInfo get_last();
+		public static unowned ErrorInfo? get_last();
 
 		/**
 		 * Clear the last library error for this thread.
@@ -2184,12 +2182,12 @@ namespace Git {
 		 *
 		 * Excludesfile rules (i.e. .gitignore rules) are generally read from
 		 * .gitignore files in the repository tree or from a shared system file
-		 * only if a "core.excludesfile" config value is set.  The library also
+		 * only if a "core.excludesfile" config value is set. The library also
 		 * keeps a set of per-repository internal ignores that can be configured
-		 * in-memory and will not persist.  This function allows you to add to
+		 * in-memory and will not persist. This function allows you to add to
 		 * that internal rules list.
 		 *
-		 * @param rules Text of rules, a la the contents of a .gitignore file.  It
+		 * @param rules Text of rules, a la the contents of a .gitignore file. It
 		 * is okay to have multiple rules in the text; if so, each rule should be
 		 * terminated with a newline.
 		 */
@@ -2208,7 +2206,7 @@ namespace Git {
 		/**
 		 * Clear ignore rules that were explicitly added.
 		 *
-		 * Clears the internal ignore rules that have been set up.  This will not
+		 * Clears the internal ignore rules that have been set up. This will not
 		 * turn off the rules in .gitignore files that actually exist in the
 		 * filesystem.
 		 */
@@ -2219,7 +2217,6 @@ namespace Git {
 		 *
 		 * @param opts specifies checkout options
 		 * @param stats structure through which progress information is reported
-		 * @return 0 on success, GIT_ERROR otherwise (use giterr_last for information about the error)
 		 */
 		[CCode(cname = "git_checkout_head")]
 		public Error checkout_head(checkout_opts? opts = null, out indexer_stats stats = null);
@@ -2409,7 +2406,7 @@ namespace Git {
 		 * @param id where to store the id of the newly created tag. If the tag already exists, this parameter will be the id of the existing tag, and the function will return a {@link Error.EXISTS} error code.
 		 * @param tag_name Name for the tag; this name is validated for consistency. It should also not conflict with an already existing tag name.
 		 * @param target Object to which this tag points. This object must belong to this repository.
-		 * @param tagger Signature of the tagger for this tag, and  of the tagging time
+		 * @param tagger Signature of the tagger for this tag, and of the tagging time
 		 * @param message Full message for this tag
 		 * @param force Overwrite existing references
 		 * @return on success, a tag object is written to the ODB, and a proper reference is written in the ///refs/tags// folder, pointing to it
@@ -2470,12 +2467,13 @@ namespace Git {
 		 *
 		 * This returns strictly the differences between the tree and the
 		 * files contained in the working directory, regardless of the state
-		 * of files in the index.  There is no direct equivalent in C git.
+		 * of files in the index. There is no direct equivalent in C git.
 		 *
-		 * This is ''NOT'' the same as 'git diff HEAD' or 'git diff <SHA>'.  Those
-		 * commands diff the tree, the index, and the workdir.  To emulate those
-		 * functions, call {@link diff_index_to_tree} and {@link diff_workdir_to_index},
-		 * then call {@link DiffList.merge} on the results.
+		 * This is ''NOT'' the same as '''git diff HEAD''' or '''git diff <SHA>'''.
+		 * Those commands diff the tree, the index, and the workdir. To emulate
+		 * those functions, call {@link diff_index_to_tree} and
+		 * {@link diff_workdir_to_index}, then call {@link DiffList.merge} on the
+		 * results.
 		 *
 		 * @param opts Structure with options to influence diff or null for defaults.
 		 * @param old_tree A tree to diff from.
@@ -2679,7 +2677,7 @@ namespace Git {
 		 * Test if the ignore rules apply to a given path.
 		 *
 		 * This function simply checks the ignore rules to see if they would apply
-		 * to the given file.  This indicates if the file would be ignored
+		 * to the given file. This indicates if the file would be ignored
 		 * regardless of whether the file is already in the index or commited to
 		 * the repository.
 		 *
@@ -2772,7 +2770,7 @@ namespace Git {
 		 * Lookup a reference to one of the objects in a repostory.
 		 *
 		 * The //type// parameter must match the type of the object in the ODB; the
-		 * method will fail otherwise.  The special value {@link ObjectType.ANY}
+		 * method will fail otherwise. The special value {@link ObjectType.ANY}
 		 * may be passed to let the method guess the object's type.
 		 *
 		 * @param object the looked-up object
@@ -2794,7 +2792,7 @@ namespace Git {
 		 * method will fail.
 		 *
 		 * The //type// parameter must match the type of the object in the ODB; the
-		 * method will fail otherwise.  The special value {@link ObjectType.ANY}
+		 * method will fail otherwise. The special value {@link ObjectType.ANY}
 		 * may be passed to let the method guess the object's type.
 		 *
 		 * @param object where to store the looked-up object
@@ -2828,7 +2826,7 @@ namespace Git {
 		 * Given either the submodule name or path (they are ususally the same),
 		 * this returns a structure describing the submodule.
 		 *
-		 * @param name The name of the submodule.  Trailing slashes will be ignored.
+		 * @param name The name of the submodule. Trailing slashes will be ignored.
 		 */
 		[CCode(cname = "git_submodule_lookup", instance_pos = 1.2)]
 		public Error lookup_submodule(out unowned Submodule? submodule, string name);
@@ -2896,7 +2894,7 @@ namespace Git {
 		 * @param spec the textual specification for an object
 		 */
 		[CCode(cname = "git_revparse_single", instance_pos = 1.1)]
-		public Error parse(out Object? obj,  string spec);
+		public Error parse(out Object? obj, string spec);
 
 		/**
 		 * Read the note for an object
@@ -2986,7 +2984,7 @@ namespace Git {
 		 * Test if the ignore rules apply to a given file.
 		 *
 		 * This function simply checks the ignore rules to see if they would apply
-		 * to the given file.  Unlike {@link get_file_status}, this indicates if
+		 * to the given file. Unlike {@link get_file_status}, this indicates if
 		 * the file would be ignored regardless of whether the file is already in
 		 * the index or in the repository.
 		 *
@@ -3048,7 +3046,6 @@ namespace Git {
 		 *
 		 * @param walk the walker being used for the traversal
 		 * @param refname the referece to hide
-		 * @return GIT_OK or an error code
 		 */
 		[CCode(cname = "git_revwalk_hide_ref")]
 		public Error hide_ref(string refname);
@@ -3092,7 +3089,6 @@ namespace Git {
 		 *
 		 * @param walk the walker being used for the traversal
 		 * @param refname the referece to push
-		 * @return GIT_OK or an error code
 		 */
 		[CCode(cname = "git_revwalk_push_ref")]
 		public Error push_ref(string refname);
@@ -3260,7 +3256,7 @@ namespace Git {
 	/**
 	 * Description of submodule
 	 *
-	 * This record describes a submodule found in a repository.  There
+	 * This record describes a submodule found in a repository. There
 	 * should be an entry for every submodule found in the HEAD and for
 	 * every submodule described in .gitmodules.
 	 */
@@ -3646,7 +3642,7 @@ namespace Git {
 	 * exactly what has changed.
 	 *
 	 * Under some circumstances, not all fields will be filled in, but the code
-	 * generally tries to fill in as much as possible.  One example is that the
+	 * generally tries to fill in as much as possible. One example is that the
 	 * "binary" field will not actually look at file contents if you do not
 	 * pass in hunk and/or line callbacks to the {@link DiffList.foreach} iteration function.
 	 * It will just use the git attributes for those files.
@@ -3680,8 +3676,8 @@ namespace Git {
 	 * Structure describing options about how the diff should be executed.
 	 *
 	 * Setting all values of the structure to zero will yield the default
-	 * values.  Similarly, passing NULL for the options structure will
-	 * give the defaults.  The default values are marked below.
+	 * values. Similarly, passing NULL for the options structure will
+	 * give the defaults. The default values are marked below.
 	 *
 	 * Most of the parameters here are not actually supported at this time.
 	 */
@@ -3777,9 +3773,9 @@ namespace Git {
 		 * Parse a hex formatted object id
 		 *
 		 * @param out id structure the result is written into.
-		 * @param str input hex string; must be pointing at the start of
-		 *        the hex sequence and have at least the number of bytes
-		 *        needed for an id encoded in hex (40 bytes).
+		 * @param str input hex string; must be pointing at the start of the hex
+		 * sequence and have at least the number of bytes needed for an id encoded
+		 * in hex (40 bytes).
 		 * @return {@link Error.OK} if valid.NOTID} on failure.
 		 */
 		[CCode(cname = "git_oid_fromstr")]
@@ -3807,11 +3803,10 @@ namespace Git {
 		/**
 		 * Format an id into a hex string.
 		 *
-		 * @param str output hex string; must be pointing at the start of
-		 *        the hex sequence and have at least the number of bytes
-		 *        needed for an id encoded in hex (40 bytes).  Only the
-		 *        id digits are written; a nul terminator must be added
-		 *        by the caller if it is required.
+		 * @param str output hex string; must be pointing at the start of the hex
+		 * sequence and have at least the number of bytes needed for an id encoded
+		 * in hex (40 bytes). Only the id digits are written; a nul terminator must
+		 * be added by the caller if it is required.
 		 */
 		[CCode(cname = "git_oid_fmt", instance_pos = -1)]
 		public void to_buffer([CCode(array_length = false)] char[] str);
@@ -3822,11 +3817,10 @@ namespace Git {
 		 * The resulting string is "aa/...", where "aa" is the first two
 		 * hex digitis of the id and "..." is the remaining 38 digits.
 		 *
-		 * @param str output hex string; must be pointing at the start of
-		 *        the hex sequence and have at least the number of bytes
-		 *        needed for an oid encoded in hex (41 bytes).  Only the
-		 *        id digits are written; a nul terminator must be added
-		 *        by the caller if it is required.
+		 * @param str output hex string; must be pointing at the start of the hex
+		 * sequence and have at least the number of bytes needed for an oid encoded
+		 * in hex (41 bytes). Only the id digits are written; a nul terminator
+		 * must be added by the caller if it is required.
 		 */
 		[CCode(cname = "git_oid_pathfmt", instance_pos = -1)]
 		public void to_path([CCode(array_length = false)] char[] str);
@@ -3848,8 +3842,8 @@ namespace Git {
 		 * so that the return value can always be printed.
 		 *
 		 * @param buffer the buffer into which the id string is output.
-		 * @return the out buffer pointer, assuming no input parameter
-		 *         errors, otherwise a pointer to an empty string.
+		 * @return the out buffer pointer, assuming no input parameter errors,
+		 * otherwise a pointer to an empty string.
 		 */
 		[CCode(cname = "git_oid_tostr", instance_pos = -1)]
 		public unowned string to_string_buffer([CCode(array_length_type = "size_t")] char[] buffer);
@@ -4118,11 +4112,11 @@ namespace Git {
 		 *
 		 * When checking attributes, it is possible to check attribute files
 		 * in both the working directory (if there is one) and the index (if
-		 * there is one).  You can explicitly choose where to check and in
+		 * there is one). You can explicitly choose where to check and in
 		 * which order using the following flags.
 		 *
 		 * Core git usually checks the working directory then the index,
-		 * except during a checkout when it checks the index first.  It will
+		 * except during a checkout when it checks the index first. It will
 		 * use index only for creating archives or for a bare repo (if an
 		 * index has been specified for the bare repo).
 		 */
@@ -4139,7 +4133,7 @@ namespace Git {
 		 * Using the system attributes file.
 		 *
 		 * Normally, attribute checks include looking in the /etc (or system
-		 * equivalent) directory for a `gitattributes` file.  Passing this
+		 * equivalent) directory for a `gitattributes` file. Passing this
 		 * flag will cause attribute checks to ignore that file.
 		 */
 		NO_SYSTEM
@@ -4256,7 +4250,7 @@ namespace Git {
 	 * Line origin constants.
 	 *
 	 * These values describe where a line came from and will be passed to
-	 * the {@link DiffLineHandler} when iterating over a diff.  There are some
+	 * the {@link DiffLineHandler} when iterating over a diff. There are some
 	 * special origin contants at the end that are used for the text
 	 * output callbacks to demarcate lines that are actually part of
 	 * the file or hunk headers.
@@ -4316,7 +4310,7 @@ namespace Git {
 		 */
 		PASSTHROUGH,
 		/**
-		 *  The buffer is too short to satisfy the request
+		 * The buffer is too short to satisfy the request
 		 */
 		SHORTBUFFER,
 		/**
@@ -4746,7 +4740,7 @@ namespace Git {
 		 * Behave like index-only followed by workdir-only, causing two callbacks
 		 * to be issued per file (first index then workdir).
 		 *
-		 * This is slightly more efficient than making separate calls.  This makes
+		 * This is slightly more efficient than making separate calls. This makes
 		 * it easier to emulate the output of a plain '''git status'''.
 		 */
 		INDEX_THEN_WORKDIR
@@ -4768,7 +4762,7 @@ namespace Git {
 		 * Ignored files should get callbacks.
 		 *
 		 * These callbacks will only be made if the workdir files are included in
-		 * the status "show" option.  Right now, there is no option to include all
+		 * the status "show" option. Right now, there is no option to include all
 		 * files in directories that are ignored completely.
 		 */
 		INCLUDE_IGNORED,
@@ -4848,7 +4842,7 @@ namespace Git {
 	 * the buffer can accept per call is the length of the array.
 	 *
 	 * @return The callback is expected to return the number of bytes
-	 * written to content.  When there is no more data to stream, the callback
+	 * written to content. When there is no more data to stream, the callback
 	 * should return 0. This will prevent it from being invoked anymore. When an
 	 * error occurs, the callback should return -1.
 	 */
