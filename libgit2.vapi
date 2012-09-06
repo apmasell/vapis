@@ -583,7 +583,7 @@ namespace Git {
 		/**
 		 * Perform an operation on each config variable matching a regular expression.
 		 *
-		 * This behaviors like {@link foreach} with an additional filter of a
+		 * This behaviors like {@link for_each} with an additional filter of a
 		 * regular expression that filters which config keys are passed to the
 		 * callback.
 		 *
@@ -4190,7 +4190,7 @@ namespace Git {
 		 */
 		THREADS,
 		/**
-		 * Libgit2 supports the https:// protocol.
+		 * Libgit2 supports the https protocol.
 		 *
 		 * This requires the OpenSSL library to be found when compiling libgit2.
 		 */
