@@ -71,50 +71,36 @@ namespace Git {
 		[CCode(cname = "git_libgit2_version")]
 		public void get_version(out int major, out int minor, out int rev);
 	}
-	namespace Windows {
-		/**
-		 * Set the active codepage for Windows syscalls
-		 *
-		 * All syscalls performed by the library will assume this codepage when
-		 * converting paths and strings to use by the Windows kernel.
-		 *
-		 * The default value of UTF-8 will work automatically with most Git
-		 * repositories created on Unix systems.
-		 *
-		 * This settings needs only be changed when working with repositories that
-		 * contain paths in specific, non-UTF codepages.
-		 *
-		 * A full list of all available codepage identifiers may be found on the
-		 * [[http://msdn.microsoft.com/en-us/library/windows/desktop/dd317756(v=vs.85).aspx|MSDN]]
-		 *
-		 *
-		 * @param codepage numeric codepage identifier
-		 */
-		[CCode(cname = "gitwin_set_codepage")]
-		public void set_codepage(uint codepage);
-
-		/**
-		 * Return the active codepage for Windows syscalls
-		 *
-		 * @return numeric codepage identifier
-		 */
-		[CCode(cname = "gitwin_get_codepage")]
-		public uint get_codepage();
-
-		/**
-		 * Set the active Windows codepage to UTF-8
-		 *
-		 * This is the default value.
-		 */
-		[CCode(cname = "gitwin_set_utf8")]
-		public void set_utf8();
-	}
 
 	/*
 	 * Attribute management routines
 	 */
 	[CCode(cname = "git_repository", cheader_filename = "git2/attr.h", has_type_id = false)]
 	public class Attr {
+		[CCode(cname = "git_attr_t", cprefix = "GIT_ATTR_", has_type_id = false)]
+		public enum AttrType {
+			[CCode(cname = "GIT_ATTR_UNSPECIFIED_T")]
+			UNSPECIFIED,
+			[CCode(cname = "GIT_ATTR_TRUE_T")]
+			TRUE,
+			[CCode(cname = "GIT_ATTR_FALSE_T")]
+			FALSE,
+			[CCode(cname = "GIT_ATTR_VALUE_T")]
+			VALUE;
+			/**
+			 * Return the value type for a given attribute.
+			 *
+			 * This can be either {@link TRUE}, {@link FALSE}, {@link UNSPECIFIED}
+			 * (if the attribute was not set at all), or {@link VALUE}, if the
+			 * attribute was set to an actual string.
+			 *
+			 * If the attribute has a {@link VALUE} string, it can be accessed
+			 * normally as a string.
+			 */
+			[CCode(cname = "git_attr_value")]
+			public static AttrType from(string attr);
+		}
+
 		/**
 		 * Checks if an attribute is set on.
 		 *
@@ -241,6 +227,8 @@ namespace Git {
 		public ExistsHandler exists_func;
 		[CCode(cname = "free")]
 		public FreeHandler free_func;
+		[CCode(cname = "foreach")]
+		public ForEachHandler foreach_func;
 		[CCode(cname = "read")]
 		public ReadHandler read_func;
 		[CCode(cname = "read_header")]
@@ -256,6 +244,8 @@ namespace Git {
 
 		[CCode(cname = "git_odb_backend_loose")]
 		public static Error create_loose(out Backend backend, string objects_dir);
+		[CCode(cname = "git_odb_backend_one_pack")]
+		public static Error create_one_pack(out Backend backend, string index_file);
 		[CCode(cname = "git_odb_backend_pack")]
 		public static Error create_pack(out Backend backend, string objects_dir);
 
@@ -264,6 +254,9 @@ namespace Git {
 
 		[CCode(has_target = false, has_type_id = false)]
 		public delegate void FreeHandler(owned Backend self);
+
+		[CCode(has_target = false, has_type_id = false)]
+		public delegate Error ForEachHandler(Backend self, ObjectIdCallback cb);
 
 		[CCode(has_target = false, has_type_id = false)]
 		public delegate int ReadHandler([CCode(array_length_type = "size_t")] out uint8[] data, out ObjectType type, Backend self, object_id id);
@@ -278,7 +271,7 @@ namespace Git {
 		public delegate int ReadHeaderHandler(out size_t size, out ObjectType type, Backend self, object_id id);
 
 		[CCode(has_target = false, has_type_id = false)]
-		public delegate int ReadPrefixHandler(out object_id id, [CCode(array_length_type = "size_t")] out uint8[] data, out ObjectType type, Backend self, object_id id_prefix, uint len);
+		public delegate int ReadPrefixHandler(out object_id id, [CCode(array_length_type = "size_t")] out uint8[] data, out ObjectType type, Backend self, object_id id_prefix, size_t len);
 
 		[CCode(has_target = false, has_type_id = false)]
 		public delegate int ReadStreamHandler(out Stream stream, Backend self, object_id id);
@@ -444,6 +437,15 @@ namespace Git {
 			[CCode(cname = "git_commit_tree_oid")]
 			get;
 		}
+		/**
+		 * Get the commit object that is an ancestor of the named commit object,
+		 * following only the first parents.
+		 *
+		 * @param ancestor the ancestor received, if any
+		 * @param n the requested generation, or 0 for a copy of the commit.
+		 */
+		[CCode(cname = "git_commit_nth_gen_ancestor", instance_pos = 1.2)]
+		public Error get_ancestor(out Commit? ancestor, uint n);
 
 		/**
 		 * The message of a commit converted to UTF-8.
@@ -519,14 +521,15 @@ namespace Git {
 		public static Error open(out Config cfg, string path);
 
 		/**
-		 * Open the global configuration file
+		 * Open the global and system configuration files
 		 *
 		 * Utility wrapper that calls {@link find_global} and opens the located
 		 * file, if it exists.
 		 *
 		 * @param config where to store the config instance
 		 */
-		public static Error open_global(out Config config);
+		[CCode(cname = "git_config_open_default")]
+		public static Error open_default(out Config config);
 
 		/**
 		 * Add a generic config file instance to an existing config
@@ -577,6 +580,19 @@ namespace Git {
 		 */
 		[CCode(cname = "git_config_foreach")]
 		public int for_each(ConfigCallback callback);
+		/**
+		 * Perform an operation on each config variable matching a regular expression.
+		 *
+		 * This behaviors like {@link foreach} with an additional filter of a
+		 * regular expression that filters which config keys are passed to the
+		 * callback.
+		 *
+		 * @param regexp regular expression to match against config names
+		 * @param callback the function to call on each variable
+		 * @return 0 or the return value of the callback which didn't return 0
+		 */
+		[CCode(cname = "git_config_foreach_match")]
+		public int for_each_match(string regexp, ConfigCallback callback);
 
 		/**
 		 * Get the value of a boolean config variable.
@@ -751,7 +767,7 @@ namespace Git {
 		[CCode(cname = "git_config_file_delete_cb", has_type_id = false)]
 		public delegate int DeleteHandler(ConfigFile file, string key);
 		[CCode(cname = "git_config_file_foreach_cb", has_type_id = false)]
-		public delegate int ForEachHandler(ConfigFile file, ConfigCallback callback);
+		public delegate int ForEachHandler(ConfigFile file, string regex, ConfigCallback callback);
 		[CCode(cname = "git_config_file_free_cb", has_type_id = false)]
 		public delegate void FreeHandler(ConfigFile file);
 		[CCode(cname = "git_config_file_get_cb", has_type_id = false)]
@@ -842,6 +858,16 @@ namespace Git {
 		public bool contains(object_id id);
 
 		/**
+		 * List all objects available in the database
+		 *
+		 * The callback will be called for each object available in the
+		 * database. Note that the objects are likely to be returned in the index
+		 * order, which would make accessing the objects in that order inefficient.
+		 */
+		[CCode(cname = "git_odb_foreach")]
+		public Error for_each(ObjectIdCallback callback);
+
+		/**
 		 * Read an object from the database.
 		 *
 		 * This method queries all available ODB backends
@@ -876,7 +902,7 @@ namespace Git {
 		 * @param len the length of the prefix
 		 */
 		[CCode(cname = "git_odb_read_prefix", instance_pos = 1.2)]
-		public Error read_by_prefix(out DbObject obj, object_id short_id, uint len);
+		public Error read_by_prefix(out DbObject obj, object_id short_id, size_t len);
 
 		/**
 		 * Read the header of an object from the database, without
@@ -998,6 +1024,19 @@ namespace Git {
 	[Compact]
 	public class DiffList {
 		/**
+		 * Query how many diff records are there in a diff list.
+		 *
+		 * You can optionally pass in a `git_delta_t` value if you want a count
+		 * of just entries that match that delta type, or pass -1 for all delta
+		 * records.
+		 *
+		 * @param delta_t A git_delta_t value to filter the count, or -1 for all records
+		 * @return Count of number of deltas matching delta_t type
+		 */
+		[CCode(cname = "git_diff_entrycount")]
+		public int get_count(int delta_t);
+
+		/**
 		 * Merge one diff list into another.
 		 *
 		 * This merges items from the "from" list into the current list.  The
@@ -1108,6 +1147,16 @@ namespace Git {
 	[CCode(cname = "git_index", free_function = "git_index_free", has_type_id = false)]
 	[Compact]
 	public class Index {
+		/**
+		 * Index capabilities flags.
+		 */
+		public IndexCapability capability {
+			[CCode(cname = "git_index_caps")]
+			get;
+			[CCode(cname = "git_index_set_caps")]
+			set;
+		}
+
 		/**
 		 * The count of entries currently in the index
 		 */
@@ -1220,7 +1269,7 @@ namespace Git {
 		 * @return the entry; null if out of bounds
 		 */
 		[CCode(cname = "git_index_get")]
-		public unowned IndexEntry? get(uint n);
+		public unowned IndexEntry? get(size_t n);
 
 		/**
 		 * Remove all entries with equal path except last added
@@ -1243,7 +1292,7 @@ namespace Git {
 		 * @param tree tree to read
 		 */
 		[CCode(cname = "git_index_read_tree")]
-		public Error read_tree(Tree tree);
+		public Error read_tree(Tree tree, indexer_stats stats);
 
 		/**
 		 * Remove an entry from the index
@@ -1340,10 +1389,10 @@ namespace Git {
 		 * Create a new streaming indexer instance
 		 *
 		 * @param out where to store the indexer instance
-		 * @param path to the gitdir (metadata directory)
+		 * @param path to the directory where the packfile should be stored
 		 */
 		[CCode(cname = "git_indexer_stream_new")]
-		public static Error open(out IndexerStream index_stream, string gitdir);
+		public static Error open(out IndexerStream index_stream, string path);
 
 		/**
 		 * Add data to the indexer
@@ -1362,7 +1411,7 @@ namespace Git {
 		[CCode(cname = "git_indexer_stream_finalize")]
 		public Error finalize(indexer_stats stats);
 	}
- 
+
 	/**
 	 * Memory representation of a file entry in the index.
 	 */
@@ -1444,6 +1493,13 @@ namespace Git {
 			[CCode(cname = "git_object_owner")]
 			get;
 		}
+		/**
+		 * Recursively peel an object until an object of the specified type is met
+		 *
+		 * @param target_type The type of the requested object
+		 */
+		[CCode(cname = "git_object_peel", instance_pos = 1.1)]
+		public Error peel(out Object? peeled, ObjectType target_type);
 	}
 
 	/**
@@ -1483,59 +1539,18 @@ namespace Git {
 	}
 
 	/**
-	 * Reference specification (i.e., some kind of local or remote branch)
-	 */
-	[CCode(cname = "git_refspec", has_type_id = false)]
-	[Compact]
-	public class RefSpec {
-		/**
-		 * The destination specifier
-		 */
-		public string destination {
-			[CCode(cname = "git_refspec_dst")]
-			get;
-		}
-		/**
-		 * The force update setting
-		 */
-		public bool is_forced {
-			[CCode(cname = "git_refspec_force")]
-			get;
-		}
-
-		/**
-		 * The source specifier
-		 */
-		public string source {
-			[CCode(cname = "git_refspec_src")]
-			get;
-		}
-
-		/**
-		 * Check if a refspec's source descriptor matches a reference name
-		 *
-		 * @param refname the name of the reference to check
-		 */
-		[CCode(cname = "git_refspec_src_matches")]
-		public bool matches(string refname);
-
-		/**
-		 * Transform a reference to its target following the refspec's rules
-		 *
-		 * @param buffer where to store the target name
-		 * @param name the name of the reference to transform
-		 * @return {@link Error.OK}, {@link Error.SHORTBUFFER} or another error
-		 */
-		[CCode(cname = "git_refspec_transform", instance_pos = 1.3)]
-		public Error transform([CCode(array_length_type = "size_t")] char[] buffer, string name);
-	}
-
-	/**
 	 * In-memory representation of a reference.
 	 */
 	[CCode(cname = "git_reference", free_function = "git_reference_free", has_type_id = false)]
 	[Compact]
 	public class Reference {
+		/**
+		 * Check if a reflog exists for the specified reference.
+		 */
+		public bool has_log {
+		[CCode(cname = "git_reference_has_log")]
+			get;
+		}
 		/**
 		 * The id pointed to by a reference.
 		 *
@@ -1547,10 +1562,25 @@ namespace Git {
 		}
 
 		/**
+		 * Check if a reference is a local branch.
+		 */
+		public bool is_branch {
+			[CCode(cname = "git_reference_is_branch")]
+			get;
+		}
+
+		/**
 		 * Has been loaded from a packfile?
 		 */
 		public bool is_packed {
 			[CCode(cname = "git_reference_is_packed")]
+			get;
+		}
+		/**
+		 * If a reference is a remote tracking branch
+		 */
+		public bool is_remote {
+			[CCode(cname = "git_reference_is_remote")]
 			get;
 		}
 
@@ -1591,14 +1621,6 @@ namespace Git {
 		}
 
 		/**
-		 * Compare two references.
-		 *
-		 * @return 0 if the same, else a stable but meaningless ordering.
-		 */
-		[CCode(cname = "git_reference_cmp")]
-		public int compare(Reference other);
-
-		/**
 		 * Delete an existing reference
 		 *
 		 * This method works for both direct and symbolic references.
@@ -1607,9 +1629,45 @@ namespace Git {
 		 * memory. The given reference pointer will no longer be valid.
 		 *
 		 */
-		[DestroysInstance]
 		[CCode(cname = "git_reference_delete")]
-		public void @delete();
+		public static void @delete(owned Reference reference);
+
+		/**
+		 * Delete an existing branch reference.
+		 */
+		[CCode(cname = "git_branch_delete")]
+		public static Error delete_branch(owned Reference reference);
+		/**
+		 * Normalize the reference name by removing any leading slash (/)
+		 * characters and collapsing runs of adjacent slashes between name
+		 * components into a single slash.
+		 *
+		 * Once normalized, if the reference name is valid, it will be returned in
+		 * the user allocated buffer.
+
+		 * @param buffer The buffer where the normalized name will be stored.
+		 * @param name name to be checked.
+		 * @param flags Flags to determine the options to be applied while checking
+		 * the validatity of the name.
+		 */
+		[CCode(cname = "git_reference_normalize_name")]
+		public static Error normalize_name([CCode(array_length_type = "size_t")] uint8[] buffer, string name, ReferenceFormat flags);
+		/**
+		 * Updates files in the working tree to match a commit pointed to by a ref.
+		 *
+		 * @param opts specifies checkout options
+		 * @param stats structure through which progress information is reported
+		 */
+		[CCode(cname = "git_checkout_reference")]
+		public Error checkout(out checkout_opts opts = null, out indexer_stats stats = null);
+
+		/**
+		 * Compare two references.
+		 *
+		 * @return 0 if the same, else a stable but meaningless ordering.
+		 */
+		[CCode(cname = "git_reference_cmp")]
+		public int compare(Reference other);
 
 		/**
 		 * Delete the reflog for the given reference
@@ -1623,7 +1681,33 @@ namespace Git {
 		 * @param reflog where to put the reflog
 		 */
 		[CCode(cname = "git_reflog_read", instance_pos = -1)]
-		public Error get_reflog(out ReferenceLog reflog);
+		public Error get_reflog(out ReferenceLog? reflog);
+		/**
+		 * Return the reference supporting the remote tracking branch, given a
+		 * reference branch.
+		 *
+		 * The input reference has to be located in the '''refs/heads''' namespace.
+		 *
+		 */
+		[CCode(cname = "git_reference_remote_tracking_from_branch", instance_pos = -1)]
+		public Error get_remote_tracking_from_branch(out Reference tracking_ref);
+		/**
+		 * Return the reference supporting the remote tracking branch, given a
+		 * local branch reference.
+		 */
+		[CCode(cname = "git_branch_tracking", instance_pos = -1)]
+		public Error get_tracking(out Reference? tracking);
+
+		/**
+		 * Move/rename an existing branch reference.
+		 *
+		 * @param new_branch_name Target name of the branch once the move
+		 * is performed; this name is validated for consistency.
+		 *
+		 * @param force Overwrite existing branch.
+		 */
+		[CCode(cname = "git_branch_move")]
+		public Error move_branch(string new_branch_name, bool force);
 
 		/**
 		 * Reload a reference from disk
@@ -1701,19 +1785,6 @@ namespace Git {
 		 */
 		[CCode(cname = "git_reference_set_target")]
 		public Error set_target(string target);
-
-		/**
-		 * Write a new reflog for the given reference
-		 *
-		 * If there is no reflog file for the given reference yet, it will be
-		 * created.
-		 *
-		 * @param id_old the id the reference was pointing to
-		 * @param committer the signature of the committer
-		 * @param msg the reflog message
-		 */
-		[CCode(cname = "git_reflog_write")]
-		public Error write_reflog(object_id? id_old, Signature committer, string? msg = null);
 	}
 
 	/**
@@ -1731,13 +1802,41 @@ namespace Git {
 		}
 
 		/**
+		 * Add a new entry to the reflog.
+		 *
+		 * If there is no reflog file for the given reference yet, it will be
+		 * created.
+		 *
+		 * @param id_old the id the reference was pointing to
+		 * @param committer the signature of the committer
+		 * @param msg the reflog message
+		 */
+		[CCode(cname = "git_reflog_append")]
+		public Error append(object_id? id_old, Signature committer, string? msg = null);
+
+		/**
+		 * Remove an entry from the reflog by its index
+		 *
+		 * To ensure there's no gap in the log history, when deleting an entry,
+		 * member old_oid of the previous entry (if any) will be updated with the
+		 * value of memeber new_oid of next entry.
+		 *
+		 * @param idx the position of the entry to remove.
+		 *
+		 * @param rewrite_previous_entry true to rewrite the history; 0 otherwise.
+		 *
+		 */
+		[CCode(cname = "git_reflog_drop")]
+		public Error drop(uint idx, bool rewrite_previous_entry);
+
+		/**
 		 * Lookup an entry by its index
 		 *
 		 * @param idx the position to lookup
 		 * @return the entry; null if not found
 		 */
 		[CCode(cname = "git_reflog_entry_byindex")]
-		public unowned ReferenceLogEntry? get(uint idx);
+		public unowned ReferenceLogEntry? get(size_t idx);
 
 		/**
 		 * Rename the reflog for the given reference
@@ -1746,6 +1845,15 @@ namespace Git {
 		 */
 		[CCode(cname = "git_reflog_rename")]
 		public Error rename(string new_name);
+		/**
+		 * Write an existing in-memory reflog object back to disk using an atomic
+		 * file lock.
+		 *
+		 * If there is no reflog file for the given reference yet, it will be
+		 * created.
+		 */
+		[CCode(cname = "git_reflog_write")]
+		public Error write();
 	}
 
 	/**
@@ -1816,7 +1924,7 @@ namespace Git {
 		/**
 		 * The fetch refspec, if it exists
 		 */
-		public RefSpec? fetch_spec {
+		public ref_spec? fetch_spec {
 			[CCode(cname = "git_remote_fetchspec")]
 			get;
 			[CCode(cname = "git_remote_set_fetchspec")]
@@ -1832,9 +1940,9 @@ namespace Git {
 		}
 
 		/**
-		 * The push refspe, if it existsc
+		 * The push refspec, if it existsc
 		 */
-		public RefSpec? push_spec {
+		public ref_spec? push_spec {
 			[CCode(cname = "git_remote_pushspec")]
 			get;
 			[CCode(cname = "git_remote_set_pushspec")]
@@ -1993,9 +2101,32 @@ namespace Git {
 		public string? workdir {
 			[CCode(cname = "git_repository_workdir")]
 			get;
-			[CCode(cname = "git_repository_set_workdir")]
-			set;
+			set {
+				set_workdir(value, true);
+			}
 		}
+
+		/**
+		 * Clone a remote repository, and checkout the branch pointed to by the remote
+		 * HEAD.
+		 *
+		 * @param origin_url repository to clone from
+		 * @param workdir_path local directory to clone to
+		 * @param fetch_stats pointer to structure that receives fetch progress information
+		 * @param checkout_opts options for the checkout step
+		 */
+		[CCode(cname = "git_clone")]
+		public static Error clone(out Repository? repo, string origin_url, string workdir_path, out indexer_stats fetch_stats = null, out indexer_stats checkout_stats = null, checkout_opts? checkout_opts = null);
+
+		/**
+		 * Create a bare clone of a remote repository.
+		 *
+		 * @param origin_url repository to clone from
+		 * @param dest_path local directory to clone to
+		 * @param fetch_stats pointer to structure that receives fetch progress information
+		 */
+		[CCode(cname = "git_clone_bare")]
+		public static Error clone_bare(out Repository? repo, string origin_url, string dest_path, out indexer_stats fetch_stats = null);
 
 		/**
 		 * Look for a git repository and copy its path in the given buffer. The lookup start
@@ -2048,6 +2179,22 @@ namespace Git {
 		 */
 		[CCode(cname = "git_repository_open_ext")]
 		public static Error open_ext(out Repository? repository, string start_path, OpenFlags flags, string ceiling_dirs);
+		/**
+		 * Add ignore rules for a repository.
+		 *
+		 * Excludesfile rules (i.e. .gitignore rules) are generally read from
+		 * .gitignore files in the repository tree or from a shared system file
+		 * only if a "core.excludesfile" config value is set.  The library also
+		 * keeps a set of per-repository internal ignores that can be configured
+		 * in-memory and will not persist.  This function allows you to add to
+		 * that internal rules list.
+		 *
+		 * @param rules Text of rules, a la the contents of a .gitignore file.  It
+		 * is okay to have multiple rules in the text; if so, each rule should be
+		 * terminated with a newline.
+		 */
+		[CCode(cname = "git_ignore_add_rule")]
+		public Error add_ignore(string rules);
 
 		/**
 		 * Add a remote with the default fetch refspec to the repository's configuration
@@ -2059,6 +2206,25 @@ namespace Git {
 		public Error add_remote(out Remote remote, string name, string url);
 
 		/**
+		 * Clear ignore rules that were explicitly added.
+		 *
+		 * Clears the internal ignore rules that have been set up.  This will not
+		 * turn off the rules in .gitignore files that actually exist in the
+		 * filesystem.
+		 */
+		public Error clear_internal_ignores();
+
+		/**
+		 * Updates files in the working tree to match the commit pointed to by HEAD.
+		 *
+		 * @param opts specifies checkout options
+		 * @param stats structure through which progress information is reported
+		 * @return 0 on success, GIT_ERROR otherwise (use giterr_last for information about the error)
+		 */
+		[CCode(cname = "git_checkout_head")]
+		public Error checkout_head(checkout_opts? opts = null, out indexer_stats stats = null);
+
+		/**
 		 * Write an in-memory buffer to the ODB as a blob
 		 *
 		 * @param id return the id of the written blob
@@ -2066,6 +2232,18 @@ namespace Git {
 		 */
 		[CCode(cname = "git_blob_create_frombuffer", instance_pos = 1.2)]
 		public Error create_blob_from_buffer(object_id id, [CCode(array_length_type = "size_t")] uint8[] buffer);
+		/**
+		 * Write a loose blob to the Object Database from a provider of chunks of
+		 * data.
+		 *
+		 * @param hintpath will help to determine what git filters should be
+		 * applied to the object before it can be placed to the object database.
+		 * @param oid Return the id of the written blob
+		 * @param hintpath if not null, will help selecting the filters to apply
+		 * onto the content of the blob to be created.
+		 */
+		[CCode(cname = "git_blob_create_fromchunks", instance_pos = 1.2)]
+		public Error create_blob_from_chunks(object_id id, string? hintpath, ChunkSource source);
 
 		/**
 		 * Read a file from the filesystem and write its content to the Object
@@ -2074,7 +2252,7 @@ namespace Git {
 		 * @param oid return the id of the written blob
 		 * @param path file from which the blob will be created
 		 */
-		[CCode(cname = "git_blob_create_fromdisk", insance_pos = 1.2)]
+		[CCode(cname = "git_blob_create_fromdisk", instance_pos = 1.2)]
 		public Error create_blob_from_disk(out object_id id, string path);
 
 		/**
@@ -2096,8 +2274,6 @@ namespace Git {
 		 * If forced and a reference already exists with the given name, it'll be
 		 * replaced.
 		 *
-		 * @param id where to store the OID of the target commit.
-		 *
 		 * @param branch_name Name for the branch; this name is
 		 * validated for consistency. It should also not conflict with
 		 * an already existing branch name.
@@ -2110,14 +2286,13 @@ namespace Git {
 		 * @param force Overwrite existing branch.
 		 */
 		[CCode(cname = "git_branch_create", instance_pos = 1.2)]
-		public Error create_branch(out object_id id, string branch_name, object_id target, bool force);
+		public Error create_branch(out Reference? branch, string branch_name, object_id target, bool force = false);
 
 		/**
 		 * Create a new commit in the repository using {@link Object}
 		 * instances as parameters.
 		 *
-		 * The message will be cleaned up from excess whitespace it will be made
-		 * sure that the last line ends with a new line.
+		 * The message will not be cleaned up.
 		 *
 		 * @param id the id of the newly created commit
 		 *
@@ -2128,6 +2303,7 @@ namespace Git {
 		 * @param message Full message for this commit
 		 * @param tree The tree that will be used as the tree for the commit. This tree object must also be owned by this repository.
 		 * @param parents The commits that will be used as the parents for this commit. This array may be empty for the root commit. All the given commits must be owned by this repository.
+		 * @see prettify_message
 		 */
 		[CCode(cname = "git_commit_create", instance_pos = 1.2)]
 		public Error create_commit(object_id id, string? update_ref, Signature author, Signature committer, string? message_encoding, string message, Tree tree, [CCode(array_length_pos = 7.8)] Commit[] parents);
@@ -2252,17 +2428,6 @@ namespace Git {
 		public Error create_tag_from_buffer(object_id id, string buffer, bool force);
 
 		/**
-		 * Delete an existing branch reference.
-		 *
-		 * @param branch_name Name of the branch to be deleted; this name is
-		 * validated for consistency.
-		 *
-		 * @param branch_type Type of the considered branch.
-		 */
-		[CCode(cname = "git_branch_delete")]
-		public Error delete_branch(string branch_name, BranchType branch_type);
-
-		/**
 		 * Delete an existing tag reference.
 		 *
 		 * @param tag_name Name of the tag to be deleted; this name is validated for consistency.
@@ -2336,7 +2501,16 @@ namespace Git {
 		 * @param callback Function which will be called for every listed ref
 		 */
 		[CCode(cname = "git_reference_foreach")]
-		public Error for_each_reference(ReferenceType list_flags, ReferenceCallback function);
+		public Error for_each_reference(ReferenceType list_flags, ReferenceCallback callback);
+		/**
+		 * Loop over all the references and issue a callback for each one which
+		 * name matches the given glob pattern.
+		 *
+		 * @param list_flags Filtering flags for the reference listing.
+		 * @param callback Callback to invoke per found reference.
+		 */
+		[CCode(cname = "git_reference_foreach_glob")]
+		public Error for_each_reference_glob(string glob, ReferenceType list_flags, ReferenceCallback callback);
 
 		/**
 		 * Find a merge base between two commits
@@ -2347,6 +2521,16 @@ namespace Git {
 		 */
 		[CCode(cname = "git_merge_base", instance_pos = 1.2)]
 		public Error find_merge_base(out object_id merge_base, object_id one, object_id two);
+
+		/**
+		 * Find a merge base given a list of commits
+		 *
+		 * @param out the ID of a merge base considering all the commits
+		 * @param repo the repository where the commits exist
+		 * @param input_array ids of the commits
+		 */
+		[CCode(cname = "git_merge_base_many", instance_pos = 1.1)]
+		public Error find_merge_base_many(out object_id id, [CCode(array_length_type = "size_t")]object_id[] input);
 
 		/**
 		 * Loop over all the notes within a specified namespace.
@@ -2485,16 +2669,27 @@ namespace Git {
 		public Error get_walker(out RevisionWalker walker);
 
 		/**
-		 * Fill a list with all the branches in the Repository
-		 *
-		 * The string array will be filled with the names of the
-		 * matching branches.
-		 *
-		 * @param branch_names where the branch names will be stored.
+		 * Iterate over the branches in the repository.
 		 *
 		 * @param list_flags Filtering flags for the branch listing.
 		 */
-		[CCode(cname = "git_branch_list", instance_pos = 1.2)]
+		[CCode(cname = "git_branch_foreach")]
+		public Error for_each_branch(BranchType list_flags, BranchCallback callback);
+		/**
+		 * Test if the ignore rules apply to a given path.
+		 *
+		 * This function simply checks the ignore rules to see if they would apply
+		 * to the given file.  This indicates if the file would be ignored
+		 * regardless of whether the file is already in the index or commited to
+		 * the repository.
+		 *
+		 * @param path the file to check ignores for, relative to the repo's
+		 * workdir.
+		 */
+		[CCode(cname = "git_ignore_path_is_ignored", instance_pos = 1.1)]
+		public Error is_path_ignored(out bool ignored, string path);
+
+		[CCode(cname = "git_branch_foreach", instance_pos = 1.2)]
 		public Error list_branches(out string_array branch_names, BranchType list_flags);
 
 		/**
@@ -2541,7 +2736,15 @@ namespace Git {
 		 * @param len the length of the short identifier
 		 */
 		[CCode(cname = "git_blob_lookup_prefix", instance_pos = 1.2)]
-		public Error lookup_blob_by_prefix(out Blob blob, object_id id, uint len);
+		public Error lookup_blob_by_prefix(out Blob blob, object_id id, size_t len);
+		/**
+		 * Lookup a branch by its name.
+		 *
+		 * @param branch_name Name of the branch to be looked-up; this name is
+		 * validated for consistency.
+		 */
+		[CCode(cname = "git_branch_lookup", instance_pos = 1.1)]
+		public Error lookup_branch(out Reference? branch, string branch_name, BranchType branch_type);
 
 		/**
 		 * Lookup a commit object from a repository.
@@ -2563,7 +2766,7 @@ namespace Git {
 		 * @param len the length of the short identifier
 		 */
 		[CCode(cname = "git_commit_lookup_prefix", instance_pos = 1.2)]
-		public Error lookup_commit_by_prefix(out Commit commit, object_id id, uint len);
+		public Error lookup_commit_by_prefix(out Commit commit, object_id id, size_t len);
 
 		/**
 		 * Lookup a reference to one of the objects in a repostory.
@@ -2600,7 +2803,7 @@ namespace Git {
 		 * @param type the type of the object
 		 */
 		[CCode(cname = "git_object_lookup_prefix", instance_pos = 1.2)]
-		public Error lookup_object_by_prefix(out Object object_out, object_id id, uint len, ObjectType type);
+		public Error lookup_object_by_prefix(out Object object_out, object_id id, size_t len, ObjectType type);
 
 		/**
 		 * Lookup a reference by its name in a repository.
@@ -2675,20 +2878,6 @@ namespace Git {
 		public Error lookup_tree_by_prefix(out Tree tree, object_id id, uint len);
 
 		/**
-		 * Move/rename an existing branch reference.
-		 *
-		 * @param old_branch_name Current name of the branch to be moved;
-		 * this name is validated for consistency.
-		 *
-		 * @param new_branch_name Target name of the branch once the move
-		 * is performed; this name is validated for consistency.
-		 *
-		 * @param force Overwrite existing branch.
-		 */
-		[CCode(cname = "git_branch_move")]
-		public Error move_branch( string old_branch_name, string new_branch_name, bool force);
-
-		/**
 		 * Pack all the loose references in the repository
 		 *
 		 * This method will load into the cache all the loose references on the
@@ -2699,6 +2888,15 @@ namespace Git {
 		 */
 		[CCode(cname = "git_reference_packall")]
 		public Error pack_all_references();
+		/**
+		 * Find an object, as specified by a revision string. See the gitrevisions
+		 * manual page, or the documentation for '''git rev-parse''' for
+		 * information on the syntax accepted.
+		 *
+		 * @param spec the textual specification for an object
+		 */
+		[CCode(cname = "git_revparse_single", instance_pos = 1.1)]
+		public Error parse(out Object? obj,  string spec);
 
 		/**
 		 * Read the note for an object
@@ -2724,6 +2922,24 @@ namespace Git {
 		[CCode(cname = "git_note_remove")]
 		public Error remove_note(string? notes_ref, Signature author, Signature committer, object_id id);
 
+		/**
+		 * Sets the current head to the specified commit oid and optionally resets
+		 * the index and working tree to match.
+		 *
+		 * When specifying a Soft kind of reset, the head will be moved to the commit.
+		 *
+		 * Specifying a Mixed kind of reset will trigger a Soft reset and the index
+		 * will be replaced with the content of the commit tree.
+		 *
+		 * @param target Object to which the Head should be moved to. This object
+		 * must belong to this repository and can either be a {@link Commit} or a
+		 * {@link Tag}. When a {@link Tag} is being passed, it should be
+		 * dereferencable to a {@link Commit} which oid will be used as the target
+		 * of the branch.
+		 * @param reset_type Kind of reset operation to perform.
+		 */
+		[CCode(cname = "git_reset")]
+		public Error reset(Object target, ResetType reset_type);
 		/**
 		 * Set the configuration file for this repository
 		 *
@@ -2756,6 +2972,15 @@ namespace Git {
 		 */
 		[CCode(cname = "git_repository_set_index")]
 		public void set_index(Index index);
+
+		/**
+		 * Set the working directory.
+		 * @param workdir The path to a working directory
+		 * @param update_gitlink Create/update gitlink in workdir and set config
+		 * "core.worktree" (if workdir is not the parent of the .git directory)
+		 */
+		[CCode(cname = "git_repository_set_workdir")]
+		public Error set_workdir(string workdir, bool update_gitlink);
 
 		/**
 		 * Test if the ignore rules apply to a given file.
@@ -2959,6 +3184,8 @@ namespace Git {
 		/**
 		 * Create a new action signature.
 		 *
+		 * Note: angle brackets characters are not allowed in either the name or
+		 * the email.
 		 * @param sig new signature, null in case of error
 		 * @param name name of the person
 		 * @param email email of the person
@@ -3037,7 +3264,8 @@ namespace Git {
 	 * should be an entry for every submodule found in the HEAD and for
 	 * every submodule described in .gitmodules.
 	 */
-	[CCode(cname = "git_submodule")]
+	[CCode(cname = "git_submodule", has_type_id = false)]
+	[Compact]
 	public class Submodule {
 		/**
 		 * The name of the submodule from .gitmodules.
@@ -3190,8 +3418,8 @@ namespace Git {
 		 * @param path Path to the tree entry from which to extract the last tree object
 		 * @return {@link Error.OK} on success; {@link Error.NOTFOUND} if the path does not lead to an entry; otherwise, an error code
 		 */
-		[CCode(cname = "git_tree_get_subtree", instance_pos = 1.2)]
-		public Error get_subtree(out Tree subtree, string path);
+		[CCode(cname = "git_tree_entry_bypath", instance_pos = 1.2)]
+		public Error get_by_path(out TreeEntry entry, string path);
 
 		/**
 		 * Traverse the entries in a tree and its subtrees in post or pre order
@@ -3270,7 +3498,7 @@ namespace Git {
 		 * @return 0 on success; error code otherwise
 		 */
 		[CCode(cname = "git_treebuilder_insert", instance_pos = 1.2)]
-		public Error insert(out TreeEntry? entry = null, string filename, object_id id, Attributes attributes);
+		public Error insert(out unowned TreeEntry? entry = null, string filename, object_id id, Attributes attributes);
 
 		/**
 		 * Get an entry from the builder from its filename
@@ -3292,9 +3520,10 @@ namespace Git {
 	/**
 	 * Representation of each one of the entries in a tree object.
 	 */
-	[CCode(cname = "git_tree_entry", has_type_id = false)]
+	[CCode(cname = "git_tree_entry", has_type_id = false, free_function = "git_tree_entry_free", copy_function = "git_tree_entry_dup")]
 	[Compact]
 	public class TreeEntry {
+
 		/**
 		 * The UNIX file attributes of a tree entry
 		 */
@@ -3339,6 +3568,11 @@ namespace Git {
 		 */
 		[CCode(cname = "git_treebuilder_create", instance_pos = -1)]
 		public Error create_builder(out TreeBuilder builder);
+		/**
+		 * Create a copy of a tree entry.
+		 */
+		[CCode(cname = "git_tree_entry_dup")]
+		public TreeEntry dup();
 	}
 
 	/**
@@ -3373,8 +3607,31 @@ namespace Git {
 		[CCode(cname = "git_index_get_unmerged_bypath")]
 		public unowned unmerged_index_entry? get_by_path(string path);
 	}
+	[CCode(cname = "git_checkout_opts", has_type_id = false)]
+	public struct checkout_opts {
+		public ExistingAction existing_file_action;
+		public bool disable_filters;
+		/**
+		 * Directory mode.
+		 *
+		 * If set to 0, the default is 0755 used.
+		 */
+		public int dir_mode;
+		/**
+		 * File mode.
+		 *
+		 * If set to 0, the default is 0644 is used.
+		 */
+		public int file_mode;
+		/**
+		 * File open(3) flags.
+		 *
+		 * If set to 0, the default is O_CREAT | O_TRUNC | O_WRONLY is used.
+		 */
+		public int file_open_flags;
+	}
 
-	[CCode(cname = "git_cvar_map")]
+	[CCode(cname = "git_cvar_map", has_type_id = false)]
 	public struct config_var_map {
 		public ConfigVar cvar_type;
 		public string? str_match;
@@ -3409,7 +3666,7 @@ namespace Git {
 	/**
 	 * Description of one side of a diff.
 	 */
-	[CCode(cname = "git_diff_file")]
+	[CCode(cname = "git_diff_file", has_type_id = false)]
 	public struct diff_file {
 		[CCode(cname = "oid")]
 		public object_id id;
@@ -3428,7 +3685,7 @@ namespace Git {
 	 *
 	 * Most of the parameters here are not actually supported at this time.
 	 */
-	[CCode(cname = "git_diff_options")]
+	[CCode(cname = "git_diff_options", has_type_id = false)]
 	public struct diff_options {
 		public DiffFlags flags;
 		public uint16 context_lines;
@@ -3467,6 +3724,7 @@ namespace Git {
 	public struct indexer_stats {
 		uint total;
 		uint processed;
+		uint received;
 	}
 
 	/**
@@ -3643,7 +3901,7 @@ namespace Git {
 		 * @return 0 in case of a match
 		 */
 		[CCode(cname = "git_oid_ncmp")]
-		public static int compare_n(object_id a, object_id b, uint len);
+		public static int compare_n(object_id a, object_id b, size_t len);
 
 		/**
 		 * Compare the first //len// hexadecimal characters (packets of 4 bits)
@@ -3655,7 +3913,7 @@ namespace Git {
 		 * @return 0 in case of a match
 		 */
 		[CCode(cname = "git_oid_ncmp")]
-		public int compare_n_to(object_id b, uint len);
+		public int compare_n_to(object_id b, size_t len);
 
 		/**
 		 * Check if an oid equals an hex formatted object id.
@@ -3665,6 +3923,24 @@ namespace Git {
 		 */
 		[CCode(cname = "git_oid_streq")]
 		public Error compare_string(string str);
+		/**
+		 * Compare two oid structures for equality
+		 *
+		 * @param a first id structure.
+		 * @param b second id structure.
+		 * @return true if equal, false otherwise
+		 */
+		[CCode(cname = "git_oid_equal")]
+		public static bool equal(object_id a, object_id b);
+		/**
+		 * Compare two oid structures for equality
+		 *
+		 * @param a first id structure.
+		 * @param b second id structure.
+		 * @return true if equal, false otherwise
+		 */
+		[CCode(cname = "git_oid_equal")]
+		public bool equal_to(object_id b);
 
 		/**
 		 * Determine the id of a buffer containing an object
@@ -3700,6 +3976,61 @@ namespace Git {
 		public bool is_zero();
 
 	}
+	/**
+	 * Reference specification (i.e., some kind of local or remote branch)
+	 */
+	[CCode(cname = "git_refspec", has_type_id = false, destroy_function = "")]
+	public struct ref_spec {
+		/**
+		 * The destination specifier
+		 */
+		public string destination {
+			[CCode(cname = "git_refspec_dst")]
+			get;
+		}
+		/**
+		 * The force update setting
+		 */
+		public bool is_forced {
+			[CCode(cname = "git_refspec_force")]
+			get;
+		}
+
+		/**
+		 * The source specifier
+		 */
+		public string source {
+			[CCode(cname = "git_refspec_src")]
+			get;
+		}
+		/**
+		 * Parse a refspec string and create a refspec object
+		 *
+		 * @param refspec pointer to the refspec structure to be used
+		 * @param str the refspec as a string
+		 */
+		[CCode(cname = "git_refspec_parse")]
+		public static Error parse(out ref_spec refspec, string str);
+
+		/**
+		 * Check if a refspec's source descriptor matches a reference name
+		 *
+		 * @param refname the name of the reference to check
+		 */
+		[CCode(cname = "git_refspec_src_matches")]
+		public bool matches(string refname);
+
+		/**
+		 * Transform a reference to its target following the refspec's rules
+		 *
+		 * @param buffer where to store the target name
+		 * @param name the name of the reference to transform
+		 * @return {@link Error.OK}, {@link Error.SHORTBUFFER} or another error
+		 */
+		[CCode(cname = "git_refspec_transform", instance_pos = 1.3)]
+		public Error transform([CCode(array_length_type = "size_t")] char[] buffer, string name);
+	}
+
 
 	/**
 	 * Remote head description, given out on //ls// calls.
@@ -3714,8 +4045,8 @@ namespace Git {
 		public unowned string name;
 	}
 
-	[CCode(cname = "git_status_options")]
-	public struct status_options{
+	[CCode(cname = "git_status_options", has_type_id = false)]
+	public struct status_options {
 		StatusShow show;
 		StatusControl flags;
 		string_array pathspec;
@@ -3847,9 +4178,32 @@ namespace Git {
 		LOCAL,
 		REMOTE
 	}
+	/**
+	 * Combinations of these values describe the capabilities of libgit2.
+	 */
+	[CCode(cname = "int", cprefix = "GIT_CAP_", has_type_id = false)]
+	public enum Capabilities {
+		/**
+		 * Libgit2 was compiled with thread support.
+		 *
+		 * Note that thread support is still to be seen as a 'work in progress'.
+		 */
+		THREADS,
+		/**
+		 * Libgit2 supports the https:// protocol.
+		 *
+		 * This requires the OpenSSL library to be found when compiling libgit2.
+		 */
+		HTTPS;
+		/**
+		 * Query compile time options for libgit2.
+		 */
+		[CCode(cname = "git_libgit2_capabilities")]
+		public static Capabilities get();
+	}
 
 	[CCode(cname = "git_cvar_t", cprefix = "GIT_CVAR_", has_type_id = false)]
-	public enum ConfigVar{
+	public enum ConfigVar {
 		FALSE,
 		TRUE,
 		INT32,
@@ -3859,7 +4213,7 @@ namespace Git {
 	/**
 	 * What type of change is described?
 	 */
-	[CCode(cname = "git_delta_t", cprefix = "GIT_DELTA_")]
+	[CCode(cname = "git_delta_t", cprefix = "GIT_DELTA_", has_type_id = false)]
 	public enum DeltaType {
 		UNMODIFIED,
 		ADDED,
@@ -3871,7 +4225,7 @@ namespace Git {
 		UNTRACKED
 	}
 
-	[CCode(cname = "unsigned int", cprefix = "GIT_DIFF_FILE_")]
+	[CCode(cname = "unsigned int", cprefix = "GIT_DIFF_FILE_", has_type_id = false)]
 	public enum DiffFile {
 		VALID_OID,
 		FREE_PATH,
@@ -3881,7 +4235,7 @@ namespace Git {
 		UNMAP_DATA
 	}
 
-	[CCode(cname = "uint32_t", cprefix = "GIT_DIFF_")]
+	[CCode(cname = "uint32_t", cprefix = "GIT_DIFF_", has_type_id = false)]
 	[Flags]
 	public enum DiffFlags {
 		NORMAL,
@@ -3907,11 +4261,12 @@ namespace Git {
 	 * output callbacks to demarcate lines that are actually part of
 	 * the file or hunk headers.
 	 */
-	[CCode(cname = "char", cprefix = "GIT_DIFF_LINE_")]
+	[CCode(cname = "char", cprefix = "GIT_DIFF_LINE_", has_type_id = false)]
 	public enum DiffLine {
 		CONTEXT,
 		ADDITION,
 		DELETION,
+		[Deprecated]
 		ADD_EOFNL,
 		DEL_EOFNL,
 		FILE_HDR,
@@ -3954,6 +4309,8 @@ namespace Git {
 		 * The given short {@link object_id} is ambiguous
 		 */
 		AMBIGUOUS,
+		BUFS,
+		USER,
 		/**
 		 * Skip and passthrough the given ODB backend
 		 */
@@ -3965,7 +4322,8 @@ namespace Git {
 		/**
 		 * The revsion walk is complete.
 		 */
-		REVWALKOVER
+		REVWALKOVER,
+		SSL
 	}
 
 	[CCode(cname = "git_error_class", cprefix = "GITERR_", has_type_id = false)]
@@ -3985,7 +4343,15 @@ namespace Git {
 		TAG,
 		TREE,
 		INDEXER,
-		SSL
+		SSL,
+		SUBMODULE
+	}
+	[CCode(cname = "int", has_type_id = false)]
+	public enum ExistingAction {
+		[CCode(cname = "GIT_CHECKOUT_OVERWRITE_EXISTING")]
+		OVERWRITE,
+		[CCode(cname = "GIT_CHECKOUT_SKIP_EXISTING")]
+		SKIP
 	}
 
 	/**
@@ -4158,7 +4524,21 @@ namespace Git {
 			return mode in this ? 'x' : '-';
 		}
 	}
-
+	/**
+	 * Capabilities of system that affect index actions.
+	 */
+	[Flags]
+	[CCode(cname = "unsigned int", cprefix = "GIT_INDEXCAP_", has_type_id = false)]
+	public enum IndexCapability {
+		IGNORE_CASE,
+		NO_FILEMODE,
+		NO_SYMLINKS,
+		/**
+		 * Read capabilites from the config of the owner object, looking at
+		 * '''core.ignorecase''', '''core.filemode''', '''core.symlinks'''.
+		 */
+		FROM_OWNER
+	}
 	/**
 	 * Basic type (loose or packed) of any git object
 	 */
@@ -4234,13 +4614,32 @@ namespace Git {
 		public size_t get_size();
 	}
 
-	[CCode(cname = "uint32_t", cprefix = "GIT_REPOSITORY_OPEN_")]
+	[CCode(cname = "uint32_t", cprefix = "GIT_REPOSITORY_OPEN_", has_type_id = false)]
 	[Flags]
 	public enum OpenFlags {
 		NO_SEARCH,
 		CROSS_FS
 	}
-
+	[CCode(cname = "unsigned int", cprefix = "GIT_REF_FORMAT_", has_type_id = false)]
+	[Flags]
+	public enum ReferenceFormat {
+		NORMAL,
+		/**
+		 * Control whether one-level refnames are accepted
+		 *
+		 * (i.e., refnames that do not contain multiple /-separated components)
+		 */
+		ALLOW_ONELEVEL,
+		/**
+		 * Interpret the provided name as a reference pattern for a refspec (as
+		 * used with remote repositories).
+		 *
+		 * If this option is enabled, the name is allowed to contain a single *
+		 * (<star>) in place of a one full pathname component (e.g., foo/<star>/bar
+		 * but not foo/bar<star>).
+		 */
+		REFSPEC_PATTERN,
+	}
 	/**
 	 * Basic type of any Git reference.
 	 */
@@ -4263,6 +4662,15 @@ namespace Git {
 		PACKED,
 		HAS_PEEL,
 		LISTALL
+	}
+
+	/**
+	 * Kinds of reset operation.
+	 */
+	[CCode(cname = "git_reset_type", cprefix = "GIT_RESET_", has_type_id = false)]
+	public enum ResetType {
+		SOFT,
+		MIXED
 	}
 
 	/**
@@ -4430,43 +4838,73 @@ namespace Git {
 	}
 
 	public delegate Error AttributeCallback(string name, string val);
+	public delegate int BranchCallback(string branch_name, BranchType branch_type);
+	/**
+	 *
+	 * The implementation of the callback has to respect the
+	 * following rules:
+	 *
+	 * @param content will have to be filled. The maximum number of bytes that
+	 * the buffer can accept per call is the length of the array.
+	 *
+	 * @return The callback is expected to return the number of bytes
+	 * written to content.  When there is no more data to stream, the callback
+	 * should return 0. This will prevent it from being invoked anymore. When an
+	 * error occurs, the callback should return -1.
+	 */
+	public delegate int ChunkSource([CCode(array_length_type = "size_t")] uint8[] content);
+
 	public delegate int ConfigCallback(string var_name, string val);
 	/**
 	 * When iterating over a diff, callback that will be made per file.
 	 */
-	[CCode(cname = "git_diff_file_fn", simple_generics = true, has_target = false)]
+	[CCode(cname = "git_diff_file_fn", simple_generics = true, has_target = false, has_type_id = false)]
 	public delegate Error DiffFileHandler<T>(T context, diff_delta delta, float progress);
 
 	/**
 	 * When iterating over a diff, callback that will be made per hunk.
 	 */
-	[CCode(cname = "git_diff_hunk_fn", simple_generics = true, has_target = false)]
+	[CCode(cname = "git_diff_hunk_fn", simple_generics = true, has_target = false, has_type_id = false)]
 	public delegate Error DiffHunkHandler<T>(T context, diff_delta delta, diff_range range, char[] header);
 
 	/**
 	 * When iterating over a diff, callback that will be made per text diff
 	 * line.
 	 */
-	[CCode(cname = "git_diff_line_fn", simple_generics = true, has_target = false)]
+	[CCode(cname = "git_diff_line_fn", simple_generics = true, has_target = false, has_type_id = false)]
 	public delegate Error DiffLineHandler<T>(T context, diff_delta delta, DiffLine line_origin, [CCode(array_length_type = "size_t")] uint8[] content);
 
 	/**
 	 * When printing a diff, callback that will be made to output each line
 	 * of text.
 	 */
-	[CCode(cname = "git_diff_data_fn", instance_pos = 0)]
+	[CCode(cname = "git_diff_data_fn", instance_pos = 0, has_type_id = false)]
 	public delegate Error DiffOutputHandler(diff_delta delta, diff_range range, DiffLine line_origin, [CCode(array_length_type = "size_t")] char[] formatted_output);
 	public delegate bool Filter(TreeEntry entry);
 	[CCode(cname = "git_headlist_cb", has_type_id = false)]
 	public delegate int HeadCallback(remote_head head);
 	public delegate Error NoteCallback(note_data data);
-	public delegate int ReferenceCallback(string refname);
+	public delegate Error ObjectIdCallback(object_id id);
+	public delegate bool ReferenceCallback(string refname);
 	public delegate Error StatusCallback(string file, Status status);
 	public delegate Error SubmoduleCallback(string name);
 	[CCode(cname = "git_treewalk_cb", has_type_id = false)]
 	public delegate int TreeWalker(string root, TreeEntry entry);
 	[CCode(has_target = false)]
 	public delegate Error UpdateCallback(string refname, object_id old, object_id @new);
+
+	/**
+	 * Clean up message from excess whitespace and make sure that the last line
+	 * ends with a new line.
+	 *
+	 * @param message_out The buffer which will be filled with the cleaned up
+	 * message.
+	 * @param message The message to be prettified.
+	 *
+	 * @param strip_comments remove lines starting with a "#".
+	 */
+	[CCode(cname = "git_message_prettify")]
+	public Error prettify_message([CCode(array_length_type = "size_t")] uint8[] message_out, string message, bool strip_comments);
 
 	[CCode(cname = "char*", has_type_id = false)]
 	[SimpleType]
