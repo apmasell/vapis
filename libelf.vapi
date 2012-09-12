@@ -1678,12 +1678,12 @@ public enum Elf.Type {
 	 * The binary class is taken from ELF. The result is based on the version of the ELF standard.
 	 */
 	[CCode(cname = "elf32_fsize")]
-	public size_t size(size_t count, Version version);
+	public size_t size(size_t count = 1, Version version = Version.CURRENT);
 	/**
 	 * Return size of array of the type in the external representation in ELFCLASS64.
 	 */
 	[CCode(cname = "elf64_fsize")]
-	public size_t size64(size_t count, Version version);
+	public size_t size64(size_t count = 1, Version version = Version.CURRENT);
 }
 [CCode(cname = "unsigned int", cprefix = "EV_")]
 public enum Elf.Version {
