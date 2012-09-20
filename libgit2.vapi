@@ -246,6 +246,8 @@ namespace Git {
 		public static Error create_one_pack(out Backend backend, string index_file);
 		[CCode(cname = "git_odb_backend_pack")]
 		public static Error create_pack(out Backend backend, string objects_dir);
+		[CCode(cname = "git_odb_backend_malloc", simple_generics = true)]
+		public T malloc<T>(size_t len);
 
 		[CCode(has_target = false, has_type_id = false)]
 		public delegate bool ExistsHandler(Backend self, object_id id);
@@ -255,7 +257,12 @@ namespace Git {
 
 		[CCode(has_target = false, has_type_id = false)]
 		public delegate Error ForEachHandler(Backend self, ObjectIdCallback cb);
-
+		/**
+		 * Read each return to libgit2 a buffer which will be freed later.
+		 *
+		 * The buffer should be allocated using the function {@link malloc} to
+		 * ensure that it can be safely freed later.
+		 */
 		[CCode(has_target = false, has_type_id = false)]
 		public delegate int ReadHandler([CCode(array_length_type = "size_t")] out uint8[] data, out ObjectType type, Backend self, object_id id);
 
@@ -1371,7 +1378,7 @@ namespace Git {
 		public Error write();
 	}
 
-	[CCode(cname = "git_indexer_stream", free_feunction = "git_indexer_stream_free", has_type_id = false)]
+	[CCode(cname = "git_indexer_stream", free_function = "git_indexer_stream_free", has_type_id = false)]
 	public class IndexerStream {
 		/**
 		 * The packfile's hash
@@ -1438,7 +1445,93 @@ namespace Git {
 			get;
 		}
 	}
+	[CCode(cname = "git_diff_iterator", free_function = "git_diff_iterator_free", has_type_id = false)]
+	[Compact]
+	public class Iterator {
 
+		/**
+		 * Progress value for traversing the diff.
+		 *
+		 * This is a value between 0.0 and 1.0 that represents the progress
+		 * through the diff iterator.  The value is monotonically increasing and
+		 * will advance gradually as you progress through the iteration.
+		 */
+		public float progress {
+			[CCode(cname = "git_diff_iterator_progress")]
+			get;
+		}
+
+		/**
+		 * The number of hunks in the current file
+		 *
+		 * This is the number of diff hunks in the current file.  If the diff has
+		 * not been performed yet, this may result in loading the file and
+		 * performing the diff.
+		 */
+		public int num_hunks_in_file {
+			[CCode(cname = "git_diff_iterator_num_hunks_in_file")]
+			get;
+		}
+
+		/**
+		 * The number of lines in the hunk currently being examined.
+		 *
+		 * This is the number of lines in the current hunk.  If the diff has not
+		 * been performed yet, this may result in loading the file and performing
+		 * the diff.
+		 */
+		public int num_link_in_hunk {
+			[CCode(cname = "git_diff_iterator_num_lines_in_hunk")]
+			get;
+		}
+		/**
+		 * Return the delta information for the next file in the diff.
+		 *
+		 * This will return a pointer to the next delta to be processed or
+		 * null if the iterator is at the end of the diff, then advance.  This
+		 * returns the value {@link Error.ITEROVER} after processing the last file.
+		 */
+		[CCode(cname = "git_diff_iterator_next_file", instance_pos = -1)]
+		public Error next_file(out unowned diff_delta? delta);
+
+		/**
+		 * Return the hunk information for the next hunk in the current file.
+		 *
+		 * It is recommended that you not call this if the file is a binary file,
+		 * but it is allowed to do so.
+		 *
+		 * The header text output will contain the standard hunk header that would
+		 * appear in diff output.  The header string will be NUL terminated.
+		 *
+		 * WARNING! Call this function for the first time on a file is when the
+		 * actual text diff will be computed (it cannot be computed incrementally)
+		 * so the first call for a new file is expensive (at least in relative
+		 * terms - in reality, it is still pretty darn fast).
+		 *
+		 * @param range Output pointer to range of lines covered by the hunk;
+		 *        This range object is owned by the library and should not be freed.
+		 * @param header Output pointer to the text of the hunk header
+		 *        This string is owned by the library and should not be freed.
+		 * @param header_len Output pointer to store the length of the header text
+		 * @param iterator The iterator object
+		 * @return 0 on success, GIT_ITEROVER when done with current file, other
+		 *         value < 0 on error
+		 */
+		[CCode(cname = "git_diff_iterator_next_hunk", instance_pos = -1)]
+		public Error next_hunk(out unowned diff_range? range, [CCode(array_length_type = "size_t")] out unowned uint8[] header);
+
+		/**
+		 * Return the next line of the current hunk of diffs.
+		 *
+		 * @param line_origin The line origin output will tell you what type of
+		 * line this is (e.g. was it added or removed or is it just context for the
+		 * diff).
+		 * @param content the The content will be the file data that goes in the
+		 * line. IT WILL NOT BE NUL TERMINATED.
+		 */
+		[CCode(cname = "git_diff_iterator_next_line", instance_pos = -1)]
+		public Error next_line(out char line_origin, [CCode(array_length_type = "size_t")] out unowned uint8[] content);
+	}
 	/**
 	 * A note attached to an object
 	 */
@@ -1650,14 +1743,6 @@ namespace Git {
 		 */
 		[CCode(cname = "git_reference_normalize_name")]
 		public static Error normalize_name([CCode(array_length_type = "size_t")] uint8[] buffer, string name, ReferenceFormat flags);
-		/**
-		 * Updates files in the working tree to match a commit pointed to by a ref.
-		 *
-		 * @param opts specifies checkout options
-		 * @param stats structure through which progress information is reported
-		 */
-		[CCode(cname = "git_checkout_reference")]
-		public Error checkout(out checkout_opts opts = null, out indexer_stats stats = null);
 
 		/**
 		 * Compare two references.
@@ -1706,6 +1791,18 @@ namespace Git {
 		 */
 		[CCode(cname = "git_branch_move")]
 		public Error move_branch(string new_branch_name, bool force);
+
+		/**
+		 * Recursively peel an reference until an object of the specified type is
+		 * met.
+		 *
+		 * If you pass {@link ObjectType.ANY} as the target type, then the object
+		 * will be peeled until a non-tag object is met.
+		 *
+		 * @param target_type The type of the requested object
+		 */
+		[CCode(cname = "git_reference_peel", instance_pos = 1.1)]
+		public Error peel(out Object? peeled, ObjectType type);
 
 		/**
 		 * Reload a reference from disk
@@ -2193,6 +2290,28 @@ namespace Git {
 		 */
 		[CCode(cname = "git_ignore_add_rule")]
 		public Error add_ignore(string rules);
+		/**
+		 * Set up a new git submodule for checkout.
+		 *
+		 * This does '''git submodule add''' up to the fetch and checkout of the
+		 * submodule contents.  It preps a new submodule, creates an entry in
+		 * .gitmodules and creates an empty initialized repository either at the
+		 * given path in the working directory or in .git/modules with a gitlink
+		 * from the working directory to the new repo.
+		 *
+		 * To fully emulate '''git submodule add''' call this function, then open
+		 * the submodule repo and perform the clone step as needed.  Lastly, call
+		 * {@link Submodule.add_finalize} to wrap up adding the new submodule and
+		 * .gitmodules to the index to be ready to commit.
+		 *
+		 * @param submodule The newly created submodule ready to open for clone
+		 * @param url URL for the submodules remote
+		 * @param path Path at which the submodule should be created
+		 * @param use_gitlink Should workdir contain a gitlink to the repo in
+		 *        .git/modules vs. repo directly in workdir.
+		 */
+		[CCode(cname = "git_submodule_add_setup", instance_pos = 1.1)]
+		public Error git_submodule_add_setup(out Submodule? submodule, string url, string path, bool use_gitlink);
 
 		/**
 		 * Add a remote with the default fetch refspec to the repository's configuration
@@ -2213,13 +2332,32 @@ namespace Git {
 		public Error clear_internal_ignores();
 
 		/**
-		 * Updates files in the working tree to match the commit pointed to by HEAD.
+		 * Updates files in the index and the working tree to match the commit pointed to by HEAD.
 		 *
 		 * @param opts specifies checkout options
 		 * @param stats structure through which progress information is reported
 		 */
 		[CCode(cname = "git_checkout_head")]
 		public Error checkout_head(checkout_opts? opts = null, out indexer_stats stats = null);
+		/**
+		 * Updates files in the working tree to match the content of the index.
+		 *
+		 * @param opts specifies checkout options
+		 * @param stats structure through which progress information is reported
+		 */
+		[CCode(cname = "git_checkout_index")]
+		public Error checkout_index(checkout_opts? opts = null, out indexer_stats stats = null);
+		/**
+		 * Updates files in the index and working tree to match the content of a
+		 * tree.
+		 *
+		 * @param treeish a commit, tag or tree which content will be used to
+		 * update the working directory
+		 * @param opts specifies checkout options
+		 * @param stats structure through which progress information is reported
+		 */
+		[CCode(cname = "git_checkout_tree")]
+		public Error checkout_tree(Object treeish, checkout_opts? opts = null, out indexer_stats stats = null);
 
 		/**
 		 * Write an in-memory buffer to the ODB as a blob
@@ -2431,6 +2569,22 @@ namespace Git {
 		 */
 		[CCode(cname = "git_tag_delete")]
 		public Error delete_tag(string tag_name);
+
+		/**
+		 * Detach the HEAD.
+		 *
+		 * If the HEAD is already detached and points to a commit, the call is successful.
+		 *
+		 * If the HEAD is already detached and points to a tag, the HEAD is updated
+		 * into making it point to the peeled commit, and the call is successful.
+		 *
+		 * If the HEAD is already detached and points to a non commitish, the HEAD
+		 * is unaletered, and an error is returned.
+		 *
+		 * Otherwise, the HEAD will be detached and point to the peeled commit.
+		 */
+		[CCode(cname = "git_repository_detach_head")]
+		public Error detach_head();
 
 		/**
 		 * Compute a difference between two tree objects.
@@ -2665,6 +2819,25 @@ namespace Git {
 		 */
 		[CCode(cname = "git_revwalk_new", instance_pos = -1)]
 		public Error get_walker(out RevisionWalker walker);
+
+		/**
+		 * Calculate hash of file using repository filtering rules.
+		 *
+		 * If you simply want to calculate the hash of a file on disk with no filters,
+		 * you can just use the {@link object_id.hashfile} API.  However, if you
+		 * want to hash a file in the repository and you want to apply filtering
+		 * rules (e.g.  crlf filters) before generating the SHA, then use this
+		 * function.
+		 *
+		 * @param path Path to file on disk whose contents should be hashed. This can be a relative path.
+		 * @param type The object type to hash
+		 * @param as_path The path to use to look up filtering rules. If this is
+		 * null, then the path parameter will be used instead. If this is passed as
+		 * the empty string, then no filters will be applied when calculating the
+		 * hash.
+		 */
+		[CCode(cname = "git_repository_hashfile", instance_pos = 1.1)]
+		public Error hashfile(out object_id id, string path, ObjectType type, string? as_path = null);
 
 		/**
 		 * Iterate over the branches in the repository.
@@ -2910,6 +3083,14 @@ namespace Git {
 		public Error read_note_default_ref(out unowned string note);
 
 		/**
+		 * Reread all submodule info.
+		 *
+		 * Call this to reload all cached submodule information for the repo.
+		 */
+		[CCode(cname = "git_submodule_reload_all")]
+		public Error reload_submodules();
+
+		/**
 		 * Remove the note for an object
 		 *
 		 * @param notes_ref ID reference to use (optional); defaults to "refs/notes/commits"
@@ -2961,6 +3142,42 @@ namespace Git {
 		 */
 		[CCode(cname = "git_repository_set_odb")]
 		public void set_db(Database db);
+		/**
+		 * Make the repository HEAD point to the specified reference.
+		 *
+		 * If the provided reference points to a Tree or a Blob, the HEAD is
+		 * unaltered and an error is returned.
+		 *
+		 * If the provided reference points to a branch, the HEAD will point to
+		 * that branch, staying attached, or become attached if it isn't yet.  If
+		 * the branch doesn't exist yet, no error will be return. The HEAD will
+		 * then be attached to an unborn branch.
+		 *
+		 * Otherwise, the HEAD will be detached and will directly point to the
+		 * Commit.
+		 *
+		 * @param refname Canonical name of the reference the HEAD should point at
+		 */
+		[CCode(cname = "git_repository_set_head")]
+		public Error set_head(string refname);
+
+		/**
+		 * Make the repository HEAD directly point to the Commit.
+		 *
+		 * If the provided committish cannot be found in the repository, the HEAD
+		 * is unaltered and {@link Error.NOTFOUND} is returned.
+		 *
+		 * If the provided commitish cannot be peeled into a commit, the HEAD is
+		 * unaltered and and error is returned.
+		 *
+		 * Otherwise, the HEAD will eventually be detached and will directly point to
+		 * the peeled Commit.
+		 *
+		 * @param commitish Object id of the Commit the HEAD should point to
+		 * @return 0 on success, or an error code
+		 */
+		[CCode(cname = "git_repository_set_head_detached")]
+		public Error set_head_detached(object_id commitish);
 
 		/**
 		 * Set the index file for this repository
@@ -3266,33 +3483,181 @@ namespace Git {
 		/**
 		 * The name of the submodule from .gitmodules.
 		 */
-		public string name;
+		public string name {
+			[CCode(cname = "git_submodule_name")]
+			get;
+		}
 		/**
 		 * The path to the submodule from the repo working directory.
 		 *
 		 * It is almost always the same as {@link name}.
 		 */
-		public string path;
+		public string path {
+			[CCode(cname = "git_submodule_path")]
+			get;
+		}
 		/**
 		 * The url for the submodule.
 		 *
 		 * If deleted but not commited, this will be null.
 		 */
-		public string? url;
+		public string? url {
+			[CCode(cname = "git_submodule_url")]
+			get;
+			[CCode(cname = "git_submodule_set_url")]
+			set;
+		}
 		/**
-		 * The HEAD SHA1 for the submodule.
-		 *
-		 * If the submodule has been added to .gitmodules but not yet git added,
-		 * then this will be zero.
+		 * Get the OID for the submodule in the index.
 		 */
-		[CCode(cname = "oid")]
-		public object_id id;
-		public SubmoduleUpdate update;
-		public SubmoduleIgnore ignore;
+		public object_id? index_id {
+			[CCode(cname = "git_submodule_index_oid")]
+			get;
+		}
+		/**
+		 * Get the OID for the submodule in the current HEAD tree.
+		 */
+		public object_id? head_id {
+			[CCode(cname = "git_submodule_head_oid")]
+			get;
+		}
 		/**
 		 * Whether or not to fetch submodules of submodules recursively.
 		 */
-		public bool fetch_recurse;
+		public bool fetch_recurse {
+			[CCode(cname = "git_submodule_fetch_recurse_submodules")]
+			get;
+			[CCode(cname = "git_submodule_set_fetch_recurse_submodules")]
+			set;
+		}
+		/**
+		 * Resolve the setup of a new git submodule.
+		 *
+		 * This should be called on a submodule once you have called add setup and
+		 * done the clone of the submodule.  This adds the .gitmodules file and the
+		 * newly cloned submodule to the index to be ready to be committed (but
+		 * doesn't actually do the commit).
+		 */
+		[CCode(cname = "git_submodule_add_finalize")]
+		public Error add_finalize();
+
+		/**
+		 * Add current submodule HEAD commit to index of superproject.
+		 *
+		 * @param write_index if this should immediately write the index file.  If
+		 * you pass this as false, you will have to explicitly call {@link Index.write}
+		 * on it to save the change.
+		 */
+		[CCode(cname = "git_submodule_add_to_index")]
+		public Error add_to_index(bool write_index);
+
+		/**
+		 * Write submodule settings to .gitmodules file.
+		 *
+		 * This commits any in-memory changes to the submodule to the gitmodules
+		 * file on disk.  You may also be interested in `git_submodule_init()`
+		 * which writes submodule info to ".git/config" (which is better for local
+		 * changes to submodule settings) and/or `git_submodule_sync()` which
+		 * writes settings about remotes to the actual submodule repository.
+		 */
+		 [CCode(cname = "git_submodule_save")]
+		 public Error save();
+
+		/**
+		 * The containing repository for a submodule.
+		 *
+		 * This returns a pointer to the repository that contains the submodule.
+		 */
+		public Repository owner {
+			[CCode(cname = "git_submodule_owner")]
+			get;
+		}
+
+		/**
+		 * Get the OID for the submodule in the current working directory.
+		 *
+		 * This returns the OID that corresponds to looking up 'HEAD' in the
+		 * checked out submodule. If there are pending changes in the index or
+		 * anything else, this won't notice that. You should check
+		 * {@link status} for a more complete picture about the state of the
+		 * working directory.
+		 */
+		public object_id? wd_id {
+			[CCode(cname = "git_submodule_wd_oid")]
+			get;
+		}
+
+		/**
+		 * The ignore rule for the submodule.
+		 */
+		[CCode(cname = "git_submodule_ignore")]
+		public SubmoduleIgnore ignore {
+			[CCode(cname = "git_submodule_ignore")]
+			get;
+			[CCode(cname = "git_submodule_set_ignore")]
+			set;
+		}
+
+		/**
+		 * The update rule for the submodule.
+		 */
+		public SubmoduleUpdate update {
+			[CCode(cname = "git_submodule_update")]
+			get;
+			[CCode(cname = "git_submodule_set_update")]
+			set;
+		}
+
+		/**
+		 * Copy submodule info into ".git/config" file.
+		 *
+		 * Just like "git submodule init", this copies information about the
+		 * submodule into ".git/config".  You can use the accessor functions above
+		 * to alter the in-memory git_submodule object and control what is written
+		 * to the config, overriding what is in .gitmodules.
+		 *
+		 * @param overwrite By default, existing entries will not be overwritten,
+		 * but setting this to true forces them to be updated.
+		 */
+		[CCode(cname = "git_submodule_init")]
+		public Error init(bool overwrite);
+
+		/**
+		 * Copy submodule remote info into submodule repo.
+		 *
+		 * This copies the information about the submodules URL into the checked
+		 * out submodule config, acting like "git submodule sync".  This is useful
+		 * if you have altered the URL for the submodule (or it has been altered by
+		 * a fetch of upstream changes) and you need to update your local repo.
+		 */
+		[CCode(cname = "git_submodule_sync")]
+		public Error sync();
+
+		/**
+		 * Open the repository for a submodule.
+		 *
+		 * This will only work if the submodule is checked out into the working
+		 * directory.
+		 */
+		[CCode(cname = "git_submodule_open", instance_pos = -1)]
+		public Error open(out Repository? repo);
+
+		/**
+		 * Reread submodule info from config, index, and HEAD.
+		 *
+		 * Call this to reread cached submodule information for this submodule if
+		 * you have reason to believe that it has changed.
+		 */
+		[CCode(cname = "git_submodule_reload")]
+		public Error reload();
+
+		/**
+		 * Get the status for a submodule.
+		 *
+		 * This looks at a submodule and tries to determine the status.
+		 */
+		[CCode(cname = "git_submodule_status", instance_pos = -1)]
+		public Error status(out SubmoduleStatus status);
 	}
 
 	/**
@@ -3605,7 +3970,7 @@ namespace Git {
 	}
 	[CCode(cname = "git_checkout_opts", has_type_id = false)]
 	public struct checkout_opts {
-		public ExistingAction existing_file_action;
+		public CheckoutStategy checkout_strategy;
 		public bool disable_filters;
 		/**
 		 * Directory mode.
@@ -3625,6 +3990,10 @@ namespace Git {
 		 * If set to 0, the default is O_CREAT | O_TRUNC | O_WRONLY is used.
 		 */
 		public int file_open_flags;
+		/**
+		 * When not null, arrays of fnmatch pattern specifying which paths should be taken into account
+		 */
+		public string_array paths;
 	}
 
 	[CCode(cname = "git_cvar_map", has_type_id = false)]
@@ -3684,11 +4053,30 @@ namespace Git {
 	[CCode(cname = "git_diff_options", has_type_id = false)]
 	public struct diff_options {
 		public DiffFlags flags;
+		/**
+		 *  Number of lines of context to show around diffs
+		 */
 		public uint16 context_lines;
+		/**
+		 *  Min lines between diff hunks to merge them
+		 */
 		public uint16 interhunk_lines;
+		/**
+		 *  "Directory" to prefix to old file names (default "a")
+		 */
 		public string? old_prefix;
+		/**
+		 *  "Directory" to prefix to new file names (default "b")
+		 */
 		public string? new_prefix;
+		/**
+		 *  Array of paths / patterns to constrain diff
+		 */
 		public string_array pathspec;
+		/**
+		 *  Maximum blob size to diff, above this treated as binary
+		 */
+		public uint64 max_size;
 	}
 
 	/**
@@ -4052,7 +4440,7 @@ namespace Git {
 	[CCode(cname = "git_strarray", destroy_function = "git_strarray_free", has_type_id = false)]
 	public struct string_array {
 		[CCode(array_length_cname = "count", array_length_type = "size_t")]
-		string[] strings;
+		string[]? strings;
 		[CCode(cname = "git_strarray_copy", instance_pos = -1)]
 		public Error copy(out string_array target);
 	}
@@ -4196,6 +4584,15 @@ namespace Git {
 		public static Capabilities get();
 	}
 
+	[CCode(cname = "unsigned int", has_type_id = false, cprefix = "GIT_CHECKOUT_")]
+	[Flags]
+	public enum CheckoutStategy {
+		DEFAULT,
+		OVERWRITE_MODIFIED,
+		CREATE_MISSING,
+		REMOVE_UNTRACKED
+	}
+
 	[CCode(cname = "git_cvar_t", cprefix = "GIT_CVAR_", has_type_id = false)]
 	public enum ConfigVar {
 		FALSE,
@@ -4219,14 +4616,42 @@ namespace Git {
 		UNTRACKED
 	}
 
+	/**
+	 * Flags that can be set for the file on side of a diff.
+	 *
+	 * Most of the flags are just for internal consumption by libgit2, but some
+	 * of them may be interesting to external users.
+	 */
 	[CCode(cname = "unsigned int", cprefix = "GIT_DIFF_FILE_", has_type_id = false)]
 	public enum DiffFile {
+		/**
+		 * The '''oid''' value is computed and correct
+		 */
 		VALID_OID,
+		/**
+		 * The '''path''' string is separated allocated memory
+		 */
 		FREE_PATH,
+		/**
+		 * This file should be considered binary data
+		 */
 		BINARY,
+		/**
+		 * This file should be considered text data
+		 */
 		NOT_BINARY,
+		/**
+		 * The internal file data is kept in allocated memory
+		 */
 		FREE_DATA,
-		UNMAP_DATA
+		/**
+		 * The internal file data is kept in mmap'ed memory
+		 */
+		UNMAP_DATA,
+		/**
+		 * This side of the diff should not be loaded
+		 */
+		NO_DATA
 	}
 
 	[CCode(cname = "uint32_t", cprefix = "GIT_DIFF_", has_type_id = false)]
@@ -4316,8 +4741,9 @@ namespace Git {
 		/**
 		 * The revsion walk is complete.
 		 */
-		REVWALKOVER,
-		SSL
+		ITEROVER,
+		SSL,
+		BAREREPO
 	}
 
 	[CCode(cname = "git_error_class", cprefix = "GITERR_", has_type_id = false)]
@@ -4340,14 +4766,6 @@ namespace Git {
 		SSL,
 		SUBMODULE
 	}
-	[CCode(cname = "int", has_type_id = false)]
-	public enum ExistingAction {
-		[CCode(cname = "GIT_CHECKOUT_OVERWRITE_EXISTING")]
-		OVERWRITE,
-		[CCode(cname = "GIT_CHECKOUT_SKIP_EXISTING")]
-		SKIP
-	}
-
 	/**
 	 * The UNIX file mode associated with a {@link TreeEntry}.
 	 *
@@ -4664,7 +5082,8 @@ namespace Git {
 	[CCode(cname = "git_reset_type", cprefix = "GIT_RESET_", has_type_id = false)]
 	public enum ResetType {
 		SOFT,
-		MIXED
+		MIXED,
+		HARD
 	}
 
 	/**
@@ -4787,29 +5206,96 @@ namespace Git {
 
 	[CCode(cname = "git_submodule_update_t", cprefix = "GIT_SUBMODULE_UPDATE_", has_type_id = false)]
 	public enum SubmoduleUpdate {
+		DEFAULT,
 		CHECKOUT,
 		REBASE,
-		MERGE
+		MERGE,
+		NONE
 	}
 
 	[CCode(cname = "git_submodule_ignore_t", cpreifx = "GIT_SUBMODULE_IGNORE_", has_type_id = false)]
 	public enum SubmoduleIgnore {
 		/**
-		 * Never dirty
+		 * The working directory will be consider clean so long as there is a
+		 * checked out version present.
 		 */
 		ALL,
 		/**
-		 * Only dirty if HEAD moved
+		 * Only check if the HEAD of the submodule has moved for status.
+		 *
+		 * This is fast since it does not need to scan the working tree of the
+		 * submodule at all.
 		 */
 		DIRTY,
 		/**
-		 * Dirty if tracked files change
+		 * Examines the contents of the working tree but untracked files will not
+		 * count as making the submodule dirty.
 		 */
 		UNTRACKED,
 		/**
-		 * Diry on any change or untracked files
+		 * Consider any change to the contents of the submodule from a clean
+		 * checkout to be dirty, including the addition of untracked files.
+		 *
+		 * This is the default if unspecified.
 		 */
 		NONE
+	}
+
+	/**
+	 * Submodule status
+	 *
+	 * Submodule info is contained in 4 places: the HEAD tree, the index, config
+	 * files (both .git/config and .gitmodules), and the working directory.  Any
+	 * or all of those places might be missing information about the submodule
+	 * depending on what state the repo is in.  We consider all four places to
+	 * build the combination of status flags.
+	 *
+	 * There are four values that are not really status, but give basic info
+	 * about what sources of submodule data are available.  These will be
+	 * returned even if {@link Submodule.ignore} is set to {@link SubmoduleIgnore.ALL}.
+	 *
+	 * * {@link IN_HEAD} superproject head contains submodule
+	 * * {@link IN_INDEX} superproject index contains submodule
+	 * * {@link IN_CONFIG} superproject gitmodules has submodule
+	 * * {@link IN_WD} superproject workdir has submodule
+	 *
+	 * The following values will be returned so long as ignore is not {@link SubmoduleIgnore.ALL}.
+	 *
+	 * * {@link INDEX_ADDED} in index, not in head
+	 * * {@link INDEX_DELETED} in head, not in index
+	 * * {@link INDEX_MODIFIED} index and head don't match
+	 * * {@link WD_UNINITIALIZED} workdir contains empty directory
+	 * * {@link WD_ADDED} in workdir, not index
+	 * * {@link WD_DELETED} in index, not workdir
+	 * * {@link WD_MODIFIED} index and workdir head don't match
+	 *
+	 * The following can only be returned if ignore is {@link SubmoduleIgnore.NONE} or {@link SubmoduleIgnore.UNTRACKED}.
+	 *
+	 * * {@link WD_INDEX_MODIFIED} submodule workdir index is dirty
+	 * * {@link WD_WD_MODIFIED} submodule workdir has modified files
+	 *
+	 * Lastly, the following will only be returned for ignore {@link SubmoduleIgnore.NONE}.
+	 *
+	 * * {@link WD_UNTRACKED} wd contains untracked files
+	 */
+	[CCode(cname = "unsigned int", has_type_id = false, cprefix = "GIT_SUBMODULE_STATUS_")]
+	public enum SubmoduleStatus {
+		IN_HEAD,
+		IN_INDEX,
+		IN_CONFIG,
+		IN_WD,
+		INDEX_ADDED,
+		INDEX_DELETED,
+		INDEX_MODIFIED,
+		WD_UNINITIALIZED,
+		WD_ADDED,
+		WD_DELETED,
+		WD_MODIFIED,
+		WD_INDEX_MODIFIED,
+		WD_WD_MODIFIED,
+		WD_UNTRACKED;
+		[CCode(cname = "GIT_SUBMODULE_STATUS_IS_UNMODIFIED")]
+		public bool is_unmodified();
 	}
 
 	/**
