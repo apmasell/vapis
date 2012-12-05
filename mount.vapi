@@ -24,11 +24,10 @@ namespace Mount {
 		 * Get the file system type.
 		 * @param devname device name
 		 * @param ambi true if probing result is ambivalent (optional argument)
-		 * @param cache cache for results or null
 		 * @return filesystem type or null in case of error.
 		 */
-		[CCode(cname = "mnt_get_fstype")]
-		public string? get_fstype(out bool ambi, Cache? cache = null);
+		[CCode(cname = "mnt_get_fstype", instance_pos = -1)]
+		public unowned string? get_fstype(string devname, out bool ambi);
 		/**
 		 * Look up cache to check it tag+value are associated with devname.
 		 * @param devname path to the device
