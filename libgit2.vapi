@@ -4554,7 +4554,7 @@ namespace Git {
 	/**
 	 * Basic type of any Git branch.
 	 */
-	[CCode(cname = "git_branch_type", cprefix = "GIT_BRANCH_", has_type_id = false)]
+	[CCode(cname = "git_branch_t", cprefix = "GIT_BRANCH_", has_type_id = false)]
 	[Flags]
 	public enum BranchType {
 		LOCAL,

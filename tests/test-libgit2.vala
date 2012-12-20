@@ -1,3 +1,4 @@
+using Git;
 string foo(Git.Commit c) {
 	return c.id.to_string() ?? "?";
 }
@@ -12,5 +13,18 @@ void test(Git.Repository repo) {
 	repo.attributes.lookup_many(Git.AttrCheck.FILE_THEN_INDEX, "my/fun/file.c", attrs, out res);
 }
 
-void main() {
+
+public static int main( string []args )
+{
+    Repository repo;
+    Repository.open(out repo, "../.git");
+
+    repo.for_each_branch(Git.BranchType.LOCAL, callback);
+
+    return 0;
+}
+public int callback (string branch_name, BranchType branch_type)
+{
+    stdout.puts(branch_name);
+    return 0;
 }
