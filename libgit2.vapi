@@ -3798,8 +3798,8 @@ namespace Git {
 		 * @param mode Traversal mode (pre or post-order)
 		 * @return {@link Error.OK} or an error code
 		 */
-		[CCode(cname = "git_tree")]
-		public Error walk(TreeWalker callback, WalkMode mode);
+		[CCode(cname = "git_tree_walk")]
+		public Error walk([CCode(delegate_target_pos = -1)] TreeWalker callback, WalkMode mode);
 	}
 
 	/**

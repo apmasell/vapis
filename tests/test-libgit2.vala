@@ -28,3 +28,7 @@ public int callback (string branch_name, BranchType branch_type)
     stdout.puts(branch_name);
     return 0;
 }
+
+public void walk_test (Git.Tree tree) {
+	tree.walk((root, entry) => {stdout.printf("root: %s\n", root);return Git.Error.OK;}, WalkMode.PRE);
+}
