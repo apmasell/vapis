@@ -578,9 +578,8 @@ namespace VLC {
 		/**
 		 * Set a media's loop status.
 		 *
-		 * @param p_instance the instance
 		 * @param name the media to work on
-		 * @param b_loop the new status
+		 * @param loop the new status
 		 * @return false on success, true on error
 		 */
 		[CCode(cname = "libvlc_vlm_set_loop")]
@@ -588,7 +587,6 @@ namespace VLC {
 		/**
 		 * Set a media's vod muxer.
 		 *
-		 * @param p_instance the instance
 		 * @param name the media to work on
 		 * @param mux the new muxer
 		 * @return false on success, true on error
@@ -839,7 +837,7 @@ namespace VLC {
 		 * The options are detailed in vlc --long-help, for instance ''--sout-all''
 		 *
 		 * @param options the options (as a string)
-		 * @param i_flags the flags for this option
+		 * @param flags the flags for this option
 		 */
 		[CCode(cname = "libvlc_media_add_option_flag")]
 		public void add_option_flag(string options, Option flags = 0);
@@ -1350,10 +1348,7 @@ namespace VLC {
 			set;
 		}
 		/**
-		 * The current movie length (in ms).
-		 *
-		 * @param p_mi the Media Player
-		 * @return the movie length (in ms), or -1 if there is no media.
+		 * The current movie length (in ms) or -1 if there is no media.
 		 */
 		public int64 length {
 			[CCode(cname = "libvlc_media_player_get_length")]
@@ -1391,9 +1386,6 @@ namespace VLC {
 		}
 		/**
 		 * Pause or resume (no effect if there is no media)
-		 *
-		 * @param mp the Media Player
-		 * @param do_pause play/resume if zero, pause if non-zero
 		 */
 		public bool paused {
 			[CCode(cname = "libvlc_media_player_set_pause")]
@@ -1500,8 +1492,7 @@ namespace VLC {
 			get;
 		}
 		/**
-		 * Get movie title count
-		 * @return title number count, or -1
+		 * Get movie title count or -1
 		 */
 		public int title_count {
 			[CCode(cname = "libvlc_media_player_get_title_count")]

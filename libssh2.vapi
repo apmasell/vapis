@@ -161,9 +161,9 @@ namespace SSH2 {
 		public Error flush_stderr();
 		/**
 		 * Get the remote exit signal
-		 * @param exitsignal the exit signal (without leading "SIG"). If the remote program exited cleanly, the referenced string will be set to null.
-		 * @param errmsg the error message (if provided by remote server).
-		 * @param langtag the language tag (if provided by remote server).
+		 * @param exit_signal the exit signal (without leading "SIG"). If the remote program exited cleanly, the referenced string will be set to null.
+		 * @param error_message the error message (if provided by remote server).
+		 * @param lang_tag the language tag (if provided by remote server).
 		 */
 		[CCode(cname = "libssh2_channel_get_exit_signal")]
 		public Error get_exit_signal([CCode(array_length_type = "size_t")] out uint8[]? exit_signal, [CCode(array_length_type = "size_t")] out uint8[]? error_message, [CCode(array_length_type = "size_t")] out uint8[]? lang_tag);
@@ -201,7 +201,7 @@ namespace SSH2 {
 		 *
 		 * Note that this does not make sense for all channel types and may be ignored by the server despite returning success.
 		 * @param term Terminal emulation (e.g. vt102, ansi, etc...)
-		 * @param modes Terminal mode modifier values
+		 * @param mode Terminal mode modifier values
 		 * @param width Width of pty in characters
 		 * @param height Height of pty in characters
 		 * @param width_px Width of pty in pixels
@@ -289,7 +289,7 @@ namespace SSH2 {
 		 * As much as possible of the buffer and put it into a single SSH protocol packet. This means that to get maximum performance when sending larger files, you should try to always pass in at least 32K of data to this function.
 		 * @param stream_id substream ID number (e.g. 0 or SSH_EXTENDED_DATA_STDERR)
 		 * @param buf buffer to write
-		 * @param Actual number of bytes written or negative on failure.
+		 * @return Actual number of bytes written or negative on failure.
 		 */
 		public ssize_t write_ex(int stream_id, [CCode(array_length_type = "size_t")] uint8[]buf);
 		/**

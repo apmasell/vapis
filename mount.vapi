@@ -700,7 +700,7 @@ namespace Mount {
 		public bool match_fstype(string types);
 		/**
 		 * Checks if this file system matches some options.
-		 * @param optiosn comma delimited list of options (and nooptions)
+		 * @param options comma delimited list of options (and nooptions)
 		 */
 		[CCode(cname = "mnt_fs_match_options")]
 		public bool match_options(string options);

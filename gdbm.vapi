@@ -98,7 +98,7 @@ namespace GDBM {
 		 * Open a database.
 		 *
 		 * @param filename specifies the database file.
-		 * @param blocksize is meaningful only when creating a new gdbm database; it is the retrieval block size to be used for the file. If a number less than 256 is given, the system stat page size will be used, but if you are storing large chunks of data in your file, you may want to consider bumping blocksize up.
+		 * @param block_size is meaningful only when creating a new gdbm database; it is the retrieval block size to be used for the file. If a number less than 256 is given, the system stat page size will be used, but if you are storing large chunks of data in your file, you may want to consider bumping blocksize up.
 		 * @param flag specifies the access mode. There may be only one writer at a time, but an arbitrary number of readers. If a file is open for writing, attempts to open it for reading will fail.
 		 * @param mode specifies the mode of a newly created database file; it takes the same form as for Unix chmod, so for instance 0666 is read-write access for everybody.
 		 * @param handler can be used to assign an error handler; the function should take a single string. If you specify null for this function, gdbm uses a default handler.

@@ -173,7 +173,6 @@ namespace QR {
 		/**
 		 * Append data to an input object.
 		 * The data is copied and appended to the input object.
-		 * @param input input object.
 		 * @param mode encoding mode.
 		 * @param data the input data.
 		 * @return false on success
@@ -184,7 +183,7 @@ namespace QR {
 		/**
 		 * Validate the input data.
 		 * @param mode encoding mode.
-		 * @param the input data.
+		 * @param data the input data.
 		 * @return false on success
 		 */
 		[CCode(cname = "QRinput_check")]

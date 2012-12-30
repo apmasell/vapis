@@ -190,7 +190,7 @@ TODO
 	 * This allows the calling application to have more fine-grained control over Encap processing.
 	 *
 	 * The function is called for each file which is processed.
-	 * @param encap The package being processed.
+	 * @param package The package being processed.
 	 * @param source The description of the Encap source file which is returned by {@link Package.check_source}.
 	 * @param target The description of the Encap target link which is returned by {@link check_target}.
 	 */
@@ -831,7 +831,7 @@ which is found, the supplied function is called.  If the function returns {@link
 	 * Hashing function (determines which bucket the given key hashes into)
 	 *
 	 * @param data the key to hash
-	 * @param the total number of buckets
+	 * @param buckets the total number of buckets
 	 * @return the bucket number
 	 */
 	[CCode(cname = "encap_hashfunc_t", simple_generics = true, has_target = false, has_type_id = false)]

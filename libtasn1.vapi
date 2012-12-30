@@ -106,7 +106,7 @@ namespace Asn1 {
 		 * @param structure an ASN1 structure
 		 * @param element_name name of the element to fill
 		 * @param ider the DER encoding of the whole structure.
-		 * @param error_description: null-terminated string contains details when
+		 * @param error_description null-terminated string contains details when
 		 * an error occurred.
 		 * @return {@link Code.SUCCESS} if DER encoding OK, {@link Code.ELEMENT_NOT_FOUND}
 		 * if the structure is null, and {@link Code.TAG_ERROR} or {@link Code.DER_ERROR}
@@ -158,7 +158,7 @@ namespace Asn1 {
 		 * Use this only on a definitions structure.
 		 *
 		 * The element must be from a definitions structure returned by "parser_asn1" function.
-		 * @param source_name: the name of the type of the new structure (must be inside p_structure).
+		 * @param source_name the name of the type of the new structure (must be inside p_structure).
 		 */
 		[CCode(cname = "asn1_create_element")]
 		public Code create_element(string source_name, ref Element? element);
@@ -368,8 +368,8 @@ namespace Asn1 {
 		 *           result=asn1_write_value(cert,
 		 *           "tbsCertificate.subject.rdnSequence.?LAST", "NEW", 1);
 		 *
-		 * @param name: the name of the element inside the structure that you want to set.
-		 * @param ivalue: vector used to specify the value to set.
+		 * @param name the name of the element inside the structure that you want to set.
+		 * @param ivalue vector used to specify the value to set.
 		 */
 		[CCode(cname = "asn1_write_value")]
 		public Code write_value(string name, uint8[]? ivalue);

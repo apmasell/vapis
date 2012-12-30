@@ -49,17 +49,6 @@ namespace Git {
 			public SetMulti set_multi;
 		}
 
-		/**
-		 * Create a configuration file backend for on-disk files
-		 *
-		 * These are the normal //.gitconfig// files that Core Git
-		 * processes. Note that you first have to add this file to a
-		 * configuration object before you can query it for configuration
-		 * variables.
-		 *
-		 * @param out the new backend
-		 * @param path where the config file is located
-		 */
 		[CCode(cname = "git_config_file_delete_cb", has_type_id = false, has_target = false)]
 		public delegate int Delete(backend backend, string key);
 		[CCode(cname = "git_config_file_foreach_cb", has_type_id = false, has_target = false)]
@@ -611,12 +600,13 @@ namespace Git {
 		 * @param path The path inside the repo to check attributes. This does not
 		 * have to exist, but if it does not, then it will be treated as a plain
 		 * file (i.e. not a directory).
-		 * @param callback The function that will be invoked on each attribute and
-		 * attribute value. The name parameter will be the name of the attribute
-		 * and the value will be the value it is set to, including possibly null if
-		 * the attribute is explicitly set to UNSPECIFIED using the ! sign. This
-		 * will be invoked only once per attribute name, even if there are multiple
-		 * rules for a given file. The highest priority rule will be used.
+		 * @param attribute_for_each The function that will be invoked on each
+		 * attribute and attribute value. The name parameter will be the name of
+		 * the attribute and the value will be the value it is set to, including
+		 * possibly null if the attribute is explicitly set to UNSPECIFIED using
+		 * the ! sign. This will be invoked only once per attribute name, even if
+		 * there are multiple rules for a given file. The highest priority rule
+		 * will be used.
 		 */
 		[CCode(cname = "git_attr_foreach")]
 		public Error for_each(AttrCheck flags, string path, AttributeForEach attribute_for_each);
@@ -942,7 +932,7 @@ namespace Git {
 		 * file instances in order (instances with a higher priority will be
 		 * accessed first).
 		 *
-		 * @param file the configuration file (backend) to add
+		 * @param backend the configuration file (backend) to add
 		 * @param level the priority level of the backend
 		 * @param force if a config file already exists for the given priority level, replace it
 		 */
@@ -1098,7 +1088,7 @@ namespace Git {
 		 * @param value the new value.
 		 */
 		[CCode(cname = "git_config_set_multivar")]
-		public Error set_multivar(string name, string regexp, string val);
+		public Error set_multivar(string name, string regexp, string @value);
 		/**
 		 * Set the value of a string config variable.
 		 *
@@ -1371,7 +1361,7 @@ namespace Git {
 		 * A full copy (including the path string) of the given source will be
 		 * inserted on the index.
 		 *
-		 * @param source new entry object
+		 * @param entry new entry object
 		 */
 		[CCode(cname = "git_index_add")]
 		public Error add(IndexEntry entry);
@@ -1431,10 +1421,9 @@ namespace Git {
 		 * and the changes will be written back to disk on the next
 		 * write() call.
 		 *
-		 * @param ancestor_out Pointer to store the ancestor entry
-		 * @param our_out Pointer to store the our entry
-		 * @param their_out Pointer to store the their entry
-		 * @param index an existing index object
+		 * @param ancestor Pointer to store the ancestor entry
+		 * @param our Pointer to store the our entry
+		 * @param their Pointer to store the their entry
 		 * @param path path to search
 		 */
 		[CCode(cname = "git_index_conflict_get", instance_pos = 3.1)]
@@ -1512,7 +1501,6 @@ namespace Git {
 
 		/**
 		 * Remove an entry from the index
-		 * @param position position of the entry to remove
 		 */
 		[CCode(cname = "git_index_remove")]
 		public Error remove(string path, int stage);
@@ -1549,11 +1537,8 @@ namespace Git {
 		 *
 		 * The index must not contain any file in conflict.
 		 *
-		 * @param out Pointer where to store OID of the the written tree
-		 * @param index Index to write
+		 * @param id Pointer where to store OID of the the written tree
 		 * @param repo Repository where to write the tree
-		 * @return 0 on success, GIT_EUNMERGED when the index is not clean
-		 * or an error code
 		 */
 		[CCode(cname = "git_index_write_tree_to", instance_pos = 1.1)]
 		public Error write_tree_to(out object_id id, Repository repo);
@@ -1623,11 +1608,11 @@ namespace Git {
 		/**
 		 * Create a new streaming indexer instance
 		 *
-		 * @param out where to store the indexer instance
+		 * @param indexer_stream where to store the indexer instance
 		 * @param path to the directory where the packfile should be stored
 		 */
 		[CCode(cname = "git_indexer_stream_new")]
-		public static Error open(out IndexerStream index_stream, string path, TransferProgress transfer);
+		public static Error open(out IndexerStream indexer_stream, string path, TransferProgress transfer);
 
 		/**
 		 * Add data to the indexer
@@ -1794,7 +1779,7 @@ namespace Git {
 		 * @param path Directory to store the new pack and index
 		 */
 		[CCode(cname = "git_packbuilder_write")]
-		public Error write(string file);
+		public Error write(string path);
 
 		/**
 		 * Create the new pack and pass each object to the callback
@@ -1861,14 +1846,11 @@ namespace Git {
 		 * information about that hunk. Any of the output pointers can be passed
 		 * as NULL if you don't care about that particular piece of information.
 		 *
-		 * @param range Output pointer to git_diff_range of hunk
-		 * @param header Output pointer to header string for hunk. Unlike the
-		 * content pointer for each line, this will be NUL-terminated
-		 * @param header_len Output value of characters in header string
-		 * @param lines_in_hunk Output count of total lines in this hunk
-		 * @param patch Input pointer to patch object
+		 * @param range Range of the hunk
+		 * @param header Header string for hunk. Unlike the content for each line,
+		 * this will be NUL-terminated
+		 * @param lines_in_hunk Count of total lines in this hunk
 		 * @param hunk_idx Input index of hunk to get information about
-		 * @return 0 on success, GIT_ENOTFOUND if hunk_idx out of range, <0 on error
 		 */
 		[CCode(cname = "git_diff_patch_get_hunk", instance_pos = 3.1)]
 		public Error get_hunk(out unowned diff_range? range, [CCode(array_length_type = "size_t")] out unowned uint8[]? header, out size_t lines_in_hunk, size_t hunk_idx);
@@ -1883,14 +1865,13 @@ namespace Git {
 		 * @param old_lineno Line number in old file or -1 if line is added
 		 * @param new_lineno Line number in new file or -1 if line is deleted
 		 * @param hunk_idx The index of the hunk
-		 * @param line_of_index The index of the line in the hunk
+		 * @param line_of_hunk The index of the line in the hunk
 		 */
 		[CCode(cname = "git_diff_patch_get_line_in_hunk", instance_pos = 4.1)]
 		public Error get_line_in_hunk(out DiffLineType line_origin, [CCode(array_length_type = "size_t")] out unowned uint8[]? content, out int old_lineno, out int new_lineno, size_t hunk_idx, size_t line_of_hunk);
 		/**
 		 * Get the number of lines in a hunk.
 		 *
-		 * @param patch The git_diff_patch object
 		 * @param hunk_idx Index of the hunk
 		 * @return Number of lines in hunk or -1 if invalid hunk index
 		 */
@@ -2136,7 +2117,7 @@ namespace Git {
 		 * @param target_type The type of the requested object
 		 */
 		[CCode(cname = "git_reference_peel", instance_pos = 1.1)]
-		public Error peel(out Object? peeled, ObjectType type);
+		public Error peel(out Object? peeled, ObjectType target_type);
 
 		/**
 		 * Reload a reference from disk
@@ -2186,7 +2167,7 @@ namespace Git {
 		 * @param resolved the peeled reference
 		 */
 		[CCode(cname = "git_reference_resolve", instance_pos = -1)]
-		public Error resolve(out Reference resolved_ref);
+		public Error resolve(out Reference resolved);
 
 		/**
 		 * Set the id target of a reference.
@@ -2428,7 +2409,7 @@ namespace Git {
 		/**
 		 * Return whether a string is a valid remote URL
 		 *
-		 * @param tranport the url to check
+		 * @param url the url to check
 		 */
 		[CCode(cname = "git_remote_valid_url")]
 		public static bool is_valid_url(string url);
@@ -2456,7 +2437,7 @@ namespace Git {
 		 * @param direction whether you want to receive or send data
 		 */
 		[CCode(cname = "git_remote_connect")]
-		public Error connect(Direction dir);
+		public Error connect(Direction direction);
 
 		/**
 		 * Download the packfile
@@ -2534,9 +2515,7 @@ namespace Git {
 		 * the transport object belongs exclusively to that remote, and the remote will
 		 * free it when it is freed with git_remote_free.
 		 *
-		 * @param remote the remote to configure
 		 * @param transport the transport object for the remote to use
-		 * @return 0 or an error code
 		 */
 		[CCode(cname = "git_remote_set_transport")]
 		public Error set_transport(transport transport);
@@ -2798,7 +2777,6 @@ namespace Git {
 		 * @param treeish a commit, tag or tree which content will be used to
 		 * update the working directory
 		 * @param opts specifies checkout options
-		 * @param stats structure through which progress information is reported
 		 */
 		[CCode(cname = "git_checkout_tree")]
 		public Error checkout_tree(Object treeish, checkout_opts? opts = null);
@@ -2824,20 +2802,18 @@ namespace Git {
 		 * Write a loose blob to the Object Database from a provider of chunks of
 		 * data.
 		 *
-		 * @param hintpath will help to determine what git filters should be
+		 * @param id Return the id of the written blob
+		 * @param hint_path will help to determine what git filters should be
 		 * applied to the object before it can be placed to the object database.
-		 * @param oid Return the id of the written blob
-		 * @param hintpath if not null, will help selecting the filters to apply
-		 * onto the content of the blob to be created.
 		 */
 		[CCode(cname = "git_blob_create_fromchunks", instance_pos = 1.2)]
-		public Error create_blob_from_chunks(object_id id, string? hintpath, ChunkSource source);
+		public Error create_blob_from_chunks(object_id id, string? hint_path, ChunkSource source);
 
 		/**
 		 * Read a file from the filesystem and write its content to the Object
 		 * Database as a loose blob
 		 *
-		 * @param oid return the id of the written blob
+		 * @param id return the id of the written blob
 		 * @param path file from which the blob will be created
 		 */
 		[CCode(cname = "git_blob_create_fromdisk", instance_pos = 1.2)]
@@ -2953,10 +2929,7 @@ namespace Git {
 		/**
 		 * Initialize a new packbuilder
 		 *
-		 * @param out The new packbuilder object
-		 * @param repo The repository
-		 *
-		 * @return 0 or an error code
+		 * @param pack_builder The new packbuilder object
 		 */
 		[CCode(cname = "git_packbuilder_new", instance_pos = -1)]
 		public Error create_pack_builder(out PackBuilder? pack_builder);
@@ -2966,7 +2939,7 @@ namespace Git {
 		 *
 		 * The reference will be created in the repository and written to the disk.
 		 *
-		 * @param ref the newly created reference
+		 * @param reference the newly created reference
 		 * @param name The name of the reference
 		 * @param id The object id pointed to by the reference.
 		 * @param force Overwrite existing references
@@ -2979,7 +2952,7 @@ namespace Git {
 		 *
 		 * Useful when you don't want to store the remote
 		 *
-		 * @param out the newly created remote reference
+		 * @param remote the newly created remote reference
 		 * @param url the remote repository's URL
 		 * @param fetch the fetch refspec to use for this remote
 		 */
@@ -2991,7 +2964,7 @@ namespace Git {
 		 *
 		 * The reference will be created in the repository and written to the disk.
 		 *
-		 * @param ref_out the newly created reference
+		 * @param reference the newly created reference
 		 * @param name The name of the reference
 		 * @param target The target of the reference
 		 * @param force Overwrite existing references
@@ -3179,9 +3152,8 @@ namespace Git {
 		/**
 		 * Find a merge base given a list of commits
 		 *
-		 * @param out the ID of a merge base considering all the commits
-		 * @param repo the repository where the commits exist
-		 * @param input_array ids of the commits
+		 * @param id the ID of a merge base considering all the commits
+		 * @param input ids of the commits
 		 */
 		[CCode(cname = "git_merge_base_many", instance_pos = 1.1)]
 		public Error find_merge_base_many(out object_id id, [CCode(array_length_type = "size_t")]object_id[] input);
@@ -3307,11 +3279,11 @@ namespace Git {
 		 *
 		 * If an empty pattern is provided, all the tags will be returned.
 		 *
-		 * @param where the tag names will be stored
+		 * @param tag_names the tag names will be stored
 		 * @param pattern standard shell-like (fnmatch) pattern
 		 */
 		[CCode(cname = "git_tag_list_match", instance_pos = -1)]
-		public Error get_tag_list_match(string_array tag_names, string pattern);
+		public Error get_tag_list_match(out string_array tag_names, string pattern);
 
 		/**
 		 * Allocate a new revision walker to iterate through a repo.
@@ -3488,7 +3460,7 @@ namespace Git {
 		 * @param type the type of the object
 		 */
 		[CCode(cname = "git_object_lookup_prefix", instance_pos = 1.2)]
-		public Error lookup_object_by_prefix(out Object object_out, object_id id, size_t len, ObjectType type);
+		public Error lookup_object_by_prefix(out Object object, object_id id, size_t len, ObjectType type);
 
 		/**
 		 * Lookup a reference by its name in a repository.
@@ -3650,9 +3622,6 @@ namespace Git {
 		 *
 		 * This configuration file will be used for all configuration
 		 * queries involving this repository.
-		 *
-		 * @param repo A repository object
-		 * @param config A Config object
 		 */
 		[CCode(cname = "git_repository_set_config")]
 		public void set_config(Config config);
@@ -3662,9 +3631,6 @@ namespace Git {
 		 *
 		 * The ODB will be used for all object-related operations involving this
 		 * repository.
-		 *
-		 * @param repo A repository object
-		 * @param odb An ODB object
 		 */
 		[CCode(cname = "git_repository_set_odb")]
 		public void set_db(Database.Handle db);
@@ -3787,7 +3753,6 @@ namespace Git {
 		 *
 		 * The reference must point to a commit.
 		 *
-		 * @param walk the walker being used for the traversal
 		 * @param refname the referece to hide
 		 */
 		[CCode(cname = "git_revwalk_hide_ref")]
@@ -3830,7 +3795,6 @@ namespace Git {
 		 *
 		 * The reference must point to a commit.
 		 *
-		 * @param walk the walker being used for the traversal
 		 * @param refname the referece to push
 		 */
 		[CCode(cname = "git_revwalk_push_ref")]
@@ -4265,7 +4229,6 @@ namespace Git {
 		/**
 		 * Retrieve a subtree contained in a tree, given its relative path.
 		 *
-		 * @param subtree where to store the parent tree
 		 * @param path Path to the tree entry from which to extract the last tree object
 		 * @return {@link Error.OK} on success; {@link Error.NOTFOUND} if the path does not lead to an entry; otherwise, an error code
 		 */
@@ -4283,10 +4246,8 @@ namespace Git {
 		 * If the callback returns a negative value, the passed entry will be
 		 * skiped on the traversal.
 		 *
-		 * @param tree The tree to walk
-		 * @param tree_walker Function to call on each tree entry
 		 * @param mode Traversal mode (pre or post-order)
-		 * @return {@link Error.OK} or an error code
+		 * @param tree_walker Function to call on each tree entry
 		 */
 		[CCode(cname = "git_tree_walk")]
 		public Error walk(WalkMode mode, TreeWalker tree_walker);
@@ -4873,7 +4834,7 @@ namespace Git {
 		/**
 		 * Parse a hex formatted object id
 		 *
-		 * @param out id structure the result is written into.
+		 * @param id id structure the result is written into.
 		 * @param str input hex string; must be pointing at the start of the hex
 		 * sequence and have at least the number of bytes needed for an id encoded
 		 * in hex (40 bytes).
@@ -4962,7 +4923,6 @@ namespace Git {
 		 * Copy an id from one structure to another.
 		 *
 		 * @param dest id structure the result is written into.
-		 * @param src id structure to copy from.
 		 */
 		[CCode(cname = "git_oid_cpy", instance_pos = -1)]
 		public void copy_to(out object_id dest);
@@ -5002,7 +4962,6 @@ namespace Git {
 		 * Compare the first //len// hexadecimal characters (packets of 4 bits)
 		 * of two id structures.
 		 *
-		 * @param a first id structure.
 		 * @param b second id structure.
 		 * @param len the number of hex chars to compare
 		 * @return 0 in case of a match
@@ -5030,7 +4989,6 @@ namespace Git {
 		/**
 		 * Compare two oid structures for equality
 		 *
-		 * @param a first id structure.
 		 * @param b second id structure.
 		 * @return true if equal, false otherwise
 		 */
@@ -5058,7 +5016,7 @@ namespace Git {
 		 * Similar functionality to git's //git hash-object// without
 		 * the //-w// flag.
 		 *
-		 * @param out id structure the result is written into.
+		 * @param id id structure the result is written into.
 		 * @param path file to read and determine object id for
 		 * @param type the type of the object that will be hashed
 		 */
@@ -6636,7 +6594,7 @@ namespace Git {
 	}
 
 	[CCode(cname = "git_attr_foreach_cb")]
-	public delegate Error AttributeForEach(string name, string val);
+	public delegate Error AttributeForEach(string name, string? val);
 	public delegate int Branch(string branch_name, BranchType branch_type);
 	/**
 	 *
@@ -6758,7 +6716,7 @@ namespace Git {
 	/**
 	 * Function to receive status on individual files
 	 *
-	 * @param path the relative path to the file from the root of the repository.
+	 * @param file the relative path to the file from the root of the repository.
 	 */
 	[CCode(cname = "git_status_cb", has_type_id = false)]
 	public delegate Error StatusForEach(string file, Status status);

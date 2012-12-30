@@ -168,7 +168,7 @@ namespace PCap {
 		 * Create a live capture handle
 		 *
 		 * Create a packet capture handle to look at packets on the network. The returned handle must be activated with {@link activate} before packets can be captured with it; options for the capture, such as promiscuous mode, can be set on the handle before activating it.
-		 * @param source is a string that specifies the network device to open; on Linux systems with 2.2 or later kernels, a source argument of "any" or null can be used to capture packets from all interfaces.
+		 * @param device is a string that specifies the network device to open; on Linux systems with 2.2 or later kernels, a source argument of "any" or null can be used to capture packets from all interfaces.
  @param error_buffer is filled in with an appropriate error message. It is assumed to be able to hold at least {@link ERRBUF_SIZE} chars.
 		 */
 		[CCode(cname = "pcap_create")]
@@ -191,7 +191,7 @@ namespace PCap {
 		 * @param snaplen the snapshot length to be set on the handle.
 		 * @param promisc if the interface is to be put into promiscuous mode.
 		 * @param timeout the read timeout in milliseconds.
-		 * @param If null is returned, this is filled in with an appropriate error message. It may also be set to warning text when the method succeeds; to detect this case the caller should store a zero-length string and display the warning to the user if it is no longer a zero-length string. It is assumed to be able to hold at least {@link ERRBUF_SIZE} chars.
+		 * @param error_buffer If null is returned, this is filled in with an appropriate error message. It may also be set to warning text when the method succeeds; to detect this case the caller should store a zero-length string and display the warning to the user if it is no longer a zero-length string. It is assumed to be able to hold at least {@link ERRBUF_SIZE} chars.
 		 * @return a handle on success and null on failure.
 		 */
 		 [CCode(cname = "pcap_open_live")]
@@ -1506,7 +1506,7 @@ namespace PCap {
 	 * A routine to be called to process a packet
 	 *
 	 * @param header the packet time stamp and lengths
-	 * @param data the first {@link packet_header.caplen} bytes of data from the packet.
+	 * @param packet_data the first {@link packet_header.caplen} bytes of data from the packet.
 	 */
 	[CCode(cname = "pcap_handler", has_type_id = false, instance_pos = 0)]
 	public delegate void Handler(packet_header header, [CCode(array_length = false)] uint8[] packet_data);

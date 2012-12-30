@@ -127,7 +127,7 @@ public class Elf.Desc {
 	 * @param ar_parent if provided, this is an ar(1) archive to browse
 	 */
 	[CCode(cname = "elf_begin")]
-	public static Desc? open(int fildes, Elf.Command cmd, Desc? ar_parent = null);
+	public static Desc? open(int filedes, Elf.Command cmd, Desc? ar_parent = null);
 	/**
 	 * Create descriptor for memory region.
 	 */
@@ -254,7 +254,7 @@ public class Elf.Desc {
 	 * Causes the library to examine the information associated with an ELF descriptor, and to recalculate the structural data needed to generate the file's image.
 	 *
 	 * @param cmd When {@link Command.NULL}, it recalculates various values, updating only the ELF descriptor's memory structures. Any modified structures are flagged with the {@link Flag.DIRTY} bit. A program thus can update the structural information and then reexamine them without changing the file associated with the ELF descriptor. Because this does not change the file, the ELF descriptor may allow reading, writing, or both reading and writing. When {@link Command.WRITE}, it duplicates its {@link Command.NULL} actions and also writes any dirty information associated with the ELF descriptor to the file. That is, when a program has used {@link get} or the various ''update_flags'' facilities to supply new (or update existing) information for an ELF descriptor, those data will be examined, coordinated, translated if necessary, and written to the file. When portions of the file are written, any {@link Flag.DIRTY} bits are reset, indicating those items no longer need to be written to the file. The sections' data are written in the order of their section header entries, and the section header table is written to the end of the file. When the ELF descriptor was created, it must have allowed writing the file.
-	 * @param If successful, it returns the total size of the file image (not the memory image), in bytes. Otherwise an error occurred, and the function returns -1.
+	 * @return If successful, it returns the total size of the file image (not the memory image), in bytes. Otherwise an error occurred, and the function returns -1.
 	 */
 	[CCode(cname = "elf_update")]
 	public Posix.off_t update(Command cmd = Command.NULL);

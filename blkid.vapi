@@ -531,7 +531,7 @@ namespace BlkId {
 	 * @return the device name
 	 */
 	[CCode(cname = "blkid_evaluate_spec")]
-	public string? evaluate_spec(string spec, Cache? cache = null);
+	public string? evaluate_spec(string token, Cache? cache = null);
 	/**
 	 * Evaluate a tag.
 	 * @param token the token name (e.g., LABEL or UUID) or the unparsed tag (e.g., LABEL=foo)

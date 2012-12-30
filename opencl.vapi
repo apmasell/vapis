@@ -148,10 +148,6 @@ namespace OpenCL {
 		 * //dst_origin[2]// * //dst_slice_pitch// + //dst_origin[1]// *
 		 * //dst_row_pitch// + //dst_origin[0]//.
 		 *
-		 * @param region The (width, height, depth) in bytes of the 2D or 3D
-		 * rectangle being copied. For a 2D rectangle, the depth value given by
-		 * //region[2]// should be 1.
-		 *
 		 * @param source_row_pitch The length of each row in bytes to be used for
 		 * the memory region associated with //source//. If zero, it is computed
 		 * as //region[0]//.
@@ -426,7 +422,7 @@ namespace OpenCL {
 		 * a wait for this particular kernel execution instance.
 		 */
 		[CCode(cname = "clEnqueueNativeKernel")]
-		public Error enqueue_native(NativeFunction func, uint8[]? args, [CCode(array_length_pos = 2.1)] Memory[]? mem_list, void** args_mem_loc, [CCode(array_length_pos = 2.1)] Event[]? event_wait_list, out Event? result);
+		public Error enqueue_native(NativeFunction func, uint8[]? args, [CCode(array_length_pos = 2.1)] Memory[]? mem_list, void** args_mem_loc, [CCode(array_length_pos = 2.1)] Event[]? event_wait_list, out Event? event);
 
 		/**
 		 * Enqueue commands to read from a buffer object to host memory.
@@ -1086,7 +1082,7 @@ namespace OpenCL {
 		 * @param size The size in bytes of the buffer memory object to be
 		 * allocated.
 		 *
-		 * @param host_ptr A pointer to the buffer data that may already be
+		 * @param host A pointer to the buffer data that may already be
 		 * allocated by the application. The size of the buffer that host_ptr
 		 * points to must be greater than or equal to the size bytes.
 		*/

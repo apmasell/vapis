@@ -1335,14 +1335,12 @@ namespace Clang {
 		[CCode(cname = "clang_getDiagnosticCategoryName")]
 		public static String get_category_name(uint category);
 		/**
-		 * The category number for this diagnostic.
+		 * The number of the category that contains this diagnostic, or zero if
+		 * this diagnostic is uncategorized.
 		 *
 		 * Diagnostics can be categorized into groups along with other, related
 		 * diagnostics (e.g., diagnostics under the same warning flag). This
 		 * routine retrieves the category number for the given diagnostic.
-		 *
-		 * @return The number of the category that contains this diagnostic, or
-		 * zero if this diagnostic is uncategorized.
 		 */
 		 public uint category {
 			 [CCode(cname = "clang_getDiagnosticCategory")]
@@ -1899,7 +1897,7 @@ namespace Clang {
 		 * Tokenize the source code described by the given range into raw lexical
 		 * tokens.
 		 *
-		 * @param Range the source range in which text should be tokenized. All of
+		 * @param range the source range in which text should be tokenized. All of
 		 * the tokens produced by tokenization will fall within this source range.
 		 * @see dispose_tokens
 		 */
