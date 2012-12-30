@@ -30,5 +30,5 @@ public int callback (string branch_name, BranchType branch_type)
 }
 
 public void walk_test (Git.Tree tree) {
-	tree.walk((root, entry) => {stdout.printf("root: %s\n", root);return Git.Error.OK;}, WalkMode.PRE);
+	tree.walk(WalkMode.PRE, (root, entry) => {stdout.printf("root: %s\n", root);return Git.Error.OK;});
 }
