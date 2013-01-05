@@ -2312,16 +2312,6 @@ namespace Git {
 	[CCode(cname = "git_remote", free_function = "git_remote_free", has_type_id = false)]
 	[Compact]
 	public class Remote {
-		/**
-		 * Use this when creating a remote with {@link Repository.create_remote} to
-		 * get the default fetch behavior produced by {@link Repository.add_remote}.
-		 *
-		 * It corresponds to this fetchspec (note the spaces between '/' and '*' to
-		 * avoid C compiler errors): "+refs/heads/ *:refs/remotes/<remote_name>/ *"
-		 */
-		[CCode(cname = "GIT_REMOTE_DEFAULT_FETCH")]
-		public const string DEFAULT_FETCH;
-
 		[CCode(cname = "git_remote_rename_problem_cb")]
 		public delegate bool RenameProblem(string problematic_refspec);
 		/**
@@ -2366,7 +2356,7 @@ namespace Git {
 		/**
 		 * The remote's name
 		 */
-		public string name {
+		public string? name {
 			[CCode(cname = "git_remote_name")]
 			get;
 		}
@@ -2472,6 +2462,8 @@ namespace Git {
 		 *
 		 * The new name will be checked for validity.
 		 *
+		 * A temporary in-memory remote cannot be given a name with this method.
+		 *
 		 * @param new_name the new name the remote should bear
 		 * @param rename_problem Optional callback to notify the consumer of fetch refspecs
 		 * that haven't been automatically updated and need potential manual tweaking.
@@ -2481,6 +2473,9 @@ namespace Git {
 		public Error rename(string new_name, RenameProblem? rename_problem = null);
 		/**
 		 * Save a remote to its repository's configuration
+		 *
+		 * One can't save a in-memory remote. Doing so will result in a
+		 * {@link Error.INVALIDSPEC} being returned.
 		 */
 		[CCode(cname = "git_remote_save")]
 		public Error save();
@@ -2737,13 +2732,11 @@ namespace Git {
 		public Error add_submodule_setup(out Submodule? submodule, string url, string path, bool use_gitlink);
 
 		/**
-		 * Add a remote with the default fetch refspec to the repository's configuration
-		 *
-		 * @param name the remote's name
-		 * @param url the remote's url
+		 * Remove all the metadata associated with an ongoing git merge, including
+		 * MERGE_HEAD, MERGE_MSG, etc.
 		 */
-		[CCode(cname = "git_remote_add", instance_pos = 1.2)]
-		public Error add_remote(out Remote remote, string name, string url);
+		[CCode(cname = "git_repository_merge_cleanup")]
+		public Error cleanup_merge();
 
 		/**
 		 * Clear ignore rules that were explicitly added.
@@ -2922,9 +2915,10 @@ namespace Git {
 		 * @param notes_ref ID reference to update (optional); defaults to "refs/notes/commits"
 		 * @param id The ID of the object
 		 * @param note The note to add for the object
+		 * @param force Overwrite existing note
 		 */
 		[CCode(cname = "git_note_create", instance_pos = 1.2)]
-		public Error create_note(out object_id note_id, Signature author, Signature committer, string? notes_ref, object_id id, string note);
+		public Error create_note(out object_id note_id, Signature author, Signature committer, string? notes_ref, object_id id, string note, bool force = false);
 
 		/**
 		 * Initialize a new packbuilder
@@ -2948,16 +2942,28 @@ namespace Git {
 		public Error create_reference(out unowned Reference reference, string name, object_id id, bool force);
 
 		/**
-		 * Create a new unnamed remote
+		 * Add a remote with the default fetch refspec to the repository's configuration.
 		 *
-		 * Useful when you don't want to store the remote
+		 * This calls {@link Remote.save} before returning.
+		 *
+		 * @param remote the resulting remote
+		 * @param name the remote's name
+		 * @param url the remote's url
+		 */
+		[CCode(cname = "git_remote_create", instance_pos = 1.2)]
+		public Error create_remote(out Remote? remote, string name, string url);
+		/**
+		 * Create a remote with the given refspec in memory.
+		 *
+		 * You can use this when you have a URL instead of a remote's name.  Note
+		 * that in-memory remotes cannot be converted to persisted remotes.
 		 *
 		 * @param remote the newly created remote reference
+		 * @param fetch the fetch refspec to use for this remote; null for defaults
 		 * @param url the remote repository's URL
-		 * @param fetch the fetch refspec to use for this remote
 		 */
-		[CCode(cname = "git_remote_new", instance_pos = 1.2)]
-		public Error create_remote(out Remote remote, string url, string? name, string? fetch);
+		[CCode(cname = "git_remote_inmemory", instance_pos = 1.2)]
+		public Error create_remote_in_memory(out Remote? remote, string? fetch, string url);
 
 		/**
 		 * Create a new symbolic reference.
@@ -3105,6 +3111,13 @@ namespace Git {
 		 */
 		[CCode(cname = "git_repository_fetchhead_foreach")]
 		public Error for_each_fetchhead(FetchHeadForEach fetch_head_for_each);
+
+		/**
+		 * If a merge is in progress, iterate over each commit ID in the MERGE_HEAD
+		 * file.
+		 */
+		[CCode(cname = "git_repository_mergehead_foreach")]
+		public Error for_each_merge_head(MergeHeadForEach merge_head_for_each);
 
 		/**
 		 * Perform an operation on each reference in the repository
@@ -4527,7 +4540,52 @@ namespace Git {
 		 * If null, no checkout is performed.
 		 */
 		public unowned checkout_opts? checkout_opts;
-	}
+		/**
+		 * The name given to the "origin" remote.
+		 *
+		 * The default is "origin".
+		 */
+		public string? remote_name;
+		/**
+		 * The URL to be used for pushing.
+		 *
+		 * If unset, the fetch URL will be used.
+		 */
+		public string? pushurl;
+		/**
+		 * The fetch specification to be used for fetching.
+		 *
+		 * If unset, "+refs/heads/ *:refs/remotes/<remote_name>/ *"
+		 */
+		public string? fetch_spec;
+		/**
+		 * The fetch specification to be used for pushing.
+		 *
+		 * If unset, the same spec as for fetching.
+		 */
+		public string? push_spec;
+		/**
+		 * Callback to be used if credentials are required during the initial
+		 * fetch.
+		 */
+		[CCode(cname = "git_cred_acquire_cb", delegate_target_cname = "cred_acquire_payload")]
+		public unowned CredAcquire cred_acquire;
+		/**
+		 * A custom transport to be used for the initial fetch.
+		 *
+		 * If unset, the transport autodetected from the URL.
+		 */
+		public unowned transport? transport;
+		/**
+		 * May be used to specify custom progress callbacks for the origin remote
+		 * before the fetch is initiated.
+		 */
+		public unowned remote_callbacks? remote_callbacks;
+		/**
+		 * May be used to specify the autotag setting before the initial fetch.
+		 */
+		AutoTag remote_autotag;
+}
 
 	[CCode(cname = "git_cvar_map", has_type_id = false)]
 	public struct config_var_map {
@@ -5918,7 +5976,8 @@ namespace Git {
 		THREAD,
 		STASH,
 		CHECKOUT,
-		FETCHHEAD;
+		FETCHHEAD,
+		MERGE;
 		/**
 		 * Set the error message string for this thread.
 		 *
@@ -6680,6 +6739,8 @@ namespace Git {
 	public delegate bool Filter(TreeEntry entry);
 	[CCode(cname = "git_headlist_cb", has_type_id = false)]
 	public delegate int Head(remote_head head);
+	[CCode(cname = "git_repository_mergehead_foreach_cb", has_type_id = false)]
+	public delegate bool MergeHeadForEach(object_id id);
 	/**
 	 * Called to process a note.
 	 * @param blob_id id of the blob containing the message
