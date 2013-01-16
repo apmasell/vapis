@@ -1,0 +1,2 @@
+$(for each in $(pkg-config --cflags --libs hidapi-libusb); do echo -X "$each"; done)
+
