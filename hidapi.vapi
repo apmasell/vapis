@@ -280,7 +280,8 @@ namespace HidApi {
 		 *
 		 * Valid on both Linux implementations in all cases, and valid on the
 		 * Windows implementation only if the device contains more than one
-		 * interface. */
+		 * interface.
+		 */
 		public int interface_number;
 
 		public Info? next;
@@ -308,10 +309,10 @@ namespace HidApi {
 	 *
 	 * This function initializes the HIDAPI library. Calling it is not strictly
 	 * necessary, as it will be called automatically by {@link Info.enumerate}
-	 * and any of the {@link hid_open_*()} functions if it is needed.  This
-	 * function should be called at the beginning of execution however, if
-	 * there is a chance of HIDAPI handles being opened by different threads
-	 * simultaneously.
+	 * and either {@link Device.open} or {@link Device.open_path} functions if it
+	 * is needed.  This function should be called at the beginning of execution
+	 * however, if there is a chance of HIDAPI handles being opened by different
+	 * threads simultaneously.
 	 *
 	 * @return This function returns true on success and false on error.
 	 */
