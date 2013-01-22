@@ -219,6 +219,23 @@ namespace Git {
 			public Error read_header(out size_t len, out ObjectType type, object_id id);
 
 			/**
+			 * Refresh the object database to load newly added files.
+			 *
+			 * If the object databases have changed on disk while the library is
+			 * running, this function will force a reload of the underlying indexes.
+			 *
+			 * Use this function when you're confident that an external application
+			 * has tampered with the ODB.
+			 *
+			 * Note that it is not necessary to call this function at all. The
+			 * library will automatically attempt to refresh the ODB when a lookup
+			 * fails, to see if the looked up object exists on disk but hasn't been
+			 * loaded yet.
+			 */
+			[CCode(cname = "git_odb_refresh")]
+			public Error refresh();
+
+			/**
 			 * Open a stream to write an object into the ODB
 			 *
 			 * The type and final length of the object must be specified
@@ -629,16 +646,23 @@ namespace Git {
 	[CCode(cname = "git_blob", free_function = "git_blob_free", has_type_id = false)]
 	[Compact]
 	public class Blob : Object {
+		[CCode(array_length = false, cname = "git_blob_rawcontent")]
+		private unowned uint8[]? _get_content();
+
 		/**
 		 * Get a read-only buffer with the raw content of a blob.
 		 *
 		 * A pointer to the raw content of a blob is returned.
 		 * The pointer may be invalidated at a later time.
 		 */
-		[CCode(array_length = false)]
 		public uint8[]? content {
-			[CCode(cname = "git_blob_rawcontent")]
-			get;
+			get {
+				unowned uint8[]? content = _get_content();
+				if (content != null) {
+					content.length = (int) size;
+				}
+				return content;
+			}
 		}
 		/**
 		 * The id of a blob.
@@ -676,9 +700,22 @@ namespace Git {
 		 *
 		 * When at least one of the blobs being dealt with is binary, the {@link diff_delta} binary
 		 * attribute will be set to true and no call to the hunk nor line will be made.
+		 *
+		 * We do run a binary content check on the two blobs and if either of the
+		 * blobs looks like binary data, {@link diff_delta.binary} will be true and
+		 * no call to the {@link DiffHunk} nor {@link DiffData} will be made
+		 * (unless you pass {@link DiffFlags.FORCE_TEXT} of course).
 		 */
 		[CCode(cname = "git_diff_blobs", simple_generics = true)]
-		public Error diff<T>(Blob new_blob, diff_options options, DiffFile<T> file, DiffHunk<T> hunk, DiffLine<T> line, T context);
+		public Error diff<T>(Blob new_blob, diff_options options, DiffFile<T> file, DiffHunk<T> hunk, DiffData<T> line, T context);
+		/**
+		 * Directly run a diff between a blob and a buffer.
+		 *
+		 * As with {@link diff}, comparing a blob and buffer lacks some context, so
+		 * the {@link diff_file} parameters to the callbacks will be faked.
+		 */
+		[CCode(cname = "git_diff_blob_to_buffer", simple_generics = true)]
+		public Error diff_buffer<T>([CCode(array_length_type = "size_t")] uint8[] buffer, diff_options options, DiffFile<T> file, DiffHunk<T> hunk, DiffData<T> line, T context);
 	}
 
 	/**
@@ -1385,10 +1422,9 @@ namespace Git {
 		 * moved to the "resolve undo" (REUC) section.
 		 *
 		 * @param path filename to add
-		 * @param stage stage for the entry
 		 */
-		[CCode(cname = "git_index_add_from_workdir")]
-		public Error add_from_workdir(string path, int stage);
+		[CCode(cname = "git_index_add_bypath")]
+		public Error add_path(string path);
 
 		/**
 		 * Clear the contents (all the entries) of an index object.
@@ -1504,6 +1540,29 @@ namespace Git {
 		 */
 		[CCode(cname = "git_index_remove")]
 		public Error remove(string path, int stage);
+		/**
+		 * Remove all entries from the index under a given directory
+		 *
+		 * @param dir container directory path
+		 * @param stage stage to search
+		 */
+		[CCode(cname = "git_index_remove_directory")]
+		public Error remove_directory(string dir, int stage);
+
+		/**
+		 * Remove an index entry corresponding to a file on disk
+		 *
+		 * The file path must be relative to the repository's working folder.  It
+		 * may exist.
+		 *
+		 * If this file currently is the result of a merge conflict, this file will
+		 * no longer be marked as conflicting.  The data about the conflict will be
+		 * moved to the "resolve undo" (REUC) section.
+		 *
+		 * @param path filename to remove
+		 */
+		[CCode(cname = "git_index_remove_bypath")]
+		public Error remove_path(string path);
 
 		/**
 		 * Write an existing index object from memory back to disk using an atomic
@@ -2962,7 +3021,7 @@ namespace Git {
 		 * @param fetch the fetch refspec to use for this remote; null for defaults
 		 * @param url the remote repository's URL
 		 */
-		[CCode(cname = "git_remote_inmemory", instance_pos = 1.2)]
+		[CCode(cname = "git_remote_create_inmemory", instance_pos = 1.2)]
 		public Error create_remote_in_memory(out Remote? remote, string? fetch, string url);
 
 		/**
@@ -3297,6 +3356,22 @@ namespace Git {
 		 */
 		[CCode(cname = "git_tag_list_match", instance_pos = -1)]
 		public Error get_tag_list_match(out string_array tag_names, string pattern);
+
+		/**
+		 * Return the name of the reference supporting the remote tracking branch,
+		 * given the name of a local branch reference.
+		 *
+		 * @param tracking_branch_name The buffer which will be filled with the
+		 * name of the reference, or null if you just want to get the needed size
+		 * of the name of the reference as the output value.
+		 *
+		 * @param canonical_branch_name name of the local branch.
+		 *
+		 * @return number of characters in the reference name including the
+		 * trailing NUL byte; otherwise an error code.
+		 */
+		[CCode(cname = "git_branch_tracking_name", instance_pos = 1.3)]
+		public int get_tracking_branch_name([CCode(array_length_type = "size_t")] char[]? tracking_branch_name, string canonical_branch_name);
 
 		/**
 		 * Allocate a new revision walker to iterate through a repo.
@@ -4063,6 +4138,21 @@ namespace Git {
 		public Error init(bool overwrite);
 
 		/**
+		 * Get the locations of submodule information.
+		 *
+		 * This is a bit like a very lightweight version of {@link status}.
+		 * It just returns a made of the first four submodule status values (i.e.
+		 * the ones like {@link SubmoduleStatus.IN_HEAD}, etc) that tell you where
+		 * the submodule data comes from (i.e. the HEAD commit, gitmodules file,
+		 * etc.).
+		 *
+		 * This can be useful if you want to know if the submodule is present in
+		 * the working directory at this point in time, etc.
+		 */
+		[CCode(cname = "git_submodule_location", instance_pos = -1)]
+		public Error location(out SubmoduleStatus status);
+
+		/**
 		 * Copy submodule remote info into submodule repo.
 		 *
 		 * This copies the information about the submodules URL into the checked
@@ -4380,6 +4470,14 @@ namespace Git {
 			[CCode(cname = "git_tree_entry_type")]
 			get;
 		}
+		/**
+		 * Compare two tree entries
+		 *
+		 * @param that second tree entry
+		 * @return <0 if this is before that, 0 if this == that, >0 if this is after that
+		 */
+		[CCode(cname = "git_tree_entry_cmp")]
+		public int cmp(TreeEntry that);
 
 		/**
 		 * Create a new tree builder.
@@ -4498,8 +4596,10 @@ namespace Git {
 		 * If set to 0, the default is O_CREAT | O_TRUNC | O_WRONLY is used.
 		 */
 		public int file_open_flags;
-		[CCode(cname = "conflict_cb", delegate_target_cname = "conflict_payload")]
-		public unowned Conflict? conflict;
+		public CheckoutNotify notify_flags;
+		[CCode(cname = "notify_cb", delegate_target_cname = "notify_payload")]
+		public unowned CheckoutNotify? notify;
+
 		/**
 		 * Notify the consumer of checkout progress.
 		 */
@@ -4510,6 +4610,10 @@ namespace Git {
 		 * When not null, arrays of fnmatch pattern specifying which paths should be taken into account
 		 */
 		public string_array paths;
+		/**
+		 * Expected content of workdir, defaults to HEAD
+		 */
+		public unowned Tree? baseline;
 	}
 
 	[CCode(cname = "git_config_entry", has_type_id = false)]
@@ -4527,6 +4631,7 @@ namespace Git {
 		[CCode(cname = "GIT_CLONE_OPTIONS_VERSION")]
 		public const uint VERSION;
 		public uint version;
+		public checkout_opts checkout_opts;
 		/**
 		 * False to create a standard repo, true for a bare repo.
 		 */
@@ -4534,12 +4639,6 @@ namespace Git {
 		[CCode(cname = "fetch_progress_cb", delegate_target_cname = "fetch_progress_payload")]
 		public unowned TransferProgress? fetch_progress;
 
-		/**
-		 * Options for the checkout step.
-		 *
-		 * If null, no checkout is performed.
-		 */
-		public unowned checkout_opts? checkout_opts;
 		/**
 		 * The name given to the "origin" remote.
 		 *
@@ -4585,7 +4684,13 @@ namespace Git {
 		 * May be used to specify the autotag setting before the initial fetch.
 		 */
 		AutoTag remote_autotag;
-}
+		/**
+		 * Gives the name of the branch to checkout.
+		 *
+		 * If unset, use the remote's HEAD.
+		 */
+		public string? checkout_branch;
+	}
 
 	[CCode(cname = "git_cvar_map", has_type_id = false)]
 	public struct config_var_map {
@@ -4607,6 +4712,24 @@ namespace Git {
 		[CCode(cname = "git_cred_userpass_plaintext_new")]
 		public static Error create_userpass_plaintext(out cred? cred, string username, string password);
 	}
+	[CCode(cname = "git_cred_userpass_payload", has_type_id = false)]
+	public struct cred_userpass {
+		public string username;
+		public string password;
+		/**
+		 * Method usable as {@link CredAcquire}.
+		 *
+		 * This calls {@link cred.create_userpass_plaintext} unless the protocol
+		 * has not specified {@link CredTypes.USERPASS_PLAINTEXT} as an allowed
+		 * type.
+		 *
+		 * @param cred The newly created credential object.
+		 * @param url The resource for which we are demanding a credential.
+		 */
+		[CCode(cname = "git_cred_userpass", instance_pos = -1)]
+		public Error acquire(out cred? cred, string url, CredTypes allowed_types);
+	}
+
 	/**
 	 * Description of changes to one entry.
 	 *
@@ -5511,6 +5634,37 @@ namespace Git {
 		public static Capabilities get();
 	}
 	/**
+	 * Options for which cases to invoke notification callback.
+	 */
+	[CCode(cname = "git_checkout_notify_t", has_type_id = false, cprefix = "GIT_CHECKOUT_NOTIFY_")]
+	[Flags]
+	public enum CheckoutNotify {
+		NONE,
+		/**
+		 * Invokes callback on conflicting paths.
+		 */
+		CONFLICT,
+		/**
+		 * Invokes callback to notify about "dirty" files, i.e. those that do not
+		 * need an update but no longer match the baseline.  Core git displays
+		 * these files when checkout runs, but won't stop the checkout.
+		 */
+		DIRTY,
+		/**
+		 * Invokes callback to notify for any changed file.
+		 */
+		UPDATED,
+		/**
+		 * Invokes callback to notify about untracked files.
+		 */
+		UNTRACKED,
+		/**
+		 * Invokes callback to notify about ignored files.
+		 */
+		IGNORED
+	}
+
+	/**
 	 * Control what checkout does with files
 	 *
 	 * No flags does a "dry run" where no files will be modified.
@@ -5534,51 +5688,21 @@ namespace Git {
 		/**
 		 * Dry run, no actual updates
 		 */
-		DEFAULT,
-		/**
-		 * Allow update of entries where working dir matches HEAD.
-		 *
-		 * Checkout is allowed to update any file where the working directory
-		 * content matches the HEAD (e.g. either the files match or the file is
-		 * absent in both places).
-		 */
-		UPDATE_UNMODIFIED,
-		/**
-		 * Allow update of entries where working dir does not have file.
-		 *
-		 * Checkout can create a missing file that exists in the index and does not
-		 * exist in the working directory. This is usually desirable for initial
-		 * checkout, etc. Technically, the missing file differs from the HEAD,
-		 * which is why this is separate.
-		 */
-		UPDATE_MISSING,
+		NONE,
 		/**
 		 * Allow safe updates that cannot overwrite uncommited data
 		 */
 		SAFE,
 		/**
-		 * Allow update of entries in working dir that are modified from HEAD.
-		 *
-		 * Checkout is allowed to update files where the working directory does not
-		 * match the HEAD so long as the file actually exists in the HEAD. This
-		 * option implies {@link UPDATE_UNMODIFIED}.
+		 * Allow safe updates plus creation of missing files
 		 */
-		UPDATE_MODIFIED,
-		/**
-		 * Update existing untracked files that are now present in the index.
-		 *
-		 * Checkout is allowed to update files even if there is a working directory
-		 * version that does not exist in the HEAD (i.e. the file was independently
-		 * created in the workdir). This implies {@link UPDATE_UNMODIFIED} and
-		 * {@link UPDATE_MISSING} (but '''not''' {@link UPDATE_MODIFIED}).
-		 */
-		UPDATE_UNTRACKED,
+		SAFE_CREATE,
 		/**
 		 * Allow all updates to force working directory to look like index
 		 */
 		FORCE,
 		/**
-		 * Allow checkout to make updates even if conflicts are found
+		 * Allow checkout to make safe updates even if conflicts are found
 		 *
 		 * It is okay to update the files that are allowed by the strategy even if
 		 * there are conflicts. The conflict callbacks are still made, but
@@ -5590,9 +5714,25 @@ namespace Git {
 		 */
 		REMOVE_UNTRACKED,
 		/**
+		 * Remove ignored files not in index
+		 */
+		REMOVE_IGNORED,
+		/**
 		 * Only update existing files, don't create new ones
 		 */
 		UPDATE_ONLY,
+		/**
+		 * Normally checkout updates index entries as it goes; this stops that
+		 */
+		DONT_UPDATE_INDEX,
+		/**
+		 * Don't refresh index/config/etc before doing checkout
+		 */
+		NO_REFRESH,
+		/**
+		 * Treat pathspec as simple list of exact match file paths
+		 */
+		DISABLE_PATHSPEC_MATCH,
 		/**
 		 * Allow checkout to skip unmerged files (NOT IMPLEMENTED)
 		 */
@@ -5951,7 +6091,8 @@ namespace Git {
 		ORPHANEDHEAD,
 		UNMERGED,
 		NONFASTFORWARD,
-		INVALIDSPEC
+		INVALIDSPEC,
+		MERGECONFLICT
 	}
 
 	[CCode(cname = "git_error_class", cprefix = "GITERR_", has_type_id = false)]
@@ -6652,9 +6793,19 @@ namespace Git {
 		POST
 	}
 
-	[CCode(cname = "git_attr_foreach_cb")]
+	[CCode(cname = "git_attr_foreach_cb", has_type_id = false)]
 	public delegate Error AttributeForEach(string name, string? val);
 	public delegate int Branch(string branch_name, BranchType branch_type);
+	/**
+	 * Callback for notification of a file during checkout.
+	 *
+	 *
+	 * Notification callbacks are made prior to modifying any files on disk.
+	 *
+	 * @return true to cancel the checkout; false otherwise.
+	 */
+	[CCode(cname = "git_checkout_notify_cb", has_type_id = false)]
+	public delegate bool CheckoutNotifier(CheckoutNotify why, string path, diff_file baseline, diff_file target, diff_file workdir);
 	/**
 	 *
 	 * The implementation of the callback has to respect the
@@ -6706,6 +6857,13 @@ namespace Git {
 	public delegate void CredFree(owned cred cred);
 
 	/**
+	 * When printing a diff, callback that will be made to output each line of
+	 * text.
+	 * @return true to stop iteration
+	 */
+	[CCode(cname = "git_diff_data_cb", simple_generics = true, has_target = false, has_type_id = false)]
+	public delegate bool DiffData<T>(diff_delta delta, diff_range range, DiffLineType line_origin, [CCode(array_length_type = "size_t")] char[] formatted_output, T context);
+	/**
 	 * When iterating over a diff, callback that will be made per file.
 	 */
 	[CCode(cname = "git_diff_file_cb", simple_generics = true, has_target = false, has_type_id = false)]
@@ -6726,8 +6884,8 @@ namespace Git {
 	public delegate bool DiffLine<T>(T context, diff_delta delta, DiffLineType line_origin, [CCode(array_length_type = "size_t")] uint8[] content);
 
 	/**
-	 * When printing a diff, callback that will be made to output each line
-	 * of text.
+	 * When printing a diff, callback that will be made to output each line of
+	 * text.
 	 * @return true to stop iteration
 	 */
 	[CCode(cname = "git_diff_data_cb", has_type_id = false)]
@@ -6753,6 +6911,7 @@ namespace Git {
 	[CCode(cname = "git_packbuilder_foreach_cb", has_type_id = false)]
 	public delegate int PackBuilderForEach([CCode(array_length_type = "size_t")] uint8[] buffer);
 	public delegate bool PushForEach(string ref_spec, string msg);
+	[CCode(cname = "git_checkout_progress_cb")]
 	public delegate void Progress(string path, size_t completed_steps, size_t total_steps);
 	[CCode(cname = "git_reference_foreach_cb", has_type_id = false)]
 	public delegate bool ReferenceForEach(string refname);
