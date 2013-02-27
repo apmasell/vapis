@@ -1482,11 +1482,11 @@ namespace Git {
 		 * Find the first index of any entries which point to given path in the Git
 		 * index.
 		 *
+		 * @param at_pos the address to which the position of the reuc entry is written (optional)
 		 * @param path path to search
-		 * @return an index >= 0 if found, -1 otherwise
 		 */
-		[CCode(cname = "git_index_find")]
-		public int find(string path);
+		[CCode(cname = "git_index_find", instance_pos = 1.1)]
+		public Error find(out size_t at_pos, string path);
 
 		/**
 		 * Get a pointer to one of the entries in the index
@@ -1929,6 +1929,22 @@ namespace Git {
 		[CCode(cname = "git_diff_patch_get_line_in_hunk", instance_pos = 4.1)]
 		public Error get_line_in_hunk(out DiffLineType line_origin, [CCode(array_length_type = "size_t")] out unowned uint8[]? content, out int old_lineno, out int new_lineno, size_t hunk_idx, size_t line_of_hunk);
 		/**
+		 * Get line counts of each type in a patch.
+		 *
+		 * This helps imitate a '''diff --numstat''' type of output.  For that
+		 * purpose, you only need the total additions and total_deletions values,
+		 * but we include the total context line count in case you want the total
+		 * number of lines of diff output that will be generated.
+		 *
+		 * @param total_context Count of context lines in output.
+		 * @param total_additions Count of addition lines in output.
+		 * @param total_deletions Count of deletion lines in output.
+		 * @return Number of lines in hunk or -1 if invalid hunk index
+		 */
+		[CCode(cname = "git_diff_patch_line_stats", instance_pos = -1)]
+		public int get_line_stats(out size_t total_context, out size_t total_additions, out size_t total_deletions);
+
+		/**
 		 * Get the number of lines in a hunk.
 		 *
 		 * @param hunk_idx Index of the hunk
@@ -1973,14 +1989,37 @@ namespace Git {
 
 		/**
 		 * Actually push all given refspecs
+		 *
+		 * To check if the push was successful (i.e. all remote references have
+		 * been updated as requested), you need to call both {@link unpack_ok} and
+		 * {@link for_each}. The remote repository might have refused to update
+		 * some or all of the references.
 		 */
 		[CCode(cname = "git_push_finish")]
 		public Error finish();
 		/**
 		 * Iterate over each status.
+		 *
+		 * For each of the updated references, we receive a status report in the
+		 * form of '''ok refs/heads/master''' or '''ng refs/heads/master ///msg///'''.
+		 * If the message is not null, this means the reference has not been
+		 * updated for the given reason.
+		 *
 		 */
 		[CCode(cname = "git_push_status_foreach")]
 		public Error for_each(PushForEach push_for_each);
+		/**
+		 * Set options on a push object
+		 *
+		 * @param opts The options to set on the push object
+		 */
+		[CCode(cname = "git_push_set_options")]
+		public Error set_options(push_options opts);
+		/**
+		 * Update remote tips after a push
+		 */
+		[CCode(cname = "git_push_update_tips")]
+		public Error update_tips();
 	}
 	/**
 	 * In-memory representation of a reference.
@@ -2131,6 +2170,20 @@ namespace Git {
 		 */
 		[CCode(cname = "git_reflog_delete")]
 		public Error delete_reflog();
+
+		/**
+		 * Return the name of the given local or remote branch.
+		 *
+		 * The name of the branch matches the definition of the name for
+		 * {@link Repository.lookup_branch}. That is, if the returned name is
+		 * looked up then the reference is returned that was given to this
+		 * function.
+		 *
+		 * @param name where the pointer of branch name is stored;
+		 * this is valid as long as the ref is not freed.
+		 */
+		[CCode(cname = "git_branch_name", instance_pos = -1)]
+		public Error get_branch_name(out unowned string name);
 
 		/**
 		 * Read the reflog for the given reference
@@ -2454,6 +2507,14 @@ namespace Git {
 			[CCode(cname = "git_remote_url")]
 			get;
 		}
+
+		/**
+		 * Ensure the remote name is well-formed.
+		 *
+		 * @param remote_name name to be checked.
+		 */
+		[CCode(cname = "git_remote_is_valid_name")]
+		public static bool is_valid_name(string remote_name);
 
 		/**
 		 * Return whether a string is a valid remote URL
@@ -3330,6 +3391,23 @@ namespace Git {
 		public Error get_remote(out Remote remote, string name);
 
 		/**
+		 * Return the name of remote that the remote tracking branch belongs to.
+		 *
+		 * @param remote_name The buffer which will be filled with the name of the
+		 * remote. Pass null if you just want to get the needed size of the name of
+		 * the remote as the output value.
+		 *
+		 * @param canonical_branch_name name of the remote tracking branch.
+		 *
+		 * @return Number of characters in the reference name including the
+		 * trailing NUL byte; {@link Error.NOTFOUND} when no remote matching remote
+		 * was found, {@link Error.AMBIGUOUS} when the branch maps to several
+		 * remotes, otherwise an error code.
+		 */
+		[CCode(cname = "git_branch_remote_name", insance_pos = 1.2)]
+		public int get_branch_remote_name([CCode(array_length_type = "size_t")] uint8[]? remote_name, string canonical_branch_name);
+
+		/**
 		 * Get a list of the configured remotes for a repo
 		 *
 		 * @param remotes_list a string array with the names of the remotes
@@ -3693,6 +3771,21 @@ namespace Git {
 		 */
 		[CCode(cname = "git_reset")]
 		public Error reset(Object target, ResetType reset_type);
+
+		/**
+		 * Updates some entries in the index from the target commit tree.
+		 *
+		 * The scope of the updated entries is determined by the paths
+		 * specified.
+		 *
+		 * @param target The committish which content will be used to reset the
+		 * content of the index. Passing null will result in removing entries in
+		 * the index matching the provided pathspecs.
+		 *
+		 * @param pathspecs List of pathspecs to operate on.
+		 */
+		[CCode(cname = "git_reset_default")]
+		public Error reset_default(Object? target, string_array pathspecs);
 
 		/**
 		 * Save the local modifications to a new stash.
@@ -4363,6 +4456,14 @@ namespace Git {
 	[Compact]
 	public class TreeBuilder {
 		/**
+		 * The number of entries listed in a treebuilder.
+		 */
+		public uint count {
+			[CCode(cname = "git_treebuilder_entrycount")]
+			get;
+		}
+
+		/**
 		 * Create a new tree builder.
 		 *
 		 * The tree builder can be used to create or modify trees in memory and
@@ -4725,9 +4826,11 @@ namespace Git {
 		 *
 		 * @param cred The newly created credential object.
 		 * @param url The resource for which we are demanding a credential.
+		 * @param username_from_url The username that was embedded in a "user@host"
+		 * remote url, or null if not included.
 		 */
 		[CCode(cname = "git_cred_userpass", instance_pos = -1)]
-		public Error acquire(out cred? cred, string url, CredTypes allowed_types);
+		public Error acquire(out cred? cred, string url, string? username_from_url, CredTypes allowed_types);
 	}
 
 	/**
@@ -5211,6 +5314,24 @@ namespace Git {
 
 	}
 	/**
+	 * Controls the behavior of a {@link Push} object.
+	 */
+	[CCode(cname = "git_push_options", has_type_id = false, default_value = "GIT_PUSH_OPTIONS_INIT")]
+	public struct push_options {
+		[CCode(cname = "GIT_PUSH_OPTIONS_VERSION")]
+		public const uint VERSION;
+		public uint version;
+		/**
+		 * If the transport being used to push to the remote requires the creation
+		 * of a pack file, this controls the number of worker threads used by the
+		 * packbuilder when creating that pack file to be sent to the remote.
+		 *
+		 * If set to false, the packbuilder will auto-detect the number of threads
+		 * to create. The default value is true.
+		 */
+		public bool pb_parallelism;
+	}
+	/**
 	 * Reference specification (i.e., some kind of local or remote branch)
 	 */
 	[CCode(cname = "git_refspec", has_type_id = false, destroy_function = "")]
@@ -5244,7 +5365,24 @@ namespace Git {
 		 * @param refname the name of the reference to check
 		 */
 		[CCode(cname = "git_refspec_src_matches")]
-		public bool matches(string refname);
+		public bool matches_source(string refname);
+
+		/**
+		 * Check if a refspec's destination descriptor matches a reference
+		 *
+		 * @param refname the name of the reference to check
+		 */
+		[CCode(cname = "git_refspec_dst_matches")]
+		public bool matches_destination(string refname);
+
+		/**
+		 * Transform a target reference to its source reference following the refspec's rules
+		 *
+		 * @param refname where to store the source reference name
+		 * @param name the name of the reference to transform
+		 */
+		[CCode(cname = "git_refspec_rtransform", instance_pos = 1.2)]
+		public Error rtransform([CCode(array_length_type = "size_t")] uint8[] refname, string name);
 
 		/**
 		 * Transform a reference to its target following the refspec's rules
@@ -5847,7 +5985,7 @@ namespace Git {
 		 *
 		 * When you call {@link DiffList.print_compact} it prints single letter
 		 * codes into the output such as 'A' for added, 'D' for deleted, 'M' for
-		 * modified, etc. It is sometimes convenient to convert a git_delta_t
+		 * modified, etc. It is sometimes convenient to convert a {@link DeltaType}
 		 * value into these letters for your own purposes. This function does just
 		 * that. By the way, unmodified will return a space (i.e. ' ').
 		 */
@@ -6882,6 +7020,21 @@ namespace Git {
 	 */
 	[CCode(cname = "git_diff_line_fn", simple_generics = true, has_target = false, has_type_id = false)]
 	public delegate bool DiffLine<T>(T context, diff_delta delta, DiffLineType line_origin, [CCode(array_length_type = "size_t")] uint8[] content);
+	/*
+	 * Diff notification callback function.
+	 *
+	 * The callback will be called for each file, just before the {@link
+	 * DeltaType} gets inserted into the diff list.
+	 *
+	 * When the callback:
+	 * - returns < 0, the diff process will be aborted.
+	 * - returns > 0, the delta will not be inserted into the diff list, but the
+	 *             diff process continues.
+	 * - returns 0, the delta is inserted into the diff list, and the diff process
+	 *             continues.
+	 */
+	[CCode(cname = "git_diff_notify_cb", has_type_id = false)]
+	public delegate int DiffNotify(DiffList diff_so_far, diff_delta delta_to_add, string matched_pathspec);
 
 	/**
 	 * When printing a diff, callback that will be made to output each line of
@@ -6943,8 +7096,14 @@ namespace Git {
 	public delegate Error SubmoduleForEach(string name);
 	[CCode(cname = "git_tag_foreach_cb", has_type_id = false)]
 	public delegate bool TagForEach(string name, object_id id);
+	/**
+	 * Type for progress callbacks during indexing.
+	 *
+	 * @param stats Structure containing information about the state of the transfer
+	 * @return an error to cancel the transfer.
+	 */
 	[CCode(cname = "git_transfer_progress_callback", has_type_id = false)]
-	public delegate void TransferProgress(transfer_progress stats);
+	public delegate Error TransferProgress(transfer_progress stats);
 
 	[CCode(has_target = false, has_type_id = false)]
 	public delegate void TransportCancel(transport transport);
@@ -7001,6 +7160,28 @@ namespace Git {
 	 */
 	[CCode(cname = "git_message_prettify")]
 	public Error prettify_message([CCode(array_length_type = "size_t")] uint8[] message_out, string message, bool strip_comments);
+
+	[CCode(cname = "int", cprefix = "GIT_OPT_")]
+	public enum Option {
+		GET_MWINDOW_SIZE,
+		/*
+		 * Set the maximum mmap window size (size_t)
+		 */
+		SET_MWINDOW_SIZE,
+		GET_MWINDOW_MAPPED_LIMIT,
+		/*
+		 * Set the maximum amount of memory that can be mapped at any time by the
+		 * library (size_t)
+		 */
+		SET_MWINDOW_MAPPED_LIMIT;
+		/**
+		 * Set or query a library global option
+		 * @param ... value to set the option
+		 */
+		[CCode(cname = "git_libgit2_opts")]
+		public void opts(...);
+	}
+
 
 	/**
 	 * Set the error message to a special value for memory allocation failure.
