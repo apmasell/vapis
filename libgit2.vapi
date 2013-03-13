@@ -702,8 +702,8 @@ namespace Git {
 		 * attribute will be set to true and no call to the hunk nor line will be made.
 		 *
 		 * We do run a binary content check on the two blobs and if either of the
-		 * blobs looks like binary data, {@link diff_delta.binary} will be true and
-		 * no call to the {@link DiffHunk} nor {@link DiffData} will be made
+		 * blobs looks like binary data, {@link diff_delta.flags} will {@link DiffFlag.BINARY}
+		 * and no call to the {@link DiffHunk} nor {@link DiffData} will be made
 		 * (unless you pass {@link DiffFlags.FORCE_TEXT} of course).
 		 */
 		[CCode(cname = "git_diff_blobs", simple_generics = true)]
@@ -1197,7 +1197,7 @@ namespace Git {
 		 * Return the diff delta and patch for an entry in the diff list.
 		 *
 		 * For an unchanged file or a binary file, no patch will be created, and
-		 * the {@link diff_delta.binary} flag will be set true.
+		 * the {@link diff_delta.flags} will contain {@link DiffFlag.BINARY}.
 		 *
 		 * @param patch contains the text diffs for the delta.
 		 * @param delta Output parameter for the delta object
@@ -1604,54 +1604,6 @@ namespace Git {
 
 	}
 
-	/**
-	 * Task to build an index from a pack file
-	 */
-	[CCode(cname = "git_indexer", free_function = "git_indexer_free", has_type_id = false)]
-	public class Indexer {
-
-		/**
-		 * The packfile's hash
-		 *
-		 * A packfile's name is derived from the sorted hashing of all object
-		 * names. This is only correct after the index has been written to disk.
-		 */
-		public object_id? hash {
-			[CCode(cname = "git_indexer_hash")]
-			get;
-		}
-
-		/**
-		 * Create a new indexer instance
-		 *
-		 * @param indexer where to store the indexer instance
-		 * @param packname the absolute filename of the packfile to index
-		 */
-		[CCode(cname = "git_indexer_new")]
-		public Error create(out Indexer indexer, string packname);
-
-		/**
-		 * Iterate over the objects in the packfile and extract the information
-		 *
-		 * Indexing a packfile can be very expensive so this function is expected
-		 * to be run in a worker thread and the stats used to provide feedback the
-		 * user.
-		 *
-		 * @param stats storage for the running state
-		 */
-		[CCode(cname = "git_indexer_run")]
-		public Error run(transfer_progress stats);
-
-		/**
-		 * Write the index file to disk.
-		 *
-		 * The file will be stored as pack-//hash//.idx in the same directory as
-		 * the packfile.
-		 */
-		[CCode(cname = "git_indexer_write")]
-		public Error write();
-	}
-
 	[CCode(cname = "git_indexer_stream", free_function = "git_indexer_stream_free", has_type_id = false)]
 	public class IndexerStream {
 		/**
@@ -1741,7 +1693,16 @@ namespace Git {
 			get;
 		}
 	}
-
+	[CCode(cname = "git_note_iterator ", free_function = "git_note_iterator_free", has_type_id = false)]
+	[Compact]
+	public class NoteIterator {
+		/**
+		 * Returns the current item and advance the iterator internally to the next
+		 * value.
+		 */
+		[CCode(cname = "git_note_next", instance_pos = -1)]
+		public Error next(out object_id note_id, out object_id annotated_id);
+	}
 	/**
 	 * Representation of a generic object in a repository
 	 */
@@ -2021,6 +1982,34 @@ namespace Git {
 		[CCode(cname = "git_push_update_tips")]
 		public Error update_tips();
 	}
+	[CCode(cname = "git_refdb", has_type_id = false, free_function = "git_refdb_free")]
+	public class RefDb {
+		/**
+		 * Create a new reference.  Either an oid or a symbolic target must be
+		 * specified.
+		 *
+		 * @param name the reference name
+		 * @param id the object id for a direct reference
+		 * @param symbolic the target for a symbolic reference
+		 */
+		[CCode(cname = "git_reference__alloc")]
+		public Reference? alloc(string name, object_id id, string symbolic);
+
+		/**
+		* Suggests that the given refdb compress or optimize its references.
+		*
+		* This mechanism is implementation specific.  For on-disk reference
+		* databases, for example, this may pack all loose references.
+		*/
+		[CCode(cname = "git_refdb_compress")]
+		public Error compress();
+
+		/**
+		 * Sets the custom backend to an existing reference DB
+		 */
+		 [CCode(cname = "git_refdb_set_backend")]
+		 public Error set_backend(owned refdb_backend backend);
+	}
 	/**
 	 * In-memory representation of a reference.
 	 */
@@ -2050,13 +2039,6 @@ namespace Git {
 			get;
 		}
 
-		/**
-		 * Has been loaded from a packfile?
-		 */
-		public bool is_packed {
-			[CCode(cname = "git_reference_is_packed")]
-			get;
-		}
 		/**
 		 * If a reference is a remote tracking branch
 		 */
@@ -2125,18 +2107,6 @@ namespace Git {
 		public static bool is_valid_name(string refname);
 
 		/**
-		 * Delete an existing reference
-		 *
-		 * This method works for both direct and symbolic references.
-		 *
-		 * The reference will be immediately removed on disk and from
-		 * memory. The given reference pointer will no longer be valid.
-		 *
-		 */
-		[CCode(cname = "git_reference_delete")]
-		public static void @delete(owned Reference reference);
-
-		/**
 		 * Delete an existing branch reference.
 		 */
 		[CCode(cname = "git_branch_delete")]
@@ -2164,6 +2134,16 @@ namespace Git {
 		 */
 		[CCode(cname = "git_reference_cmp")]
 		public int compare(Reference other);
+
+		/**
+		 * Delete an existing reference
+		 *
+		 * This method works for both direct and symbolic references.
+		 *
+		 * The reference will be immediately removed on disk.
+		 */
+		[CCode(cname = "git_reference_delete")]
+		public void @delete();
 
 		/**
 		 * Delete the reflog for the given reference
@@ -2216,8 +2196,8 @@ namespace Git {
 		 *
 		 * @param force Overwrite existing branch.
 		 */
-		[CCode(cname = "git_branch_move")]
-		public Error move_branch(string new_branch_name, bool force);
+		[CCode(cname = "git_branch_move", instance_pos = 1.1)]
+		public Error move_branch(out Reference? moved, string new_branch_name, bool force);
 
 		/**
 		 * Recursively peel an reference until an object of the specified type is
@@ -2230,24 +2210,6 @@ namespace Git {
 		 */
 		[CCode(cname = "git_reference_peel", instance_pos = 1.1)]
 		public Error peel(out Object? peeled, ObjectType target_type);
-
-		/**
-		 * Reload a reference from disk
-		 *
-		 * Reference pointers may become outdated if the Git repository is accessed
-		 * simultaneously by other clients whilt the library is open.
-		 *
-		 * This method forces a reload of the reference from disk, to ensure that
-		 * the provided information is still reliable.
-		 *
-		 * If the reload fails (e.g. the reference no longer exists on disk, or has
-		 * become corrupted), an error code will be returned and the reference
-		 * pointer will be invalidated.
-		 *
-		 * @return GIT_OK on success, or an error code
-		 */
-		[CCode(cname = "git_reference_reload")]
-		public Error reload();
 
 		/**
 		 * Rename an existing reference
@@ -2264,8 +2226,8 @@ namespace Git {
 		 * exists.
 		 *
 		 */
-		[CCode(cname = "git_reference_rename")]
-		public Error rename(string new_name, bool force);
+		[CCode(cname = "git_reference_rename", instance_pos = 1.1)]
+		public Error rename(out Reference? renamed_reference, string new_name, bool force);
 
 		/**
 		 * Resolve a symbolic reference
@@ -2282,18 +2244,18 @@ namespace Git {
 		public Error resolve(out Reference resolved);
 
 		/**
-		 * Set the id target of a reference.
+		 * Create a new reference with the same name as the given reference but a
+		 * different symbolic target.
 		 *
-		 * The reference must be a direct reference, otherwise
-		 * this method will fail.
+		 * The reference must be a symbolic reference, otherwise this will fail.
 		 *
-		 * The reference will be automatically updated in
-		 * memory and on disk.
+		 * The new reference will be written to disk, overwriting the given
+		 * reference.
 		 *
 		 * @param id the new target id for the reference
 		 */
-		[CCode(cname = "git_reference_set_oid")]
-		public Error set_target(object_id id);
+		[CCode(cname = "git_reference_set_oid", instance_pos = 1.1)]
+		public Error set_target(out Reference? retargeted, object_id id);
 
 		/**
 		 * Set the symbolic target of a reference.
@@ -3041,12 +3003,30 @@ namespace Git {
 		public Error create_note(out object_id note_id, Signature author, Signature committer, string? notes_ref, object_id id, string note, bool force = false);
 
 		/**
+		 * Creates a new iterator for notes.
+		 *
+		 * @param notes_ref canonical name of the reference to use (optional);
+		 * defaults to "refs/notes/commits"
+		 */
+		[CCode(cname = "git_note_iterator_new", instance_pos = 1.1)]
+		public Error create_note_iterator(out NoteIterator? iterator, string? notes_ref = null);
+
+		/**
 		 * Initialize a new packbuilder
 		 *
 		 * @param pack_builder The new packbuilder object
 		 */
 		[CCode(cname = "git_packbuilder_new", instance_pos = -1)]
 		public Error create_pack_builder(out PackBuilder? pack_builder);
+
+		/**
+		 * Create a new reference database with no backends.
+		 *
+		 * Before the Ref DB can be used for read/writing, a custom database
+		 * backend must be manually set using {@link RefDb.set_backend}.
+		 */
+		[CCode(cname = "git_refdb_new", instance_pos = -1)]
+		public Error create_refdb(out RefDb? refdb);
 
 		/**
 		 * Create a new object id reference.
@@ -3408,6 +3388,16 @@ namespace Git {
 		public int get_branch_remote_name([CCode(array_length_type = "size_t")] uint8[]? remote_name, string canonical_branch_name);
 
 		/**
+		 * Get the Reference Database Backend for this repository.
+		 *
+		 * If a custom refsdb has not been set, the default database for the
+		 * repository will be returned (the one that manipulates loose and packed
+		 * references in the '''.git''' directory).
+		 */
+		[CCode(cname = "git_repository_refdb", instance_pos = -1)]
+		public Error get_refdb(out RefDb? refdb);
+
+		/**
 		 * Get a list of the configured remotes for a repo
 		 *
 		 * @param remotes_list a string array with the names of the remotes
@@ -3701,16 +3691,15 @@ namespace Git {
 		public Error lookup_tree_by_prefix(out Tree tree, object_id id, uint len);
 
 		/**
-		 * Pack all the loose references in the repository
+		 * Create a new reference database and automatically add
+		 * the default backends:
 		 *
-		 * This method will load into the cache all the loose references on the
-		 * repository and update the //packed-refs// file with them.
-		 *
-		 * Once the //packed-refs// file has been written properly, the loose
-		 * references will be removed from disk.
+		 * - git_refdb_dir: read and write loose and packed refs from disk,
+		 * assuming the repository dir as the folder
 		 */
-		[CCode(cname = "git_reference_packall")]
-		public Error pack_all_references();
+		 [CCode(cname = "git_refdb_open", instance_pos = -1)]
+		 public Error open_refdb(out RefDb? refdb);
+
 		/**
 		 * Find an object, as specified by a revision string. See the gitrevisions
 		 * manual page, or the documentation for '''git rev-parse''' for
@@ -3860,6 +3849,15 @@ namespace Git {
 		 */
 		[CCode(cname = "git_repository_set_index")]
 		public void set_index(Index index);
+
+		/**
+		 * Set the Reference Database Backend for this repository
+		 *
+		 * The refdb will be used for all reference related operations involving
+		 * this repository.
+		 */
+		[CCode(cname = "git_repository_set_refdb")]
+		public void set_refdb(RefDb refdb);
 
 		/**
 		 * Set the working directory.
@@ -4636,6 +4634,12 @@ namespace Git {
 		public Error add(string path, FileMode ancestor_mode, object_id ancestor_id, FileMode our_mode, object_id our_id, FileMode their_mode, object_id their_id);
 
 		/**
+		 * Remove all resolve undo entries from the index
+		 */
+		[CCode(cname = "git_index_reuc_clear")]
+		public void clear();
+
+		/**
 		 * Finds the resolve undo entry that points to the given path in the Git
 		 * index.
 		 *
@@ -4852,10 +4856,7 @@ namespace Git {
 	 * changes or ignored/untracked directories).
 	 *
 	 * Under some circumstances, in the name of efficiency, not all fields will
-	 * be filled in, but we generally try to fill in as much as possible. One
-	 * example is that the "binary" field will not examine file contents if you
-	 * do not pass in hunk and/or line callbacks to the {@link DiffList.foreach}
-	 * iteration function. It will just use the git attributes for those files.
+	 * be filled in, but we generally try to fill in as much as possible.
 	 */
 	[CCode(cname = "git_diff_delta", has_type_id = false)]
 	public struct diff_delta {
@@ -4866,7 +4867,7 @@ namespace Git {
 		 * For RENAMED and COPIED, value 0-100
 		 */
 		public uint similarity;
-		public bool binary;
+		public DiffFlag flags;
 	}
 
 	/**
@@ -4897,7 +4898,7 @@ namespace Git {
 		 * The size of the entry in bytes.
 		 */
 		public int size;
-		public DiffFileType flags;
+		public DiffFlag flags;
 	}
 
 	/**
@@ -5330,6 +5331,25 @@ namespace Git {
 		 * to create. The default value is true.
 		 */
 		public bool pb_parallelism;
+	}
+	[CCode(cname = "struct git_refdb_backend", default_value = "GIT_ODB_BACKEND_INIT", has_type_id = false)]
+	public struct refdb_backend {
+		[CCode(cname = "GIT_ODB_BACKEND_VERSION")]
+		public const uint VERSION;
+		public uint version;
+		public RefDbCompress? compress;
+		public RefDbDelete @delete;
+		public RefDbExists exists;
+		public RefDbForEach @foreach;
+		public RefDbForEachGlob? foreach_glob;
+		public RefDbFree? free;
+		public RefDbLookup lookup;
+		public RefDbWrite write;
+		/**
+		 * Constructors for default refdb backend.
+		 */
+		[CCode(cname = "git_refdb_backend_fs")]
+		public static Error create_backend_fs(out refdb_backend? backend, Repository repo, RefDb refdb);
 	}
 	/**
 	 * Reference specification (i.e., some kind of local or remote branch)
@@ -5992,71 +6012,68 @@ namespace Git {
 		[CCode(cname = "git_diff_status_char")]
 		public char to_char();
 	}
-
 	/**
 	 * Flags that can be set for the file on side of a diff.
-	 *
-	 * Most of the flags are just for internal consumption by libgit2, but some
-	 * of them may be interesting to external users.
 	 */
-	[CCode(cname = "unsigned int", cprefix = "GIT_DIFF_FILE_", has_type_id = false)]
-	public enum DiffFileType {
+	[CCode(cname = "uint32", cprefix = "GIT_DIFF_FLAG_", has_type_id = false)]
+	[Flags]
+	public enum DiffFlag {
 		/**
-		 * The '''oid''' value is computed and correct
-		 */
-		VALID_OID,
-		/**
-		 * The '''path''' string is separated allocated memory
-		 */
-		FREE_PATH,
-		/**
-		 * This file should be considered binary data
+		 * File(s) treated as binary data
 		 */
 		BINARY,
 		/**
-		 * This file should be considered text data
+		 * File(s) treated as text data
 		 */
 		NOT_BINARY,
 		/**
-		 * The internal file data is kept in allocated memory
+		 * Id value is known correct
 		 */
-		FREE_DATA,
-		/**
-		 * The internal file data is kept in mmap'ed memory
-		 */
-		UNMAP_DATA,
-		/**
-		 * This side of the diff should not be loaded
-		 */
-		NO_DATA
+		[CCode(cname = "GIT_DIFF_FLAG_VALID_OID")]
+		VALID_OID
 	}
-
 	/**
 	 * Control the behavior of diff rename/copy detection.
 	 */
-	[CCode(cname = "unsigned int", cprefix = "GIT_DIFF_", has_type_id = false)]
+	[CCode(cname = "unsigned int", cprefix = "GIT_DIFF_FIND_", has_type_id = false)]
 	[Flags]
 	public enum DiffFind {
 		/**
 		 * Look for renames?
 		 */
-		FIND_RENAMES,
+		RENAMES,
 		/**
-		 * Consider old size of modified for renames?
+		 * Consider old side of modified for renames?
 		 */
-		FIND_RENAMES_FROM_REWRITES,
+		RENAMES_FROM_REWRITES,
 		/**
 		 * Look for copies?
 		 */
-		FIND_COPIES,
+		COPIES,
 		/**
 		 * Consider unmodified as copy sources?
 		 */
-		FIND_COPIES_FROM_UNMODIFIED,
+		COPIES_FROM_UNMODIFIED,
 		/**
 		 * Split large rewrites into delete/add pairs.
 		 */
-		FIND_AND_BREAK_REWRITES
+		AND_BREAK_REWRITES,
+		/**
+		 * Turn on all finding features
+		 */
+		ALL,
+		/**
+		 * Measure similarity ignoring leading whitespace (default)
+		 */
+		IGNORE_LEADING_WHITESPACE,
+		/**
+		 * Measure similarity ignoring all whitespace
+		 */
+		IGNORE_WHITESPACE,
+		/**
+		 * Measure similarity including all data
+		 */
+		DONT_IGNORE_WHITESPACE
 	}
 
 	[CCode(cname = "uint32_t", cprefix = "GIT_DIFF_", has_type_id = false)]
@@ -6150,7 +6167,13 @@ namespace Git {
 		/**
 		 * Ignore file mode changes
 		 */
-		IGNORE_FILEMODE
+		IGNORE_FILEMODE,
+		/**
+		 * Even with {@link INCLUDE_IGNORED}, an entire ignored directory will be
+		 * marked with only a single entry in the diff list; this flag adds all
+		 * files under the directory as IGNORED entries, too.
+		 */
+		RECURSE_IGNORED_DIRS
 	}
 
 	/**
@@ -6629,8 +6652,6 @@ namespace Git {
 		 * A reference which points at another reference
 		 */
 		SYMBOLIC,
-		PACKED,
-		HAS_PEEL,
 		LISTALL
 	}
 	/**
@@ -6911,7 +6932,52 @@ namespace Git {
 		[CCode(cname = "GIT_SUBMODULE_STATUS_IS_WD_DIRTY")]
 		public bool is_wd_dirty();
 	}
-
+	/**
+	 * Available tracing levels.
+	 *
+	 * When tracing is set to a particular level, callers will be provided
+	 * tracing at the given level and all lower levels.
+	 */
+	[CCode(cname = "git_trace_level_t", cprefix = "GIT_TRACE_", has_type_id = false)]
+	public enum Trace {
+		/**
+		 * No tracing will be performed.
+		 */
+		NONE,
+		/**
+		 * Severe errors that may impact the program's execution
+		 */
+		FATAL,
+		/**
+		 * Errors that do not impact the program's execution
+		 */
+		ERROR,
+		/**
+		 * Warnings that suggest abnormal data
+		 */
+		WARN,
+		/**
+		 * Informational messages about program execution
+		 */
+		INFO,
+		/**
+		 * Detailed data that allows for debugging
+		 */
+		DEBUG,
+		/**
+		 * Exceptionally detailed debugging data
+		 */
+		TRACE;
+		/**
+		 * Sets the system tracing configuration to the specified level with the
+		 * specified callback.
+		 *
+		 * When system events occur at a level equal to, or lower than, the given
+		 * level they will be reported to the given callback.
+		 */
+		[CCode(cname = "git_trace_set")]
+		public Error setup(Tracer tracer);
+	}
 	[CCode(cname = "int", cprefix = "GIT_TRANSPORTFLAGS_", has_type_id = false)]
 	public enum TransportFlags {
 		NONE,
@@ -6933,6 +6999,7 @@ namespace Git {
 
 	[CCode(cname = "git_attr_foreach_cb", has_type_id = false)]
 	public delegate Error AttributeForEach(string name, string? val);
+	[CCode(cname = "git_branch_foreach_cb")]
 	public delegate int Branch(string branch_name, BranchType branch_type);
 	/**
 	 * Callback for notification of a file during checkout.
@@ -7066,6 +7133,52 @@ namespace Git {
 	public delegate bool PushForEach(string ref_spec, string msg);
 	[CCode(cname = "git_checkout_progress_cb")]
 	public delegate void Progress(string path, size_t completed_steps, size_t total_steps);
+
+	/**
+	 * Suggests that the given refdb compress or optimize its references.
+	 *
+	 * This mechanism is implementation specific. (For on-disk reference
+	 * databases, this may pack all loose references.)
+	 */
+	[CCode(has_target = false, has_type_id = false)]
+	public delegate Error RefDbCompress(refdb_backend backend);
+	/**
+	 * Deletes the given reference from the refdb.
+	 */
+	[CCode(has_target = false, has_type_id = false)]
+	public delegate Error RefDbDelete(refdb_backend backend, Reference reference);
+	/**
+	 * Queries the refdb backend to determine if the given ref_name
+	 * exists.
+	 */
+	[CCode(has_target = false, has_type_id = false)]
+	public delegate Error RefDbExists(out bool exists, refdb_backend backend, string ref_name);
+	/**
+	 * Enumerates each reference in the refdb.
+	 */
+	[CCode(has_target = false, has_type_id = false)]
+	public delegate Error RefDbForEach(refdb_backend backend, ReferenceType list_flags, ReferenceForEach @foreach);
+	/**
+	 * Enumerates each reference in the refdb that matches the given glob string.
+	 */
+	[CCode(has_target = false, has_type_id = false)]
+	public delegate Error RefDbForEachGlob(refdb_backend backend, string glob, ReferenceType list_flags, ReferenceForEach @foreach);
+	/**
+	 * Frees any resources held by the refdb.
+	 */
+	[CCode(has_target = false, has_type_id = false)]
+	public delegate void RefDbFree(owned refdb_backend backend);
+	/**
+	 * Queries the refdb backend for a given reference.
+	 */
+	[CCode(has_target = false, has_type_id = false)]
+	public delegate Error RefDbLookup(out Reference? reference, refdb_backend backend, string ref_name);
+	/**
+	 * Writes the given reference to the refdb.
+	 */
+	[CCode(has_target = false, has_type_id = false)]
+	public delegate Error RefDbWrite(refdb_backend backend, Reference reference);
+
 	[CCode(cname = "git_reference_foreach_cb", has_type_id = false)]
 	public delegate bool ReferenceForEach(string refname);
 	[CCode(simple_generics = true, has_type_id = false)]
@@ -7096,6 +7209,11 @@ namespace Git {
 	public delegate Error SubmoduleForEach(string name);
 	[CCode(cname = "git_tag_foreach_cb", has_type_id = false)]
 	public delegate bool TagForEach(string name, object_id id);
+	/**
+	 * An instance for a tracing function
+	 */
+	[CCode(cname = "git_trace_callback", has_type_id = false, has_target = false)]
+	public delegate void Tracer(Trace level, string msg);
 	/**
 	 * Type for progress callbacks during indexing.
 	 *
@@ -7203,4 +7321,5 @@ namespace Git {
 		public string dup();
 	}
 }
+
 
