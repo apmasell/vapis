@@ -5,6 +5,8 @@ string foo(Git.Commit c) {
 
 void bar (Git.Object o) {
 	unowned Git.Commit c = (Git.Commit) o;
+	Git.Option.set_search_path(ConfigLevel.GLOBAL, "/foo");
+	stdout.puts(Git.Option.get_search_path(ConfigLevel.GLOBAL));
 }
 
 void test(Git.Repository repo) {

@@ -2858,13 +2858,18 @@ namespace Git {
 		/**
 		 * Count the number of unique commits between two commit objects
 		 *
-		 * @param ahead number of commits, starting at one, unique from commits in two
-		 * @param behind number of commits, starting at two, unique from commits in one
-		 * @param one one of the commits
-		 * @param two the other commit
+		 * There is no need for branches containing the commits to have any
+		 * upstream relationship, but it helps to think of one as a branch and the
+		 * other as its upstream, the ahead and behind values will be what git
+		 * would report for the branches.
+		 *
+		 * @param ahead number of unique commits in upstream
+		 * @param behind number of unique commits in local
+		 * @param local one of the commits
+		 * @param upstream the other commit
 		 */
 		[CCode(cname = "git_graph_ahead_behind", instance_pos = 2.1)]
-		public Error count_ahead_behind(out size_t ahead, out size_t behind, object_id one, object_id two);
+		public Error count_ahead_behind(out size_t ahead, out size_t behind, object_id local, object_id upstream);
 		/**
 		 * Write an in-memory buffer to the ODB as a blob
 		 *
@@ -5117,16 +5122,25 @@ namespace Git {
 		public const int MIN_PREFIX_LENGTH;
 
 		/**
+		 * Parse a hex formatted null-terminated string.
+		 *
+		 * @param id id structure the result is written into.
+		 * @param str input hex string; must be at least 4 characters long.
+		 */
+		[CCode(cname = "git_oid_fromstrp")]
+		public static Error from_string(out object_id id, string str);
+
+		/**
 		 * Parse a hex formatted object id
 		 *
 		 * @param id id structure the result is written into.
 		 * @param str input hex string; must be pointing at the start of the hex
 		 * sequence and have at least the number of bytes needed for an id encoded
 		 * in hex (40 bytes).
-		 * @return {@link Error.OK} if valid.NOTID} on failure.
+		 * @return {@link Error.OK} if valid, {@link Error.NOTID} on failure.
 		 */
 		[CCode(cname = "git_oid_fromstr")]
-		public static Error from_string(out object_id id, string str);
+		public static Error from_string_exact(out object_id id, string str);
 
 		/**
 		 * Parse N characters of a hex formatted object id
@@ -5616,15 +5630,6 @@ namespace Git {
 		 * Frees/destructs the transport object.
 		 */
 		public TransportFree free;
-		/**
-		 * Function which checks to see if a transport could be created for the
-		 * given URL (i.e., checks to see if libgit2 has a transport that supports
-		 * the given URL's scheme)
-		 *
-		 * @param url The URL to check
-		 */
-		[CCode(cname = "git_transport_valid_url")]
-		public static bool is_valid_url(string url);
 
 		/**
 		 * Function to use to create a transport from a URL.
@@ -6834,7 +6839,8 @@ namespace Git {
 		 * Given this flag, the directory itself will not be included, but all the
 		 * files in it will.
 		 */
-		RECURSE_UNTRACKED_DIRS
+		RECURSE_UNTRACKED_DIRS,
+		DEFAULTS
 	}
 
 	[CCode(cname = "git_submodule_update_t", cprefix = "GIT_SUBMODULE_UPDATE_", has_type_id = false)]
@@ -7279,27 +7285,77 @@ namespace Git {
 	[CCode(cname = "git_message_prettify")]
 	public Error prettify_message([CCode(array_length_type = "size_t")] uint8[] message_out, string message, bool strip_comments);
 
-	[CCode(cname = "int", cprefix = "GIT_OPT_")]
-	public enum Option {
-		GET_MWINDOW_SIZE,
-		/*
-		 * Set the maximum mmap window size (size_t)
-		 */
-		SET_MWINDOW_SIZE,
-		GET_MWINDOW_MAPPED_LIMIT,
-		/*
-		 * Set the maximum amount of memory that can be mapped at any time by the
-		 * library (size_t)
-		 */
-		SET_MWINDOW_MAPPED_LIMIT;
+	namespace Option {
+		[CCode(cname = "int", cprefix = "GIT_OPT_")]
+		private enum _Option {
+			GET_MWINDOW_SIZE,
+			SET_MWINDOW_SIZE,
+			GET_MWINDOW_MAPPED_LIMIT,
+			SET_MWINDOW_MAPPED_LIMIT,
+			GET_SEARCH_PATH,
+			SET_SEARCH_PATH,
+			GET_ODB_CACHE_SIZE,
+			SET_ODB_CACHE_SIZE;
+			[CCode(cname = "git_libgit2_opts")]
+			public Error opts(...);
+		}
+		public size_t get_mwindow_mapped_limit() {
+			size_t s = 0;
+			_Option.GET_MWINDOW_MAPPED_LIMIT.opts(out s);
+			return s;
+		}
 		/**
-		 * Set or query a library global option
-		 * @param ... value to set the option
+		 * Set the maximum amount of memory that can be mapped at any time by the
+		 * library.
 		 */
-		[CCode(cname = "git_libgit2_opts")]
-		public void opts(...);
+		public void set_mwindow_mapped_limit(size_t size) {
+			_Option.SET_MWINDOW_MAPPED_LIMIT.opts(size);
+		}
+		/**
+		 * Set the maximum mmap window size.
+		 */
+		public size_t get_mwindow_size() {
+			size_t s = 0;
+			_Option.GET_MWINDOW_SIZE.opts(out s);
+			return s;
+		}
+		public void set_mwindow_size(size_t size) {
+			_Option.SET_MWINDOW_SIZE.opts(size);
+		}
+		/**
+		 * Get the size of the libgit2 odb cache.
+		 */
+		public size_t get_odb_cache_size() {
+			size_t s = 0;
+			_Option.GET_ODB_CACHE_SIZE.opts(out s);
+			return s;
+		}
+		/**
+		 * Set the size of the of the libgit2 odb cache.
+		 *
+		 * This needs to be done before {@link Repository.open} is called, since
+		 * it initializes the odb layer. Defaults to 128.
+		 */
+		public void set_odb_cache_size(size_t size = 128) {
+			_Option.SET_ODB_CACHE_SIZE.opts(size);
+		}
+		/**
+		 * Set the search path for a given level of config data.
+		 *
+		 * @param level must be one of {@link ConfigLevel.SYSTEM},
+		 * {@link ConfigLevel_GLOBAL}, or {@link ConfigLevel.XDG}.
+		 */
+		public string get_search_path(ConfigLevel level) {
+			uint8[] buffer = new uint8[64];
+			while (_Option.GET_SEARCH_PATH.opts(level, (void*)buffer, (size_t) buffer.length) == Error.BUFS) {
+				buffer = new uint8[buffer.length * 2];
+			}
+			return ((string)buffer).dup();
+		}
+		public void set_search_path(ConfigLevel level, string path) {
+			_Option.SET_SEARCH_PATH.opts(level, path);
+		}
 	}
-
 
 	/**
 	 * Set the error message to a special value for memory allocation failure.
