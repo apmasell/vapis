@@ -1340,14 +1340,6 @@ namespace Git {
 		}
 
 		/**
-		 * The count of entries currently in the index
-		 */
-		public uint count {
-			[CCode(cname = "git_index_entrycount")]
-			get;
-		}
-
-		/**
 		 * Does the index contains entries representing file conflicts?
 		 */
 		public bool has_conflicts {
@@ -1365,6 +1357,14 @@ namespace Git {
 		 */
 		public Repository owner {
 			[CCode(cname = "git_index_owner")]
+			get;
+		}
+
+		/**
+		 * The count of entries currently in the index
+		 */
+		public uint size {
+			[CCode(cname = "git_index_entrycount")]
 			get;
 		}
 
@@ -1816,7 +1816,7 @@ namespace Git {
 		/**
 		 * Get the number of parents of this commit
 		 */
-		public uint count {
+		public uint size {
 			[CCode(cname = "git_commit_parentcount")]
 			get;
 		}
@@ -2280,7 +2280,7 @@ namespace Git {
 		/**
 		 * The number of log entries in a reflog
 		 */
-		public size_t count {
+		public size_t size {
 			[CCode(cname = "git_reflog_entrycount")]
 			get;
 		}
@@ -4384,16 +4384,16 @@ namespace Git {
 			get;
 		}
 
-		/**
-		 * Get the number of entries listed in a tree
-		 */
-		public size_t count {
-			[CCode(cname = "git_tree_entrycount")]
+		public Repository repository {
+			[CCode(cname = "git_tree_owner")]
 			get;
 		}
 
-		public Repository repository {
-			[CCode(cname = "git_tree_owner")]
+		/**
+		 * Get the number of entries listed in a tree
+		 */
+		public size_t size {
+			[CCode(cname = "git_tree_entrycount")]
 			get;
 		}
 
@@ -4461,7 +4461,7 @@ namespace Git {
 		/**
 		 * The number of entries listed in a treebuilder.
 		 */
-		public uint count {
+		public uint size {
 			[CCode(cname = "git_treebuilder_entrycount")]
 			get;
 		}
@@ -4611,7 +4611,7 @@ namespace Git {
 		/**
 		 * The count of unmerged entries currently in the index
 		 */
-		public uint count {
+		public uint size {
 			[CCode(cname = "git_index_reuc_entrycount")]
 			get;
 		}

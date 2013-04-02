@@ -203,12 +203,12 @@ namespace BlkId {
 	[CCode(cname = "struct blkid_struct_partlist", has_type_id = false)]
 	[Compact]
 	public class PartList {
-		public int count {
-			[CCode(cname = "blkid_partlist_numof_partitions")]
-			get;
-		}
 		public PartTable table {
 			[CCode(cname = "blkid_partlist_get_table")]
+			get;
+		}
+		public int size {
+			[CCode(cname = "blkid_partlist_numof_partitions")]
 			get;
 		}
 		[CCode(cname = "blkid_partlist_get_partition")]

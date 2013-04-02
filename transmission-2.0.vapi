@@ -256,7 +256,7 @@ namespace Transmission {
 		public unowned benc ListAddList(size_t reserveCount);
 		[CCode(cname = "tr_bencListAddDict")]
 		public unowned benc ListAddDict(size_t reserveCount);
-		public size_t count {
+		public size_t size {
 			[CCode(cname = "tr_bencListSize")]
 			get;
 		}

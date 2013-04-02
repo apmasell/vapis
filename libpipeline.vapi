@@ -238,14 +238,6 @@ namespace Pipe {
 		}
 
 		/**
-		 * The number of commands in this pipeline.
-		 */
-		public int length {
-			[CCode(cname = "pipeline_get_ncommands")]
-			get;
-		}
-
-		/**
 		 * Set file name to open and use as the output of the whole pipeline.
 		 *
 		 * This may be more convenient than supplying file descriptors, and
@@ -287,6 +279,14 @@ namespace Pipe {
 		 */
 		public size_t peek_size {
 			[CCode(cname = "pipeline_peek_size")]
+			get;
+		}
+
+		/**
+		 * The number of commands in this pipeline.
+		 */
+		public int size {
+			[CCode(cname = "pipeline_get_ncommands")]
 			get;
 		}
 

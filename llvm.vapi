@@ -920,7 +920,7 @@ GLib.FileStream
 
 	[CCode(cname = "struct LLVMOpaqueValue", ref_function = "", unref_function = "", has_type_id = false)]
 	public class User: Value {
-		public int count { [CCode(cname = "LLVMGetNumOperands")] get; }
+		public int size { [CCode(cname = "LLVMGetNumOperands")] get; }
 		[CCode (cname = "LLVMSetOperand")]
 		public Value get(uint index);
 		[CCode (cname = "LLVMGetOperand")]

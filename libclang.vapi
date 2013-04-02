@@ -1437,7 +1437,7 @@ namespace Clang {
 		/**
 		 * The number of diagnostics produced for the given translation unit.
 		 */
-		public uint count {
+		public uint size {
 			[CCode(cname = "clang_getNumDiagnostics")]
 			get;
 		}
@@ -2979,7 +2979,7 @@ namespace Clang {
 			 * Retrieve the number of annotations associated with the given
 			 * completion string.
 			 */
-			public uint count {
+			public uint size {
 				[CCode(cname = "clang_getCompletionNumAnnotations")]
 				get;
 			}
@@ -2999,7 +2999,7 @@ namespace Clang {
 			 * The number of diagnostics produced prior to the location where code
 			 * completion was performed.
 			 */
-			public uint count {
+			public uint size {
 				[CCode(cname = "clang_codeCompleteGetNumDiagnostics")]
 				get;
 			}
@@ -3099,13 +3099,6 @@ namespace Clang {
 				get;
 			}
 			/**
-			 * The number of chunks in the given code-completion string.
-			 */
-			public uint count {
-				[CCode(cname = "clang_getNumCompletionChunks")]
-				get;
-			}
-			/**
 			 * The priority of this code completion.
 			 *
 			 * The priority of a code completion indicates how likely it is that this
@@ -3116,6 +3109,13 @@ namespace Clang {
 			 */
 			public uint priority {
 				[CCode(cname = "clang_getCompletionPriority")]
+				get;
+			}
+			/**
+			 * The number of chunks in the given code-completion string.
+			 */
+			public uint size {
+				[CCode(cname = "clang_getNumCompletionChunks")]
 				get;
 			}
 			/**

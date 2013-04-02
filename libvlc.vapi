@@ -989,15 +989,6 @@ namespace VLC {
 			get;
 		}
 		/**
-		 * The number of items in media list
-		 *
-		 * The {@link lock} should be held upon entering this function.
-		 */
-		public int length {
-			[CCode(cname = "libvlc_media_list_count")]
-			get;
-		}
-		/**
 		 * The associated media instance with this media list instance.
 		 *
 		 * The {@link lock} should NOT be held upon entering this function.
@@ -1007,6 +998,15 @@ namespace VLC {
 			set;
 			[CCode(cname = "libvlc_media_list_media", simple_generics = true)]
 			owned get;
+		}
+		/**
+		 * The number of items in media list
+		 *
+		 * The {@link lock} should be held upon entering this function.
+		 */
+		public int size {
+			[CCode(cname = "libvlc_media_list_count")]
+			get;
 		}
 		[CCode(cname = "libvlc_media_list_add_file_content")]
 		[Deprecated]
