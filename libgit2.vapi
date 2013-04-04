@@ -2518,7 +2518,7 @@ namespace Git {
 		 * with those objects.
 		 */
 		[CCode(cname = "git_remote_download")]
-		public Error download(out int64 bytes, Progress progress);
+		public Error download(Progress progress);
 
 		/**
 		 * Disconnect from the remote
