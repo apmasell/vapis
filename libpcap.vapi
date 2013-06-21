@@ -340,7 +340,7 @@ namespace PCap {
 		 * @return the data in that packet or null of an error occurs
 		 */
 		[CCode(cname = "pcap_next", array_length = false)]
-		public uint8[]? next(out packet_header header);
+		public unowned uint8[]? next(out packet_header header);
 
 		/**
 		 * Read the next packet
