@@ -10,6 +10,14 @@
 #
 
 {
+   nss services
+   Memcheck:Leak
+   fun:malloc
+   fun:nss_parse_service_list
+   fun:__nss_database_lookup
+   obj:*
+}
+{
    libc: getpwnam_r
    Memcheck:Addr4
    obj:/lib/ld-*.so
@@ -296,13 +304,25 @@
 # gtype stuff
 #
 {
-   gtk type init
+   glib type init
    Memcheck:Leak
    fun:malloc
    fun:realloc
    fun:g_realloc
    fun:type_node_any_new_W
 }
+
+{
+   glib type init
+   Memcheck:Leak
+   fun:malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:freelist_alloc
+   fun:_g_atomic_array_copy
+   fun:type_node_any_new_W
+}
+
 {
    glib type init
    Memcheck:Leak
@@ -354,6 +374,49 @@
    fun:g_type_init_with_debug_flags
 }
 
+{
+   glib type init
+   Memcheck:Leak
+   fun:malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:freelist_alloc
+   fun:_g_atomic_array_copy
+   fun:iface_node_set_offset_L
+   fun:type_node_add_iface_entry_W
+   fun:type_add_interface_Wm
+   fun:g_type_add_interface_static
+}
+{
+   glib type init
+   Memcheck:Leak
+   fun:malloc
+   fun:g_malloc
+   fun:g_slice_alloc
+   fun:freelist_alloc
+   fun:_g_atomic_array_copy
+   fun:type_node_add_iface_entry_W
+   fun:type_add_interface_Wm
+   fun:g_type_add_interface_static
+}
+
+{
+   glib type init
+   Memcheck:Leak
+   fun:malloc
+   fun:g_malloc
+   fun:g_memdup
+   fun:type_iface_vtable_base_init_Wm
+}
+
+{
+   glib type init
+   Memcheck:Leak
+   fun:malloc
+   fun:g_malloc
+   fun:g_memdup
+   fun:type_iface_vtable_base_init_Wm
+}
 #
 # option parser
 #
@@ -363,10 +426,90 @@
    Memcheck:Leak
    fun:memalign
    fun:posix_memalign
-   fun:slab_allocator_alloc_chunk
-   fun:g_slice_alloc
-   fun:g_list_prepend
-   fun:add_pending_null.isra.6
+   ...
    fun:g_option_context_parse
+}
+
+{
+   goption parser
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:g_option_context_parse
+}
+
+{
+   goption parser
+   Memcheck:Leak
+   fun:calloc
+   ...
+   fun:g_option_context_parse
+}
+
+#
+# zlib
+#
+#
+{
+   zlib init
+   Memcheck:Cond
+   fun:inflateReset2
+   fun:inflateInit2_
+}
+
+#
+# gio
+#
+{
+   gio module
+   Memcheck:Leak
+   fun:calloc
+   fun:g_malloc0
+   fun:g_closure_new_simple
+   fun:g_signal_type_cclosure_new
+   fun:g_signal_new
+   fun:g_object_do_class_init
+   fun:g_type_class_ref
+   fun:g_type_class_ref
+   fun:g_type_class_ref
+   fun:g_object_newv
+   fun:g_object_new
+   fun:g_io_module_new
+}
+{
+   gio type class
+   Memcheck:Leak
+   fun:calloc
+   fun:g_malloc0
+   fun:g_type_class_ref
+   fun:g_type_class_ref
+   fun:g_type_create_instance
+   fun:g_param_spec_internal
+   fun:g_param_spec_object
+   fun:g_file_enumerator_class_intern_init
+   fun:g_type_class_ref
+   fun:g_type_class_ref
+   fun:g_object_new_valist
+   fun:g_object_new
+}
+
+#
+# GNUTLS
+#
+
+{
+   gnu tls
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:gnutls_global_init
+}
+
+{
+   gnu tls p11 kit
+   Memcheck:Leak
+   fun:calloc
+   ...
+   fun:gnutls_global_init
 }
 
