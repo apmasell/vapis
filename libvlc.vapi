@@ -1,244 +1,244 @@
-[CCode(cheader_filename = "vlc/libvlc.h,vlc/libvlc_vlm.h")]
+[CCode (cheader_filename = "vlc/libvlc.h,vlc/libvlc_vlm.h")]
 namespace VLC {
 	/**
 	 * Audio channels
 	 */
-	[CCode(cname = "libvlc_audio_output_channel_t", cheader_filename = "vlc/libvlc_media_player.h")]
+	[CCode (cname = "libvlc_audio_output_channel_t", cheader_filename = "vlc/libvlc_media_player.h")]
 	public enum AudioChannel {
-		[CCode(cname = "libvlc_AudioChannel_Error")]
+		[CCode (cname = "libvlc_AudioChannel_Error")]
 		ERROR,
-		[CCode(cname = "libvlc_AudioChannel_Stereo")]
+		[CCode (cname = "libvlc_AudioChannel_Stereo")]
 		STEREO,
-		[CCode(cname = "libvlc_AudioChannel_RStereo")]
+		[CCode (cname = "libvlc_AudioChannel_RStereo")]
 		R_STEREO,
-		[CCode(cname = "libvlc_AudioChannel_Left")]
+		[CCode (cname = "libvlc_AudioChannel_Left")]
 		LEFT,
-		[CCode(cname = "libvlc_AudioChannel_Right")]
+		[CCode (cname = "libvlc_AudioChannel_Right")]
 		RIGHT,
-		[CCode(cname = "libvlc_AudioChannel_Dolbys")]
+		[CCode (cname = "libvlc_AudioChannel_Dolbys")]
 		DOLBYS
 	}
 	/**
 	 * Audio device types
 	 */
-	[CCode(cname = "libvlc_audio_output_device_types_t", cheader_filename = "vlc/libvlc_media_player.h")]
+	[CCode (cname = "libvlc_audio_output_device_types_t", cheader_filename = "vlc/libvlc_media_player.h")]
 	public enum AudioDevice {
-		[CCode(cname = "libvlc_AudioOutputDevice_Error")]
+		[CCode (cname = "libvlc_AudioOutputDevice_Error")]
 		ERROR,
-		[CCode(cname = "libvlc_AudioOutputDevice_Mono")]
+		[CCode (cname = "libvlc_AudioOutputDevice_Mono")]
 		MONO,
-		[CCode(cname = "libvlc_AudioOutputDevice_Stereo")]
+		[CCode (cname = "libvlc_AudioOutputDevice_Stereo")]
 		STERO,
-		[CCode(cname = "libvlc_AudioOutputDevice_2F2R")]
+		[CCode (cname = "libvlc_AudioOutputDevice_2F2R")]
 		TWO_F_TWO_R,
-		[CCode(cname = "libvlc_AudioOutputDevice_3F2R")]
+		[CCode (cname = "libvlc_AudioOutputDevice_3F2R")]
 		THREE_F_TWO_R,
-		[CCode(cname = "libvlc_AudioOutputDevice_5_1")]
+		[CCode (cname = "libvlc_AudioOutputDevice_5_1")]
 		FIVE_ONE,
-		[CCode(cname = "libvlc_AudioOutputDevice_6_1")]
+		[CCode (cname = "libvlc_AudioOutputDevice_6_1")]
 		SIX_ONE,
-		[CCode(cname = "libvlc_AudioOutputDevice_7_1")]
+		[CCode (cname = "libvlc_AudioOutputDevice_7_1")]
 		SEVEN_ONE,
-		[CCode(cname = "libvlc_AudioOutputDevice_SPDIF")]
+		[CCode (cname = "libvlc_AudioOutputDevice_SPDIF")]
 		SPDIF
 	}
 	/**
 	 * Event types
 	 */
-	[CCode(cname = "enum libvlc_event_e", cprefix = "libvlc_", cheader_filename = "vlc/libvlc_events.h")]
+	[CCode (cname = "enum libvlc_event_e", cprefix = "libvlc_", cheader_filename = "vlc/libvlc_events.h")]
 	public enum EventType {
-		[CCode(cname = "libvlc_MediaMetaChanged")]
+		[CCode (cname = "libvlc_MediaMetaChanged")]
 		MEDIA_META_CHANGED,
-		[CCode(cname = "libvlc_MediaSubItemAdded")]
+		[CCode (cname = "libvlc_MediaSubItemAdded")]
 		MEDIA_SUB_ITEM_ADDED,
-		[CCode(cname = "libvlc_MediaDurationChanged")]
+		[CCode (cname = "libvlc_MediaDurationChanged")]
 		MEDIA_DURATION_CHANGED,
-		[CCode(cname = "libvlc_MediaParsedChanged")]
+		[CCode (cname = "libvlc_MediaParsedChanged")]
 		MEDIA_PARSED_CHANGED,
-		[CCode(cname = "libvlc_MediaFreed")]
+		[CCode (cname = "libvlc_MediaFreed")]
 		MEDIA_FREED,
-		[CCode(cname = "libvlc_MediaStateChanged")]
+		[CCode (cname = "libvlc_MediaStateChanged")]
 		MEDIA_STATE_CHANGED,
-		[CCode(cname = "libvlc_MediaPlayerMediaChanged")]
+		[CCode (cname = "libvlc_MediaPlayerMediaChanged")]
 		MEDIA_PLAYER_MEDIA_CHANGED,
-		[CCode(cname = "libvlc_MediaPlayerNothingSpecial")]
+		[CCode (cname = "libvlc_MediaPlayerNothingSpecial")]
 		MEDIA_PLAYER_NOTHING_SPECIAL,
-		[CCode(cname = "libvlc_MediaPlayerOpening")]
+		[CCode (cname = "libvlc_MediaPlayerOpening")]
 		MEDIA_PLAYER_OPENING,
-		[CCode(cname = "libvlc_MediaPlayerBuffering")]
+		[CCode (cname = "libvlc_MediaPlayerBuffering")]
 		MEDIA_PLAYER_BUFFERING,
-		[CCode(cname = "libvlc_MediaPlayerPlaying")]
+		[CCode (cname = "libvlc_MediaPlayerPlaying")]
 		MEDIA_PLAYER_PLAYING,
-		[CCode(cname = "libvlc_MediaPlayerPaused")]
+		[CCode (cname = "libvlc_MediaPlayerPaused")]
 		MEDIA_PLAYER_PAUSED,
-		[CCode(cname = "libvlc_MediaPlayerStopped")]
+		[CCode (cname = "libvlc_MediaPlayerStopped")]
 		MEDIA_PLAYER_STOPPED,
-		[CCode(cname = "libvlc_MediaPlayerForward")]
+		[CCode (cname = "libvlc_MediaPlayerForward")]
 		MEDIA_PLAYER_FORWARD,
-		[CCode(cname = "libvlc_MediaPlayerBackward")]
+		[CCode (cname = "libvlc_MediaPlayerBackward")]
 		MEDIA_PLAYER_BACKWARD,
-		[CCode(cname = "libvlc_MediaPlayerEndReached")]
+		[CCode (cname = "libvlc_MediaPlayerEndReached")]
 		MEDIA_PLAYER_END_REACHED,
-		[CCode(cname = "libvlc_MediaPlayerEncounteredError")]
+		[CCode (cname = "libvlc_MediaPlayerEncounteredError")]
 		MEDIA_PLAYER_ENCOUNTERED_ERROR,
-		[CCode(cname = "libvlc_MediaPlayerTimeChanged")]
+		[CCode (cname = "libvlc_MediaPlayerTimeChanged")]
 		MEDIA_PLAYER_TIME_CHANGED,
-		[CCode(cname = "libvlc_MediaPlayerPositionChanged")]
+		[CCode (cname = "libvlc_MediaPlayerPositionChanged")]
 		MEDIA_PLAYER_POSITION_CHANGED,
-		[CCode(cname = "libvlc_MediaPlayerSeekableChanged")]
+		[CCode (cname = "libvlc_MediaPlayerSeekableChanged")]
 		MEDIA_PLAYER_SEEKABLE_CHANGED,
-		[CCode(cname = "libvlc_MediaPlayerPausableChanged")]
+		[CCode (cname = "libvlc_MediaPlayerPausableChanged")]
 		MEDIA_PLAYER_PAUSABLE_CHANGED,
-		[CCode(cname = "libvlc_MediaPlayerTitleChanged")]
+		[CCode (cname = "libvlc_MediaPlayerTitleChanged")]
 		MEDIA_PLAYER_TITLE_CHANGED,
-		[CCode(cname = "libvlc_MediaPlayerSnapshotTaken")]
+		[CCode (cname = "libvlc_MediaPlayerSnapshotTaken")]
 		MEDIA_PLAYER_SNAPSHOT_TAKEN,
-		[CCode(cname = "libvlc_MediaPlayerLengthChanged")]
+		[CCode (cname = "libvlc_MediaPlayerLengthChanged")]
 		MEDIA_PLAYER_LENGTH_CHANGED,
-		[CCode(cname = "libvlc_MediaListItemAdded")]
+		[CCode (cname = "libvlc_MediaListItemAdded")]
 		MEDIA_LIST_ITEM_ADDED,
-		[CCode(cname = "libvlc_MediaListWillAddItem")]
+		[CCode (cname = "libvlc_MediaListWillAddItem")]
 		MEDIA_LIST_WILL_ADD_ITEM,
-		[CCode(cname = "libvlc_MediaListItemDeleted")]
+		[CCode (cname = "libvlc_MediaListItemDeleted")]
 		MEDIA_LIST_ITEM_DELETED,
-		[CCode(cname = "libvlc_MediaListWillDeleteItem")]
+		[CCode (cname = "libvlc_MediaListWillDeleteItem")]
 		MEDIA_LIST_WILL_DELETE_ITEM,
-		[CCode(cname = "libvlc_MediaListViewItemAdded")]
+		[CCode (cname = "libvlc_MediaListViewItemAdded")]
 		MEDIA_LIST_VIEW_ITEM_ADDED,
-		[CCode(cname = "libvlc_MediaListViewWillAddItem")]
+		[CCode (cname = "libvlc_MediaListViewWillAddItem")]
 		MEDIA_LIST_VIEW_WILL_ADD_ITEM,
-		[CCode(cname = "libvlc_MediaListViewItemDeleted")]
+		[CCode (cname = "libvlc_MediaListViewItemDeleted")]
 		MEDIA_LIST_VIEW_ITEM_DELETED,
-		[CCode(cname = "libvlc_MediaListViewWillDeleteItem")]
+		[CCode (cname = "libvlc_MediaListViewWillDeleteItem")]
 		MEDIA_LIST_VIEW_WILL_DELETE_ITEM,
-		[CCode(cname = "libvlc_MediaListPlayerPlayed")]
+		[CCode (cname = "libvlc_MediaListPlayerPlayed")]
 		MEDIA_LIST_PLAYER_PLAYED,
-		[CCode(cname = "libvlc_MediaListPlayerNextItemSet")]
+		[CCode (cname = "libvlc_MediaListPlayerNextItemSet")]
 		MEDIA_LIST_PLAYER_NEXT_ITEM_SET,
-		[CCode(cname = "libvlc_MediaListPlayerStopped")]
+		[CCode (cname = "libvlc_MediaListPlayerStopped")]
 		MEDIA_LIST_PLAYER_STOPPED,
-		[CCode(cname = "libvlc_MediaDiscovererStarted")]
+		[CCode (cname = "libvlc_MediaDiscovererStarted")]
 		MEDIA_DISCOVERER_STARTED,
-		[CCode(cname = "libvlc_MediaDiscovererEnded")]
+		[CCode (cname = "libvlc_MediaDiscovererEnded")]
 		MEDIA_DISCOVERER_ENDED,
-		[CCode(cname = "libvlc_VlmMediaAdded")]
+		[CCode (cname = "libvlc_VlmMediaAdded")]
 		VLM_MEDIA_ADDED,
-		[CCode(cname = "libvlc_VlmMediaRemoved")]
+		[CCode (cname = "libvlc_VlmMediaRemoved")]
 		VLM_MEDIA_REMOVED,
-		[CCode(cname = "libvlc_VlmMediaChanged")]
+		[CCode (cname = "libvlc_VlmMediaChanged")]
 		VLM_MEDIA_CHANGED,
-		[CCode(cname = "libvlc_VlmMediaInstanceStarted")]
+		[CCode (cname = "libvlc_VlmMediaInstanceStarted")]
 		VLM_MEDIA_INSTANCE_STARTED,
-		[CCode(cname = "libvlc_VlmMediaInstanceStopped")]
+		[CCode (cname = "libvlc_VlmMediaInstanceStopped")]
 		VLM_MEDIA_INSTANCE_STOPPED,
-		[CCode(cname = "libvlc_VlmMediaInstanceStatusInit")]
+		[CCode (cname = "libvlc_VlmMediaInstanceStatusInit")]
 		VLM_MEDIA_INSTANCE_STATUS_INIT,
-		[CCode(cname = "libvlc_VlmMediaInstanceStatusOpening")]
+		[CCode (cname = "libvlc_VlmMediaInstanceStatusOpening")]
 		VLM_MEDIA_INSTANCE_STATUS_OPENING,
-		[CCode(cname = "libvlc_VlmMediaInstanceStatusPlaying")]
+		[CCode (cname = "libvlc_VlmMediaInstanceStatusPlaying")]
 		VLM_MEDIA_INSTANCE_STATUS_PLAYING,
-		[CCode(cname = "libvlc_VlmMediaInstanceStatusPause")]
+		[CCode (cname = "libvlc_VlmMediaInstanceStatusPause")]
 		VLM_MEDIA_INSTANCE_STATUS_PAUSE,
-		[CCode(cname = "libvlc_VlmMediaInstanceStatusEnd")]
+		[CCode (cname = "libvlc_VlmMediaInstanceStatusEnd")]
 		VLM_MEDIA_INSTANCE_STATUS_END,
-		[CCode(cname = "libvlc_VlmMediaInstanceStatusError")]
+		[CCode (cname = "libvlc_VlmMediaInstanceStatusError")]
 		VLM_MEDIA_INSTANCE_STATUS_ERROR
 	}
 	/**
 	 * Metadata types
 	 */
-	[CCode(cname = "libvlc_meta_t", cheader_filename = "vlc/libvlc_media.h")]
+	[CCode (cname = "libvlc_meta_t", cheader_filename = "vlc/libvlc_media.h")]
 	public enum Meta {
-		[CCode(cname = "libvlc_meta_Title")]
+		[CCode (cname = "libvlc_meta_Title")]
 		TITLE,
-		[CCode(cname = "libvlc_meta_Artist")]
+		[CCode (cname = "libvlc_meta_Artist")]
 		ARTIST,
-		[CCode(cname = "libvlc_meta_Genre")]
+		[CCode (cname = "libvlc_meta_Genre")]
 		GENRE,
-		[CCode(cname = "libvlc_meta_Copyright")]
+		[CCode (cname = "libvlc_meta_Copyright")]
 		COPYRIGHT,
-		[CCode(cname = "libvlc_meta_Album")]
+		[CCode (cname = "libvlc_meta_Album")]
 		ALBUM,
-		[CCode(cname = "libvlc_meta_TrackNumber")]
+		[CCode (cname = "libvlc_meta_TrackNumber")]
 		TRACK_NUMBER,
-		[CCode(cname = "libvlc_meta_Description")]
+		[CCode (cname = "libvlc_meta_Description")]
 		DESCRIPTION,
-		[CCode(cname = "libvlc_meta_Rating")]
+		[CCode (cname = "libvlc_meta_Rating")]
 		RATING,
-		[CCode(cname = "libvlc_meta_Date")]
+		[CCode (cname = "libvlc_meta_Date")]
 		DATE,
-		[CCode(cname = "libvlc_meta_Setting")]
+		[CCode (cname = "libvlc_meta_Setting")]
 		SETTING,
-		[CCode(cname = "libvlc_meta_URL")]
+		[CCode (cname = "libvlc_meta_URL")]
 		URL,
-		[CCode(cname = "libvlc_meta_Language")]
+		[CCode (cname = "libvlc_meta_Language")]
 		LANGUAGE,
-		[CCode(cname = "libvlc_meta_NowPlaying")]
+		[CCode (cname = "libvlc_meta_NowPlaying")]
 		NOW_PLAYING,
-		[CCode(cname = "libvlc_meta_Publisher")]
+		[CCode (cname = "libvlc_meta_Publisher")]
 		PUBLISHER,
-		[CCode(cname = "libvlc_meta_EncodedBy")]
+		[CCode (cname = "libvlc_meta_EncodedBy")]
 		ENCODED_BY,
-		[CCode(cname = "libvlc_meta_ArtworkURL")]
+		[CCode (cname = "libvlc_meta_ArtworkURL")]
 		ARTWORK_URL,
-		[CCode(cname = "libvlc_meta_TrackID")]
+		[CCode (cname = "libvlc_meta_TrackID")]
 		TRACK_ID
 	}
-	[CCode(cname = "int", cheader_filename = "vlc/libvlc_media.h")]
+	[CCode (cname = "int", cheader_filename = "vlc/libvlc_media.h")]
 	[Flags]
 	public enum Option {
-		[CCode(cname = "libvlc_media_option_trusted")]
+		[CCode (cname = "libvlc_media_option_trusted")]
 		TRUSTED,
-		[CCode(cname = "libvlc_media_option_unique")]
+		[CCode (cname = "libvlc_media_option_unique")]
 		UNIQUE
 	}
 	/**
 	 * Playback modes for playlist.
 	 */
-	[CCode(cname = "libvlc_playback_mode_t", cheader_filename = "vlc/libvlc_media_list_player.h")]
+	[CCode (cname = "libvlc_playback_mode_t", cheader_filename = "vlc/libvlc_media_list_player.h")]
 	public enum PlaybackMode {
-		[CCode(cname = "libvlc_playback_mode_default")]
+		[CCode (cname = "libvlc_playback_mode_default")]
 		DEFAULT,
-		[CCode(cname = "libvlc_playback_mode_loop")]
+		[CCode (cname = "libvlc_playback_mode_loop")]
 		LOOP,
-		[CCode(cname = "libvlc_playback_mode_repeat")]
+		[CCode (cname = "libvlc_playback_mode_repeat")]
 		REPEAT
 	}
-	[CCode(cname = "libvlc_state_t", cheader_filename = "vlc/libvlc_media.h")]
+	[CCode (cname = "libvlc_state_t", cheader_filename = "vlc/libvlc_media.h")]
 	public enum State {
-		[CCode(cname = "libvlc_NothingSpecial")]
+		[CCode (cname = "libvlc_NothingSpecial")]
 		NOTHING_SPECIAL,
-		[CCode(cname = "libvlc_Opening")]
+		[CCode (cname = "libvlc_Opening")]
 		OPENING,
-		[CCode(cname = "libvlc_Buffering")]
+		[CCode (cname = "libvlc_Buffering")]
 		BUFFERING,
-		[CCode(cname = "libvlc_Playing")]
+		[CCode (cname = "libvlc_Playing")]
 		PLAYING,
-		[CCode(cname = "libvlc_Paused")]
+		[CCode (cname = "libvlc_Paused")]
 		PAUSED,
-		[CCode(cname = "libvlc_Stopped")]
+		[CCode (cname = "libvlc_Stopped")]
 		STOPPED,
-		[CCode(cname = "libvlc_Ended")]
+		[CCode (cname = "libvlc_Ended")]
 		ENDED,
-		[CCode(cname = "libvlc_Error")]
+		[CCode (cname = "libvlc_Error")]
 		ERROR
 	}
-	[CCode(cname = "libvlc_track_type_t", cheader_filename = "vlc/libvlc_media.h")]
+	[CCode (cname = "libvlc_track_type_t", cheader_filename = "vlc/libvlc_media.h")]
 	public enum TrackType {
-		[CCode(cname = "libvlc_track_unknown")]
+		[CCode (cname = "libvlc_track_unknown")]
 		UNKNOWN,
-		[CCode(cname = "libvlc_track_audio")]
+		[CCode (cname = "libvlc_track_audio")]
 		AUDIO,
-		[CCode(cname = "libvlc_track_video")]
+		[CCode (cname = "libvlc_track_video")]
 		VIDEO,
-		[CCode(cname = "libvlc_track_text")]
+		[CCode (cname = "libvlc_track_text")]
 		TEXT
 	}
-	[CCode(cname = "libvlc_audio_output_t", free_function = "libvlc_audio_output_list_release")]
+	[CCode (cname = "libvlc_audio_output_t", free_function = "libvlc_audio_output_list_release")]
 	[Compact]
 	public class AudioList {
-		public audio_output? get(int i) {
-			return ((audio_output[])this)[i];
+		public audio_output? get (int i) {
+			return ((audio_output[]) this)[i];
 		}
 	}
 	/**
@@ -250,43 +250,42 @@ namespace VLC {
 	 * from peripherals (e.g. video capture device), on the local network
 	 * (e.g. SAP) or on the Internet (e.g. Internet radios).
 	 */
-	[CCode(cname = "libvlc_media_discoverer_t", free_function = "libvlc_media_discoverer_release", cheader_filename = "vlc/libvlc_media_discoverer.h")]
+	[CCode (cname = "libvlc_media_discoverer_t", free_function = "libvlc_media_discoverer_release", cheader_filename = "vlc/libvlc_media_discoverer.h")]
 	[Compact]
 	public class Discoverer<T> {
 		public EventManager event_manager {
-				[CCode(cname = "libvlc_media_discoverer_event_manager")]
-				get;
+			[CCode (cname = "libvlc_media_discoverer_event_manager")]
+			get;
 		}
 		/**
 		 * Query if media service discover object is running.
 		 */
 		public bool is_running {
-			[CCode(cname = "libvlc_media_discoverer_is_running")]
+			[CCode (cname = "libvlc_media_discoverer_is_running")]
 			get;
 		}
 		/**
 		 * Media service discover object's localized name.
 		 */
 		public string localized_name {
-			[CCode(cname = "libvlc_media_discoverer_localized_name")]
+			[CCode (cname = "libvlc_media_discoverer_localized_name")]
 			get;
 		}
 		/**
 		 * Get media service discover media list.
 		 */
 		public MediaList<T> media_list {
-			[CCode(cname = "libvlc_media_discoverer_media_list", simple_generics = true)]
+			[CCode (cname = "libvlc_media_discoverer_media_list", simple_generics = true)]
 			get;
 		}
 	}
-	[CCode(cname = "libvlc_event_manager_t")]
+	[CCode (cname = "libvlc_event_manager_t")]
 	[Compact]
-	public class EventManager {
-	}
-	[CCode(cname = "libvlc_instance_t", unref_function = "libvlc_release", ref_function = "libvlc_retain")]
+	public class EventManager {}
+	[CCode (cname = "libvlc_instance_t", unref_function = "libvlc_release", ref_function = "libvlc_retain")]
 	public class Instance {
 		public EventManager event_manager {
-			[CCode(cname = "libvlc_vlm_get_event_manager")]
+			[CCode (cname = "libvlc_vlm_get_event_manager")]
 			get;
 		}
 		/**
@@ -307,8 +306,8 @@ namespace VLC {
 		 * cross-platform compatibility with regards to arguments. We recommend
 		 * that you do not use them, other than when debugging.
 		 */
-		[CCode(cname = "libvlc_new")]
-		public static Instance? create([CCode(array_length_pos = 0.1)] string[]? args = null);
+		[CCode (cname = "libvlc_new")]
+		public static Instance? create ([CCode (array_length_pos = 0.1)] string[]? args = null);
 		/**
 		 * Add a broadcast, with one input.
 		 *
@@ -317,11 +316,11 @@ namespace VLC {
 		 * @param output the output MRL (the parameter to the "sout" variable)
 		 * @param options additional options
 		 * @param enabled boolean for enabling the new broadcast
-		 * @param loop Should this broadcast be played in loop ?
+		 * @param loop Should this broadcast be played in loop?
 		 * @return false on success, true on error
 		 */
-		[CCode(cname = "libvlc_vlm_add_broadcast")]
-		public bool add_broadcast(string name, string input, string output, [CCode(array_length_pos = 3.1)] string[] options, bool enabled, bool loop);
+		[CCode (cname = "libvlc_vlm_add_broadcast")]
+		public bool add_broadcast (string name, string input, string output, [CCode (array_length_pos = 3.1)] string[] options, bool enabled, bool loop);
 		/**
 		 * Add a media's input MRL. This will add the specified one.
 		 *
@@ -329,8 +328,8 @@ namespace VLC {
 		 * @param input the input MRL
 		 * @return false on success, true on error
 		 */
-		[CCode(cname = "libvlc_vlm_add_input")]
-		public bool add_input(string name, string input);
+		[CCode (cname = "libvlc_vlm_add_input")]
+		public bool add_input (string name, string input);
 		/**
 		 * Add a vod, with one input.
 		 *
@@ -341,8 +340,8 @@ namespace VLC {
 		 * @param mux the muxer of the vod media
 		 * @return false on success, true on error
 		 */
-		[CCode(cname = "libvlc_vlm_add_vod")]
-		public bool add_vod(string name, string input, [CCode(array_length_pos = 2.1)] string[] options, bool enabled, string mux);
+		[CCode (cname = "libvlc_vlm_add_vod")]
+		public bool add_vod (string name, string input, [CCode (array_length_pos = 2.1)] string[] options, bool enabled, string mux);
 		/**
 		 * Edit the parameters of a media. This will delete all existing inputs and
 		 * add the specified one.
@@ -352,29 +351,29 @@ namespace VLC {
 		 * @param output the output MRL (the parameter to the "sout" variable)
 		 * @param options additional options
 		 * @param enabled enable the new broadcast
-		 * @param loop Should this broadcast be played in loop ?
+		 * @param loop Should this broadcast be played in loop?
 		 * @return false on success, true on error
 		 */
-		[CCode(cname = "libvlc_vlm_change_media")]
-		public bool change_media(string name, string input, string output, [CCode(array_length_pos = 3.1)] string[] options, bool enabled, bool loop);
+		[CCode (cname = "libvlc_vlm_change_media")]
+		public bool change_media (string name, string input, string output, [CCode (array_length_pos = 3.1)] string[] options, bool enabled, bool loop);
 		/**
 		 * Create new media list player.
 		 *
 		 * @return media list player instance or null on error
 		 */
-		[CCode(cname = "libvlc_media_list_player_new", simple_generics = true)]
-		public ListPlayer<T>? create_list_player<T>();
+		[CCode (cname = "libvlc_media_list_player_new", simple_generics = true)]
+		public ListPlayer<T>? create_list_player<T> ();
 		/**
 		 * Create an empty media list.
 		 * @return empty media list, or null on error
 		 */
-		[CCode(cname = "libvlc_media_list_new", simple_generics = true)]
-		public MediaList<T>? create_media_list<T>();
+		[CCode (cname = "libvlc_media_list_new", simple_generics = true)]
+		public MediaList<T>? create_media_list<T> ();
 		/**
 		 * Create an empty Media Player object
 		 */
-		[CCode(cname = "libvlc_media_player_new", simple_generics = true)]
-		public Player<T>? create_player<T>();
+		[CCode (cname = "libvlc_media_player_new", simple_generics = true)]
+		public Player<T>? create_player<T> ();
 		/**
 		 * Get count of devices for audio output, these devices are hardware oriented
 		 * like analog or digital output of sound card
@@ -383,8 +382,8 @@ namespace VLC {
 		 * @return number of devices
 		 * @see audio_output
 		 */
-		[CCode(cname = "libvlc_audio_output_device_count")]
-		public int get_audio_device_count(string audio_output);
+		[CCode (cname = "libvlc_audio_output_device_count")]
+		public int get_audio_device_count (string audio_output);
 		/**
 		 * Get id name of device
 		 *
@@ -392,8 +391,8 @@ namespace VLC {
 		 * @param device device index
 		 * @return id name of device, use for setting device, need to be free after use
 		 */
-		[CCode(cname = "libvlc_audio_output_device_id")]
-		public unowned string get_audio_device_id(string audio_output, int device);
+		[CCode (cname = "libvlc_audio_output_device_id")]
+		public unowned string get_audio_device_id (string audio_output, int device);
 		/**
 		 * Get long name of device, if not available short name given
 		 *
@@ -401,23 +400,23 @@ namespace VLC {
 		 * @param device device index
 		 * @return long name of device
 		 */
-		[CCode(cname = "libvlc_audio_output_device_longname")]
-		public unowned string get_audio_device_name(string audio_output, int device);
+		[CCode (cname = "libvlc_audio_output_device_longname")]
+		public unowned string get_audio_device_name (string audio_output, int device);
 		/**
 		 * Get the list of available audio outputs
 		 *
 		 * @return list of available audio outputs. In case of error, null is returned.
 		 */
-		[CCode(cname = "libvlc_audio_output_list_get")]
-		public AudioList? get_audio_output_list();
+		[CCode (cname = "libvlc_audio_output_list_get")]
+		public AudioList? get_audio_output_list ();
 		/**
 		 * Discover media service by name.
 		 *
 		 * @param name service name
 		 * @return media discover object or null in case of error
 		 */
-		[CCode(cname = "libvlc_media_discoverer_new_from_name", simple_generics = true)]
-		public Discoverer<T>? get_discoverer_from_name<T>(string name);
+		[CCode (cname = "libvlc_media_discoverer_new_from_name", simple_generics = true)]
+		public Discoverer<T>? get_discoverer_from_name<T> (string name);
 		/**
 		 * Get media instance length by name or instance id
 		 *
@@ -425,17 +424,17 @@ namespace VLC {
 		 * @param instance instance id
 		 * @return length of media item or -1 on error
 		 */
-		[CCode(cname = "libvlc_vlm_get_media_instance_length")]
-		public int get_media_instance_length(string name, int instance);
+		[CCode (cname = "libvlc_vlm_get_media_instance_length")]
+		public int get_media_instance_length (string name, int instance);
 		/**
-		* Get media instance position by name or instance id
-		*
-		* @param name name of vlm media instance
-		* @param instance instance id
-		* @return position as float or -1 on error
-		*/
-		[CCode(cname = "libvlc_vlm_get_media_instance_position")]
-		public float get_media_instance_position(string name, int instance);
+		 * Get media instance position by name or instance id
+		 *
+		 * @param name name of vlm media instance
+		 * @param instance instance id
+		 * @return position as float or -1 on error
+		 */
+		[CCode (cname = "libvlc_vlm_get_media_instance_position")]
+		public float get_media_instance_position (string name, int instance);
 		/**
 		 * Get media instance time by name or instance id
 		 *
@@ -443,8 +442,8 @@ namespace VLC {
 		 * @param instance instance id
 		 * @return time as integer or -1 on error
 		 */
-		[CCode(cname = "libvlc_vlm_get_media_instance_time")]
-		public int get_media_instance_time(string name, int instance);
+		[CCode (cname = "libvlc_vlm_get_media_instance_time")]
+		public int get_media_instance_time (string name, int instance);
 		/**
 		 * Get media instance playback rate by name or instance id
 		 *
@@ -452,8 +451,8 @@ namespace VLC {
 		 * @param instance instance id
 		 * @return playback rate or -1 on error
 		 */
-		[CCode(cname = "libvlc_vlm_get_media_instance_rate")]
-		public int get_media_instance_rate(string name, int instance);
+		[CCode (cname = "libvlc_vlm_get_media_instance_rate")]
+		public int get_media_instance_rate (string name, int instance);
 		/**
 		 * Create a media for an already open file descriptor.
 		 * The file descriptor shall be open for reading (or reading and writing).
@@ -473,8 +472,8 @@ namespace VLC {
 		 * @param fd open file descriptor
 		 * @return the newly created media or null on error
 		 */
-		[CCode(cname = "libvlc_media_new_fd", simple_generics = true)]
-		public Media<S>? open_media_fd<S>(int fd);
+		[CCode (cname = "libvlc_media_new_fd", simple_generics = true)]
+		public Media<S>? open_media_fd<S> (int fd);
 		/**
 		 * Create a media with a certain given media resource location,
 		 * for instance a valid URL.
@@ -486,39 +485,39 @@ namespace VLC {
 		 * @param mrl the media location
 		 * @return the newly created media or null on error
 		 */
-		[CCode(cname = "libvlc_media_new_location", simple_generics = true)]
-		public Media<S>? open_media_location<S>(string mrl);
+		[CCode (cname = "libvlc_media_new_location", simple_generics = true)]
+		public Media<S>? open_media_location<S> (string mrl);
 		/**
 		 * Create a media as an empty node with a given name.
 		 *
 		 * @param name the name of the node
 		 * @return the new empty media or null on error
 		 */
-		[CCode(cname = "libvlc_media_new_as_node", simple_generics = true)]
-		public Media<S>? open_media_node<S>(string name);
+		[CCode (cname = "libvlc_media_new_as_node", simple_generics = true)]
+		public Media<S>? open_media_node<S> (string name);
 		/**
 		 * Create a media for a certain file path.
 		 *
 		 * @param path local filesystem path
 		 * @return the newly created media or null on error
 		 */
-		[CCode(cname = "libvlc_media_new_path", simple_generics = true)]
-		public Media<S>? open_media_path<S>(string path);
+		[CCode (cname = "libvlc_media_new_path", simple_generics = true)]
+		public Media<S>? open_media_path<S> (string path);
 		/**
 		 * Pause the named broadcast.
 		 *
 		 * @param name the name of the broadcast
 		 * @return false on success, true on error
 		 */
-		[CCode(cname = "libvlc_vlm_pause_media")]
-		public bool pause_media(string name);
+		[CCode (cname = "libvlc_vlm_pause_media")]
+		public bool pause_media (string name);
 		/**
 		 * Play the named broadcast.
 		 *
 		 * @param name the name of the broadcast
 		 * @return false on success, true on error
 		 */
-		[CCode(cname = "libvlc_vlm_play_media")]
+		[CCode (cname = "libvlc_vlm_play_media")]
 		public bool play_media (string name);
 		/**
 		 * Start playing (if there is any item in the playlist).
@@ -531,31 +530,31 @@ namespace VLC {
 		 * @param options the options to add to the item
 		 */
 		[Deprecated]
-		[CCode(cname = "libvlc_playlist_play")]
-		public void play_playlist(int id, [CCode(array_length_pos = 1.1)] string[] options);
-		[CCode(cname = "libvlc_retain")]
-		public void ref();
+		[CCode (cname = "libvlc_playlist_play")]
+		public void play_playlist (int id, [CCode (array_length_pos = 1.1)] string[] options);
+		[CCode (cname = "libvlc_retain")]
+		public void ref ();
 		/**
 		 * Release the vlm instance
 		 */
-		[CCode(cname = "libvlc_vlm_release")]
-		public void release_vlm();
+		[CCode (cname = "libvlc_vlm_release")]
+		public void release_vlm ();
 		/**
 		 * Delete a media (VOD or broadcast).
 		 *
 		 * @param name the media to delete
 		 * @return false on success, true on error
 		 */
-		[CCode(cname = "libvlc_vlm_del_media")]
-		public bool remove_media(string name);
+		[CCode (cname = "libvlc_vlm_del_media")]
+		public bool remove_media (string name);
 		/**
 		 * Seek in the named broadcast.
 		 *
 		 * @param name the name of the broadcast
 		 * @return false on success, true on error
 		 */
-		[CCode(cname = "libvlc_vlm_seek_media")]
-		public bool seek_media(string name, float percentage);
+		[CCode (cname = "libvlc_vlm_seek_media")]
+		public bool seek_media (string name, float percentage);
 		/**
 		 * Enable or disable a media (VOD or broadcast).
 		 *
@@ -563,8 +562,8 @@ namespace VLC {
 		 * @param enabled the new status
 		 * @return false on success, true on error
 		 */
-		[CCode(cname = "libvlc_vlm_set_enabled")]
-		public bool set_enabled(string name, bool enabled);
+		[CCode (cname = "libvlc_vlm_set_enabled")]
+		public bool set_enabled (string name, bool enabled);
 		/**
 		 * Set a media's input MRL. This will delete all existing inputs and
 		 * add the specified one.
@@ -573,8 +572,8 @@ namespace VLC {
 		 * @param input the input MRL
 		 * @return false on success, true on error
 		 */
-		[CCode(cname = "libvlc_vlm_set_input")]
-		public bool set_input(string name, string input);
+		[CCode (cname = "libvlc_vlm_set_input")]
+		public bool set_input (string name, string input);
 		/**
 		 * Set a media's loop status.
 		 *
@@ -582,8 +581,8 @@ namespace VLC {
 		 * @param loop the new status
 		 * @return false on success, true on error
 		 */
-		[CCode(cname = "libvlc_vlm_set_loop")]
-		public bool set_loop(string name, bool loop);
+		[CCode (cname = "libvlc_vlm_set_loop")]
+		public bool set_loop (string name, bool loop);
 		/**
 		 * Set a media's vod muxer.
 		 *
@@ -591,8 +590,8 @@ namespace VLC {
 		 * @param mux the new muxer
 		 * @return false on success, true on error
 		 */
-		[CCode(cname = "libvlc_vlm_set_mux")]
-		public bool set_mux(string name, string mux);
+		[CCode (cname = "libvlc_vlm_set_mux")]
+		public bool set_mux (string name, string mux);
 		/**
 		 * Set the output for a media.
 		 *
@@ -600,8 +599,8 @@ namespace VLC {
 		 * @param output the output MRL (the parameter to the "sout" variable)
 		 * @return false on success, true on error
 		 */
-		[CCode(cname = "libvlc_vlm_set_output")]
-		public bool set_output(string name, string output);
+		[CCode (cname = "libvlc_vlm_set_output")]
+		public bool set_output (string name, string output);
 		/**
 		 * Return information about the named media as a JSON
 		 * string representation.
@@ -614,62 +613,62 @@ namespace VLC {
 		 * @param name the name of the media, if the name is an empty string, all media is described
 		 * @return string with information about named media, or null on error
 		 */
-		[CCode(cname = "libvlc_vlm_show_media")]
-		public unowned string? show_media(string name);
+		[CCode (cname = "libvlc_vlm_show_media")]
+		public unowned string? show_media (string name);
 		/**
 		 * Stop the named broadcast.
 		 *
 		 * @param name the name of the broadcast
 		 * @return false on success, true on error
 		 */
-		[CCode(cname = "libvlc_vlm_stop_media")]
+		[CCode (cname = "libvlc_vlm_stop_media")]
 		public bool stop_media (string name);
-		[CCode(cname = "libvlc_release")]
-		public void unref();
+		[CCode (cname = "libvlc_release")]
+		public void unref ();
 	}
 	/**
-	* Plays a list of media, in a certain order.
-	*
-	* This is required to especially support playlist files.
-	* The normal {@link Player} can only play a single media, and does not
-	* handle playlist files properly.
-	*/
-	[CCode(cname = "libvlc_media_list_player_t", free_function = "libvlc_media_list_player_release", cheader_filename = "vlc/libvlc_media_list_player.h")]
+	 * Plays a list of media, in a certain order.
+	 *
+	 * This is required to especially support playlist files.
+	 * The normal {@link Player} can only play a single media, and does not
+	 * handle playlist files properly.
+	 */
+	[CCode (cname = "libvlc_media_list_player_t", free_function = "libvlc_media_list_player_release", cheader_filename = "vlc/libvlc_media_list_player.h")]
 	[Compact]
 	public class ListPlayer<T> {
 		/**
 		 * The event manager.
 		 */
 		public EventManager event_manager {
-			[CCode(cname = "libvlc_media_list_player_event_manager")]
+			[CCode (cname = "libvlc_media_list_player_event_manager")]
 			get;
 		}
 		/**
 		 * The media list associated with the player
 		 */
 		public MediaList<T> list {
-			[CCode(cname = "libvlc_media_list_player_set_media_list", simple_generics = true)]
+			[CCode (cname = "libvlc_media_list_player_set_media_list", simple_generics = true)]
 			get;
 		}
 		/**
 		 * The playback mode for the playlist
 		 */
 		public PlaybackMode mode {
-			[CCode(cname = "libvlc_media_list_player_set_playback_mode")]
+			[CCode (cname = "libvlc_media_list_player_set_playback_mode")]
 			set;
 		}
 		/**
 		 * The media player.
 		 */
 		public Player<T>? player {
-			[CCode(cname = "libvlc_media_list_player_set_media_player", simple_generics = true)]
+			[CCode (cname = "libvlc_media_list_player_set_media_player", simple_generics = true)]
 			set;
 		}
 		/**
 		 * The current state of media list player
 		 */
 		public State state {
-			[CCode(cname = "libvlc_media_list_player_get_state")]
+			[CCode (cname = "libvlc_media_list_player_get_state")]
 			get;
 		}
 		/**
@@ -677,87 +676,87 @@ namespace VLC {
 		 *
 		 * @return false upon success, true if there is no next item
 		 */
-		[CCode(cname = "libvlc_media_list_player_next")]
-		public bool next();
+		[CCode (cname = "libvlc_media_list_player_next")]
+		public bool next ();
 		/**
 		 * Pause media list
 		 */
-		[CCode(cname = "libvlc_media_list_player_pause")]
-		public void pause();
+		[CCode (cname = "libvlc_media_list_player_pause")]
+		public void pause ();
 		/**
 		 * Play media list
 		 */
-		[CCode(cname = "libvlc_media_list_player_play")]
-		public void play();
+		[CCode (cname = "libvlc_media_list_player_play")]
+		public void play ();
 		/**
 		 * Play the given media item
 		 *
 		 * @param md the media instance
 		 * @return false upon success, true if the item was not found.
 		 */
-		[CCode(cname = "libvlc_media_list_player_play_item", simple_generics = true)]
-		public bool play_item(Media<T> md);
+		[CCode (cname = "libvlc_media_list_player_play_item", simple_generics = true)]
+		public bool play_item (Media<T> md);
 		/**
 		 * Play media list item at position index
 		 *
 		 * @param index index in media list to play
 		 * @return false upon success, true if the item was not found.
 		 */
-		[CCode(cname = "libvlc_media_list_player_play_item_at_index")]
-		public bool play_item_at_index(int index);
+		[CCode (cname = "libvlc_media_list_player_play_item_at_index")]
+		public bool play_item_at_index (int index);
 		/**
 		 * Play previous item from media list
 		 *
 		 * @return false upon success, true if there is no previous item
 		 */
-		[CCode(cname = "libvlc_media_list_player_previous")]
-		public bool previous();
+		[CCode (cname = "libvlc_media_list_player_previous")]
+		public bool previous ();
 		/**
 		 * Stop playing media list
 		 */
-		[CCode(cname = "libvlc_media_list_player_stop")]
-		public void stop();
+		[CCode (cname = "libvlc_media_list_player_stop")]
+		public void stop ();
 	}
-	[CCode(cname = "libvlc_log_t")]
+	[CCode (cname = "libvlc_log_t")]
 	[Compact]
 	public class Log {
-		[CCode(cname = "int", has_type_id = false)]
+		[CCode (cname = "int", has_type_id = false)]
 		public enum Severity {
-			[CCode(cname = "0")]
+			[CCode (cname = "0")]
 			INFO,
-			[CCode(cname = "1")]
+			[CCode (cname = "1")]
 			ERR,
-			[CCode(cname = "2")]
+			[CCode (cname = "2")]
 			WARN,
-			[CCode(cname = "3")]
+			[CCode (cname = "3")]
 			DBG
 		}
 		/**
 		 * Optional header
 		 */
-		[CCode(cname = "header")]
+		[CCode (cname = "header")]
 		public string? header;
 		/**
 		 * Message
 		 */
-		[CCode(cname = "message")]
+		[CCode (cname = "message")]
 		public string message;
 		/**
 		 * Module name
 		 */
-		[CCode(cname = "name")]
+		[CCode (cname = "name")]
 		public string name;
-		[CCode(cname = "i_severity")]
+		[CCode (cname = "i_severity")]
 		public Severity severity;
 		/**
 		 * sizeof() of message structure, must be filled in by user
 		 */
-		[CCode(cname = "sizeof_msg")]
+		[CCode (cname = "sizeof_msg")]
 		public uint sizeof_msg;
 		/**
 		 * Module type
 		 */
-		[CCode(cname = "type")]
+		[CCode (cname = "type")]
 		public string type;
 	}
 	/**
@@ -765,20 +764,20 @@ namespace VLC {
 	 *
 	 * It consists of a media location and various optional meta data.
 	 */
-	[CCode(cname = "libvlc_media_t", ref_function = "libvlc_media_retain", unref_function = "libvlc_media_release", cheader_filename = "vlc/libvlc_media.h")]
+	[CCode (cname = "libvlc_media_t", ref_function = "libvlc_media_retain", unref_function = "libvlc_media_release", cheader_filename = "vlc/libvlc_media.h")]
 	public class Media<T> {
 		/**
 		 * Get duration (in ms) of media descriptor object item.
 		 */
 		public int64 duration {
-		 [CCode(cname = "libvlc_media_get_duration")]
-		 get;
+			[CCode (cname = "libvlc_media_get_duration")]
+			get;
 		}
 		/**
 		 * Get event manager from media descriptor object.
 		 */
 		public EventManager event_manager {
-			[CCode(cname = "libvlc_media_event_manager")]
+			[CCode (cname = "libvlc_media_event_manager")]
 			get;
 		}
 		/**
@@ -787,21 +786,21 @@ namespace VLC {
 		 * @see EventType.MEDIA_PARSED_CHANGED
 		 */
 		public bool is_parsed {
-			[CCode(cname = "libvlc_media_is_parsed")]
+			[CCode (cname = "libvlc_media_is_parsed")]
 			get;
 		}
 		/**
 		 * The media resource locator (mrl)
 		 */
 		public string mrl {
-			[CCode(cname = "libvlc_media_get_mrl")]
+			[CCode (cname = "libvlc_media_get_mrl")]
 			get;
 		}
 		/**
 		 * Current state of media descriptor object.
 		 */
 		public State state {
-			[CCode(cname = "libvlc_media_get_state")]
+			[CCode (cname = "libvlc_media_get_state")]
 			get;
 		}
 		/**
@@ -809,9 +808,9 @@ namespace VLC {
 		 * an native object
 		 */
 		public T user_data {
-			[CCode(cname = "libvlc_media_set_user_data", simple_generics = true)]
+			[CCode (cname = "libvlc_media_set_user_data", simple_generics = true)]
 			set;
-			[CCode(cname = "libvlc_media_get_user_data", simple_generics = true)]
+			[CCode (cname = "libvlc_media_get_user_data", simple_generics = true)]
 			get;
 		}
 		/**
@@ -825,8 +824,8 @@ namespace VLC {
 		 *
 		 * @param options the options (as a string)
 		 */
-		[CCode(cname = "libvlc_media_add_option")]
-		public void add_option(string options);
+		[CCode (cname = "libvlc_media_add_option")]
+		public void add_option (string options);
 		/**
 		 * Add an option to the media with configurable flags.
 		 *
@@ -839,18 +838,18 @@ namespace VLC {
 		 * @param options the options (as a string)
 		 * @param flags the flags for this option
 		 */
-		[CCode(cname = "libvlc_media_add_option_flag")]
-		public void add_option_flag(string options, Option flags = 0);
+		[CCode (cname = "libvlc_media_add_option_flag")]
+		public void add_option_flag (string options, Option flags = 0);
 		/**
 		 * Create a Media Player object from a Media
 		 */
-		[CCode(cname = "libvlc_media_player_new_from_media")]
-		public Player<T>? create_player();
+		[CCode (cname = "libvlc_media_player_new_from_media")]
+		public Player<T>? create_player ();
 		/**
 		 * Duplicate a media descriptor object.
 		 */
-		[CCode(cname = "libvlc_media_duplicate", simple_generics = true)]
-		public Media<T> duplicate();
+		[CCode (cname = "libvlc_media_duplicate", simple_generics = true)]
+		public Media<T> duplicate ();
 		/**
 		 * Read the meta of the media.
 		 *
@@ -867,15 +866,15 @@ namespace VLC {
 		 * @param meta the meta to read
 		 * @return the media's meta
 		 */
-		[CCode(cname = "libvlc_media_get_meta")]
-		public string? get(Meta meta);
+		[CCode (cname = "libvlc_media_get_meta")]
+		public string? get (Meta meta);
 		/**
 		 * Get the current statistics about the media
-		 : @param p_stats structure that contain the statistics about the media
+		   : @param p_stats structure that contain the statistics about the media
 		 * @return true if the statistics are available, false otherwise
 		 */
-		[CCode(cname = "libvlc_media_get_stats")]
-		public bool get_stats(out media_stats p_stats);
+		[CCode (cname = "libvlc_media_get_stats")]
+		public bool get_stats (out media_stats p_stats);
 		/**
 		 * Get media descriptor's elementary streams description
 		 *
@@ -892,13 +891,13 @@ namespace VLC {
 		 * This is very likely to change in next release, and be done at the parsing
 		 * phase.
 		 */
-		public track_info[] get_tracks_info() {
+		public track_info[] get_tracks_info () {
 			track_info[] info;
-			info.length = _get_tracks_info(out info);
+			info.length = _get_tracks_info (out info);
 			return info;
 		}
-		[CCode(cname = "libvlc_media_get_tracks_info")]
-		private int _get_tracks_info(out track_info[] info);
+		[CCode (cname = "libvlc_media_get_tracks_info")]
+		private int _get_tracks_info (out track_info[] info);
 		/**
 		 * Parse a media.
 		 *
@@ -909,8 +908,8 @@ namespace VLC {
 		 * @see get
 		 * @see get_tracks_info
 		 */
-		[CCode(cname = "libvlc_media_parse")]
-		public void parse();
+		[CCode (cname = "libvlc_media_parse")]
+		public void parse ();
 		/**
 		 * Parse a media.
 		 *
@@ -925,22 +924,22 @@ namespace VLC {
 		 * @see get
 		 * @see get_tracks_info
 		 */
-		[CCode(cname = "libvlc_media_parse_async")]
-		public void parse_async();
+		[CCode (cname = "libvlc_media_parse_async")]
+		public void parse_async ();
 		/**
 		 * Retain a reference to a media descriptor object. Use
 		 * {@link unref} to decrement the reference count of a
 		 * media descriptor object.
 		 */
-		[CCode(cname = "libvlc_media_retain")]
-		public void ref();
+		[CCode (cname = "libvlc_media_retain")]
+		public void ref ();
 		/**
 		 * Save the meta previously set
 		 *
 		 * @return true if the write operation was successfull
 		 */
-		[CCode(cname = "libvlc_media_save_meta")]
-		public bool save_meta();
+		[CCode (cname = "libvlc_media_save_meta")]
+		public bool save_meta ();
 		/**
 		 * Set the meta of the media (this function will not save the meta, call
 		 * {@link save_meta} in order to save the meta)
@@ -948,8 +947,8 @@ namespace VLC {
 		 * @param meta the meta to write
 		 * @param value the media's meta
 		 */
-		[CCode(cname = "libvlc_media_set_meta")]
-		public void set(Meta meta, string value);
+		[CCode (cname = "libvlc_media_set_meta")]
+		public void set (Meta meta, string value);
 		/**
 		 * Decrement the reference count of a media descriptor object. If the
 		 * reference count is 0, then this method will release the media descriptor
@@ -957,13 +956,13 @@ namespace VLC {
 		 * listeners. If the media descriptor object has been released it should
 		 * not be used again.
 		 */
-		[CCode(cname = "libvlc_media_release")]
-		public void unref();
+		[CCode (cname = "libvlc_media_release")]
+		public void unref ();
 	}
 	/**
 	 * Holds multiple {@link Media} descriptors.
 	 */
-	[CCode(cname = "libvlc_media_list_t", unref_function = "libvlc_media_list_release", ref_function = "libvlc_media_list_retain", cheader_filename = "vlc/libvlc_media_list.h")]
+	[CCode (cname = "libvlc_media_list_t", unref_function = "libvlc_media_list_release", ref_function = "libvlc_media_list_retain", cheader_filename = "vlc/libvlc_media_list.h")]
 	public class MediaList<T> {
 		/**
 		 * The event manager from this media list instance.
@@ -971,21 +970,21 @@ namespace VLC {
 		 * The event manager is immutable, so you don't have to hold the lock
 		 */
 		public EventManager event_manager {
-			[CCode(cname = "libvlc_media_list_event_manager")]
+			[CCode (cname = "libvlc_media_list_event_manager")]
 			get;
 		}
 		/**
 		 * Is media list playing?
 		 */
 		public bool is_playing {
-			[CCode(cname = "libvlc_media_list_player_is_playing")]
+			[CCode (cname = "libvlc_media_list_player_is_playing")]
 			get;
 		}
 		/**
 		 * This indicates if this media list is read-only from a user point of view
 		 */
 		public bool is_writable {
-			[CCode(cname = "libvlc_media_list_is_readonly")]
+			[CCode (cname = "libvlc_media_list_is_readonly")]
 			get;
 		}
 		/**
@@ -994,9 +993,9 @@ namespace VLC {
 		 * The {@link lock} should NOT be held upon entering this function.
 		 */
 		public Media<T> media {
-			[CCode(cname = "libvlc_media_list_set_media", simple_generics = true)]
+			[CCode (cname = "libvlc_media_list_set_media", simple_generics = true)]
 			set;
-			[CCode(cname = "libvlc_media_list_media", simple_generics = true)]
+			[CCode (cname = "libvlc_media_list_media", simple_generics = true)]
 			owned get;
 		}
 		/**
@@ -1005,12 +1004,12 @@ namespace VLC {
 		 * The {@link lock} should be held upon entering this function.
 		 */
 		public int size {
-			[CCode(cname = "libvlc_media_list_count")]
+			[CCode (cname = "libvlc_media_list_count")]
 			get;
 		}
-		[CCode(cname = "libvlc_media_list_add_file_content")]
+		[CCode (cname = "libvlc_media_list_add_file_content")]
 		[Deprecated]
-		public int add_file_content(string uri);
+		public int add_file_content (string uri);
 		/**
 		 * Add media instance to media list
 		 *
@@ -1019,8 +1018,8 @@ namespace VLC {
 		 * @param md a media instance
 		 * @return false on success
 		 */
-		[CCode(cname = "libvlc_media_list_add_media", simple_generics = true)]
-		public bool add_media(Media<T> md);
+		[CCode (cname = "libvlc_media_list_add_media", simple_generics = true)]
+		public bool add_media (Media<T> md);
 		/**
 		 * List media instance in media list at a position
 		 *
@@ -1029,8 +1028,8 @@ namespace VLC {
 		 * @param pos position in array
 		 * @return media instance at position pos, or null if not found.
 		 */
-		[CCode(cname = "libvlc_media_list_item_at_index", simple_generics = true)]
-		public Media<T>? get(int pos);
+		[CCode (cname = "libvlc_media_list_item_at_index", simple_generics = true)]
+		public Media<T>? get (int pos);
 		/**
 		 * Find index position of List media instance in media list.
 		 *
@@ -1040,8 +1039,8 @@ namespace VLC {
 		 * @param md media list instance
 		 * @return position of media instance
 		 */
-		[CCode(cname = "libvlc_media_list_index_of_item", simple_generics = true)]
-		public int index_of_item(Media<T> md);
+		[CCode (cname = "libvlc_media_list_index_of_item", simple_generics = true)]
+		public int index_of_item (Media<T> md);
 		/**
 		 * Insert media instance in media list on a position
 		 *
@@ -1050,18 +1049,18 @@ namespace VLC {
 		 * @param pos position in array where to insert
 		 * @return false on success
 		 */
-		[CCode(cname = "libvlc_media_list_insert_media", simple_generics = true)]
-		public bool insert_media(Media<T> md, int pos);
+		[CCode (cname = "libvlc_media_list_insert_media", simple_generics = true)]
+		public bool insert_media (Media<T> md, int pos);
 		/**
 		 * Get lock on media list items
 		 */
-		[CCode(cname = "libvlc_media_list_lock")]
-		public void lock();
+		[CCode (cname = "libvlc_media_list_lock")]
+		public void lock () ;
 		/**
 		 * Retain reference to a media list.
 		 */
-		[CCode(cname = "libvlc_media_list_retain")]
-		public void ref();
+		[CCode (cname = "libvlc_media_list_retain")]
+		public void ref ();
 		/**
 		 * Remove media instance from media list on a position
 		 *
@@ -1069,96 +1068,96 @@ namespace VLC {
 		 * @param pos position in array where to insert
 		 * @return false on success, true if the list is read-only or the item was not found
 		 */
-		[CCode(cname = "libvlc_media_list_remove_index")]
-		public bool remove_index(int pos);
+		[CCode (cname = "libvlc_media_list_remove_index")]
+		public bool remove_index (int pos);
 		/**
 		 * Release lock on media list items
 		 *
 		 * The lock should be held upon entering this function.
 		 */
-		[CCode(cname = "libvlc_media_list_unlock")]
-		public void unlock();
+		[CCode (cname = "libvlc_media_list_unlock")]
+		public void unlock ();
 		/**
 		 * Release media list.
 		 */
-		[CCode(cname = "libvlc_media_list_release")]
-		public void unref();
+		[CCode (cname = "libvlc_media_list_release")]
+		public void unref ();
 	}
 	/**
 	 * Plays one media (usually in a custom drawable).
 	 */
-	[CCode(cname = "libvlc_media_player_t", unref_function = "libvlc_media_player_release", ref_function = "libvlc_media_player_retain", cheader_filename = "vlc/libvlc_media_player.h")]
+	[CCode (cname = "libvlc_media_player_t", unref_function = "libvlc_media_player_release", ref_function = "libvlc_media_player_retain", cheader_filename = "vlc/libvlc_media_player.h")]
 	public class Player<T> {
-		[CCode(cname = "libvlc_video_logo_option_t")]
+		[CCode (cname = "libvlc_video_logo_option_t")]
 		public enum LogoOption {
-			[CCode(cname = "libvlc_logo_enable")]
+			[CCode (cname = "libvlc_logo_enable")]
 			ENABLE,
 			/**
 			 * string argument, "file,d,t;file,d,t;..."
 			 */
-			[CCode(cname = "libvlc_logo_file")]
+			[CCode (cname = "libvlc_logo_file")]
 			FILE,
-			[CCode(cname = "libvlc_logo_x")]
+			[CCode (cname = "libvlc_logo_x")]
 			X,
-			[CCode(cname = "libvlc_logo_y")]
+			[CCode (cname = "libvlc_logo_y")]
 			Y,
-			[CCode(cname = "libvlc_logo_delay")]
+			[CCode (cname = "libvlc_logo_delay")]
 			DELAY,
-			[CCode(cname = "libvlc_logo_repeat")]
+			[CCode (cname = "libvlc_logo_repeat")]
 			REPEAT,
-			[CCode(cname = "libvlc_logo_opacity")]
+			[CCode (cname = "libvlc_logo_opacity")]
 			OPACITY,
-			[CCode(cname = "libvlc_logo_position")]
+			[CCode (cname = "libvlc_logo_position")]
 			POSITION
 		}
 		/**
 		 * Marquee options definition
 		 */
-		[CCode(cname = "libvlc_video_marquee_option_t")]
+		[CCode (cname = "libvlc_video_marquee_option_t")]
 		public enum MarqueeOption {
-			[CCode(cname = "libvlc_marquee_Enable")]
+			[CCode (cname = "libvlc_marquee_Enable")]
 			ENABLE,
-			[CCode(cname = "libvlc_marquee_Text")]
+			[CCode (cname = "libvlc_marquee_Text")]
 			TEXT,
-			[CCode(cname = "libvlc_marquee_Color")]
+			[CCode (cname = "libvlc_marquee_Color")]
 			COLOR,
-			[CCode(cname = "libvlc_marquee_Opacity")]
+			[CCode (cname = "libvlc_marquee_Opacity")]
 			OPACITY,
-			[CCode(cname = "libvlc_marquee_Position")]
+			[CCode (cname = "libvlc_marquee_Position")]
 			POSITION,
-			[CCode(cname = "libvlc_marquee_Refresh")]
+			[CCode (cname = "libvlc_marquee_Refresh")]
 			REFRESH,
-			[CCode(cname = "libvlc_marquee_Size")]
+			[CCode (cname = "libvlc_marquee_Size")]
 			SIZE,
-			[CCode(cname = "libvlc_marquee_Timeout")]
+			[CCode (cname = "libvlc_marquee_Timeout")]
 			TIMEOUT,
-			[CCode(cname = "libvlc_marquee_X")]
+			[CCode (cname = "libvlc_marquee_X")]
 			X,
-			[CCode(cname = "libvlc_marquee_Y")]
+			[CCode (cname = "libvlc_marquee_Y")]
 			Y
 		}
-		[CCode(cname = "libvlc_video_adjust_option_t")]
+		[CCode (cname = "libvlc_video_adjust_option_t")]
 		public enum VideoAdjust {
-			[CCode(cname = "libvlc_adjust_Enable")]
+			[CCode (cname = "libvlc_adjust_Enable")]
 			ENABLE,
-			[CCode(cname = "libvlc_adjust_Contrast")]
+			[CCode (cname = "libvlc_adjust_Contrast")]
 			CONTRAST,
-			[CCode(cname = "libvlc_adjust_Brightness")]
+			[CCode (cname = "libvlc_adjust_Brightness")]
 			BRIGHTNESS,
-			[CCode(cname = "libvlc_adjust_Hue")]
+			[CCode (cname = "libvlc_adjust_Hue")]
 			HUE,
-			[CCode(cname = "libvlc_adjust_Saturation")]
+			[CCode (cname = "libvlc_adjust_Saturation")]
 			SATURATION,
-			[CCode(cname = "libvlc_adjust_Gamma")]
+			[CCode (cname = "libvlc_adjust_Gamma")]
 			GAMMA
 		}
 		/**
 		 * The agl handler where the media player should render its video output.
 		 */
 		public uint32 agl {
-			[CCode(cname = "libvlc_media_player_set_agl")]
+			[CCode (cname = "libvlc_media_player_set_agl")]
 			set;
-			[CCode(cname = "libvlc_media_player_get_agl")]
+			[CCode (cname = "libvlc_media_player_get_agl")]
 			get;
 		}
 		/**
@@ -1169,9 +1168,9 @@ namespace VLC {
 		 * Invalid aspect ratios are ignored.
 		 */
 		public string? aspect_ratio {
-			[CCode(cname = "libvlc_video_get_aspect_ratio")]
+			[CCode (cname = "libvlc_video_get_aspect_ratio")]
 			owned get;
-			[CCode(cname = "libvlc_video_set_aspect_ratio")]
+			[CCode (cname = "libvlc_video_set_aspect_ratio")]
 			set;
 		}
 		/**
@@ -1180,9 +1179,9 @@ namespace VLC {
 		 * @see AudioChannel
 		 */
 		public AudioChannel audio_channel {
-			[CCode(cname = "libvlc_audio_get_channel")]
+			[CCode (cname = "libvlc_audio_get_channel")]
 			get;
-			[CCode(cname = "libvlc_audio_set_channel")]
+			[CCode (cname = "libvlc_audio_set_channel")]
 			set;
 		}
 		/**
@@ -1191,71 +1190,71 @@ namespace VLC {
 		 * The audio delay will be reset to zero each time the media changes.
 		 */
 		public int64 audio_delay {
-			[CCode(cname = "libvlc_audio_get_delay")]
+			[CCode (cname = "libvlc_audio_get_delay")]
 			get;
-			[CCode(cname = "libvlc_audio_set_delay")]
+			[CCode (cname = "libvlc_audio_set_delay")]
 			set;
 		}
 		/**
 		 * The current audio track, or -1 if none.
 		 */
 		public int audio_track {
-			[CCode(cname = "libvlc_audio_get_track")]
+			[CCode (cname = "libvlc_audio_get_track")]
 			get;
-			[CCode(cname = "libvlc_audio_set_track")]
+			[CCode (cname = "libvlc_audio_set_track")]
 			set;
 		}
 		/**
 		 * The number of available audio tracks, or -1 if unavailable.
 		 */
 		public int audio_track_count {
-			[CCode(cname = "libvlc_audio_get_track_count")]
+			[CCode (cname = "libvlc_audio_get_track_count")]
 			get;
 		}
 		/**
 		 * The description of available audio tracks.
-		*/
+		 */
 		public track_description? audio_track_description {
-			[CCode(cname = "libvlc_audio_get_track_description")]
+			[CCode (cname = "libvlc_audio_get_track_description")]
 			get;
 		}
 		/**
 		 * Can this media player be paused?
 		 */
 		public bool can_pause {
-			[CCode(cname = "libvlc_media_player_can_pause")]
+			[CCode (cname = "libvlc_media_player_can_pause")]
 			get;
 		}
 		/**
 		 * The movie chapter (if applicable).
 		 */
 		public int chapter {
-			[CCode(cname = "libvlc_media_player_set_chapter")]
+			[CCode (cname = "libvlc_media_player_set_chapter")]
 			set;
-			[CCode(cname = "libvlc_media_player_get_chapter")]
+			[CCode (cname = "libvlc_media_player_get_chapter")]
 			get;
 		}
 		/**
 		 * Get movie chapter count
 		 */
 		public int chapter_count {
-			[CCode(cname = "libvlc_media_player_get_chapter_count")]
+			[CCode (cname = "libvlc_media_player_get_chapter_count")]
 			get;
 		}
 		/**
 		 * The current crop filter geometry.
 		 */
 		public string? crop_geometry {
-			[CCode(cname = "libvlc_video_get_crop_geometry")]
+			[CCode (cname = "libvlc_video_get_crop_geometry")]
 			get;
-			[CCode(cname = "libvlc_video_set_crop_geometry")]
+			[CCode (cname = "libvlc_video_set_crop_geometry")]
 			set;
 		}
 		/**
 		 * Enable or disable deinterlace filter
 		 */
 		public string? deinterlace {
-			[CCode(cname = "libvlc_video_set_deinterlace")]
+			[CCode (cname = "libvlc_video_set_deinterlace")]
 			set;
 		}
 		/**
@@ -1264,23 +1263,23 @@ namespace VLC {
 		 * Device type describes something like character of output sound (i.e., stereo sound, 2.1, 5.1, etc.)
 		 */
 		public AudioDevice device_type {
-			[CCode(cname = "libvlc_audio_output_get_device_type")]
+			[CCode (cname = "libvlc_audio_output_get_device_type")]
 			get;
-			[CCode(cname = "libvlc_audio_output_set_device_type")]
+			[CCode (cname = "libvlc_audio_output_set_device_type")]
 			set;
 		}
 		/**
 		 * The Event Manager from which the media player send event.
 		 */
 		public EventManager event_manager {
-			[CCode(cname = "libvlc_media_player_event_manager")]
+			[CCode (cname = "libvlc_media_player_event_manager")]
 			get;
 		}
 		/**
 		 * Movie fps rate
 		 */
 		public float fps {
-			[CCode(cname = "libvlc_media_player_get_fps")]
+			[CCode (cname = "libvlc_media_player_get_fps")]
 			get;
 		}
 		/**
@@ -1294,17 +1293,17 @@ namespace VLC {
 		 * to its normal parent when disabling fullscreen.
 		 */
 		public bool fullscreen {
-			[CCode(cname = "libvlc_set_fullscreen")]
+			[CCode (cname = "libvlc_set_fullscreen")]
 			set;
-			[CCode(cname = "libvlc_get_fullscreen")]
+			[CCode (cname = "libvlc_get_fullscreen")]
 			get;
 		}
 		/**
 		 * Current video height.
 		 */
-		[Deprecated(replacement = "get_size")]
+		[Deprecated (replacement = "get_size")]
 		public int height {
-			[CCode(cname = "libvlc_video_get_height")]
+			[CCode (cname = "libvlc_video_get_height")]
 			get;
 		}
 		/**
@@ -1315,20 +1314,20 @@ namespace VLC {
 		 * has no effects.
 		 */
 		public void* hwnd {
-			[CCode(cname = "libvlc_media_player_set_hwnd")]
+			[CCode (cname = "libvlc_media_player_set_hwnd")]
 			set;
-			[CCode(cname = "libvlc_media_player_get_hwnd")]
+			[CCode (cname = "libvlc_media_player_get_hwnd")]
 			get;
 		}
 		public bool is_playing {
-			[CCode(cname = "libvlc_media_player_is_playing")]
+			[CCode (cname = "libvlc_media_player_is_playing")]
 			get;
 		}
 		/**
 		 * Is this media player seekable?
 		 */
 		public bool is_seekable {
-			[CCode(cname = "libvlc_media_player_is_seekable")]
+			[CCode (cname = "libvlc_media_player_is_seekable")]
 			get;
 		}
 		/**
@@ -1344,23 +1343,23 @@ namespace VLC {
 		 * This function is only implemented for X11 and Win32 at the moment.
 		 */
 		public bool key_input {
-			[CCode(cname = "libvlc_video_set_key_input")]
+			[CCode (cname = "libvlc_video_set_key_input")]
 			set;
 		}
 		/**
 		 * The current movie length (in ms) or -1 if there is no media.
 		 */
 		public int64 length {
-			[CCode(cname = "libvlc_media_player_get_length")]
+			[CCode (cname = "libvlc_media_player_get_length")]
 			get;
 		}
 		/**
 		 * The media that will be used by the media player.
 		 */
 		public Media<T>? media {
-			[CCode(cname = "libvlc_media_player_set_media", simple_generics = true)]
+			[CCode (cname = "libvlc_media_player_set_media", simple_generics = true)]
 			set;
-			[CCode(cname = "libvlc_media_player_get_media", simple_generics = true)]
+			[CCode (cname = "libvlc_media_player_get_media", simple_generics = true)]
 			get;
 		}
 		/**
@@ -1372,33 +1371,33 @@ namespace VLC {
 		 * @see key_input
 		 */
 		public bool mouse_input {
-			[CCode(cname = "libvlc_video_set_mouse_input")]
+			[CCode (cname = "libvlc_video_set_mouse_input")]
 			set;
 		}
 		/**
 		 * Current mute status.
 		 */
 		public bool mute {
-			[CCode(cname = "libvlc_audio_get_mute")]
+			[CCode (cname = "libvlc_audio_get_mute")]
 			get;
-			[CCode(cname = "libvlc_audio_set_mute")]
+			[CCode (cname = "libvlc_audio_set_mute")]
 			set;
 		}
 		/**
 		 * Pause or resume (no effect if there is no media)
 		 */
 		public bool paused {
-			[CCode(cname = "libvlc_media_player_set_pause")]
+			[CCode (cname = "libvlc_media_player_set_pause")]
 			set;
 		}
 		/**
 		 * The movie position.
 		 */
-		[CCode(cname = "libvlc_media_player_get_position")]
+		[CCode (cname = "libvlc_media_player_get_position")]
 		public float position {
-			[CCode(cname = "libvlc_media_player_get_position")]
+			[CCode (cname = "libvlc_media_player_get_position")]
 			get;
-			[CCode(cname = "libvlc_media_player_set_position")]
+			[CCode (cname = "libvlc_media_player_set_position")]
 			set;
 		}
 		/**
@@ -1408,9 +1407,9 @@ namespace VLC {
 		 * from the real playback rate.
 		 */
 		public float rate {
-			[CCode(cname = "libvlc_media_player_get_rate")]
+			[CCode (cname = "libvlc_media_player_get_rate")]
 			get;
-			[CCode(cname = "libvlc_media_player_set_rate")]
+			[CCode (cname = "libvlc_media_player_set_rate")]
 			set;
 		}
 		/**
@@ -1427,9 +1426,9 @@ namespace VLC {
 		 * Note that not all video outputs support scaling.
 		 */
 		public float scale {
-			[CCode(cname = "libvlc_video_get_scale")]
+			[CCode (cname = "libvlc_video_get_scale")]
 			get;
-			[CCode(cname = "libvlc_video_set_scale")]
+			[CCode (cname = "libvlc_video_set_scale")]
 			set;
 		}
 		/**
@@ -1438,125 +1437,125 @@ namespace VLC {
 		 * The video subtitle selected, or -1 if none
 		 */
 		public int spu {
-			[CCode(cname = "libvlc_video_get_spu")]
+			[CCode (cname = "libvlc_video_get_spu")]
 			get;
 		}
 		/**
 		 * The number of available video subtitles.
 		 */
 		public int spu_count {
-			[CCode(cname = "libvlc_video_get_spu_count")]
+			[CCode (cname = "libvlc_video_get_spu_count")]
 			get;
-			[CCode(cname = "libvlc_video_set_spu")]
+			[CCode (cname = "libvlc_video_set_spu")]
 			set;
 		}
 		/**
 		 * The description of available video subtitles.
 		 */
 		public track_description? spu_description {
-				[CCode(cname = "libvlc_video_get_spu_description")]
-				owned get;
+			[CCode (cname = "libvlc_video_get_spu_description")]
+			owned get;
 		}
 		/**
 		 * Current movie state
 		 */
 		public State state {
-			[CCode(cname = "libvlc_media_player_get_state")]
+			[CCode (cname = "libvlc_media_player_get_state")]
 			get;
 		}
 		/**
 		 * The current teletext page.
 		 */
 		public bool teletext {
-			[CCode(cname = "libvlc_video_get_teletext")]
+			[CCode (cname = "libvlc_video_get_teletext")]
 			get;
-			[CCode(cname = "libvlc_video_set_teletext")]
+			[CCode (cname = "libvlc_video_set_teletext")]
 			set;
 		}
 		/**
 		 * The current movie time (in ms).
 		 */
 		public int64 time {
-			[CCode(cname = "libvlc_media_player_get_time")]
+			[CCode (cname = "libvlc_media_player_get_time")]
 			get;
-			[CCode(cname = "libvlc_media_player_set_time")]
+			[CCode (cname = "libvlc_media_player_set_time")]
 			set;
 		}
 		/**
 		 * The movie title
 		 */
 		public int title {
-			[CCode(cname = "libvlc_media_player_set_title")]
+			[CCode (cname = "libvlc_media_player_set_title")]
 			set;
-			[CCode(cname = "libvlc_media_player_get_title")]
+			[CCode (cname = "libvlc_media_player_get_title")]
 			get;
 		}
 		/**
 		 * Get movie title count or -1
 		 */
 		public int title_count {
-			[CCode(cname = "libvlc_media_player_get_title_count")]
+			[CCode (cname = "libvlc_media_player_get_title_count")]
 			get;
 		}
 		/**
 		 * The description of available titles.
 		 */
 		public track_description? title_description {
-			[CCode(cname = "libvlc_video_get_title_description")]
+			[CCode (cname = "libvlc_video_get_title_description")]
 			owned get;
 		}
 		/**
 		 * The current video track or -1 if none.
 		 */
 		public int video_track {
-			[CCode(cname = "libvlc_video_get_track")]
+			[CCode (cname = "libvlc_video_get_track")]
 			get;
-			[CCode(cname = "libvlc_video_set_track")]
+			[CCode (cname = "libvlc_video_set_track")]
 			set;
 		}
 		/**
 		 * The number of available video tracks.
 		 */
 		public int video_track_count {
-			[CCode(cname = "libvlc_video_get_track_count")]
+			[CCode (cname = "libvlc_video_get_track_count")]
 			get;
 		}
 		/**
 		 * The description of available video tracks.
 		 */
 		public track_description? video_track_description {
-				[CCode(cname = "libvlc_video_get_track_description")]
-				get;
+			[CCode (cname = "libvlc_video_get_track_description")]
+			get;
 		}
 		/**
 		 * The current audio level
 		 */
 		public int volume {
-			[CCode(cname = "libvlc_audio_set_volume")]
+			[CCode (cname = "libvlc_audio_set_volume")]
 			set;
-			[CCode(cname = "libvlc_audio_get_volume")]
+			[CCode (cname = "libvlc_audio_get_volume")]
 			get;
 		}
 		/**
 		 * How many video outputs does this media player have?
 		 */
 		public uint vout_count {
-			[CCode(cname = "libvlc_media_player_has_vout")]
+			[CCode (cname = "libvlc_media_player_has_vout")]
 			get;
 		}
 		/**
 		 * Current video width.
 		 */
-		[Deprecated(replacement = "get_size")]
+		[Deprecated (replacement = "get_size")]
 		public int width {
-			[CCode(cname = "libvlc_video_get_width")]
+			[CCode (cname = "libvlc_video_get_width")]
 			get;
 		}
 		/**
 		 * Is the player able to play
 		 */
 		public bool will_play {
-			[CCode(cname = "libvlc_media_player_will_play")]
+			[CCode (cname = "libvlc_media_player_will_play")]
 			get;
 		}
 		/**
@@ -1570,43 +1569,43 @@ namespace VLC {
 		 * configured with.
 		 */
 		public X.Drawable xwindow {
-			 [CCode(cname = "libvlc_media_player_set_xwindow")]
-			 set;
-			[CCode(cname = "libvlc_media_player_get_xwindow")]
+			[CCode (cname = "libvlc_media_player_set_xwindow")]
+			set;
+			[CCode (cname = "libvlc_media_player_get_xwindow")]
 			get;
 		}
-		[CCode(cname = "DisplayFunc", simple_generics = true)]
-		public delegate void DisplayFunc<T,R>(T data, R picture);
-		[CCode(cname = "LockFunc", simple_generics = true)]
-		public delegate R LockFunc<T,R>(T data, [CCode(array_length = false)]out uint8[] plane);
-		[CCode(cname = "UnlockFunc", simple_generics = true)]
-		public delegate void UnlockFunc<T,R>(T data, R picture, [CCode(array_length = false)] ref uint8[] plane);
+		[CCode (cname = "DisplayFunc", simple_generics = true)]
+		public delegate void DisplayFunc<T, R> (T data, R picture);
+		[CCode (cname = "LockFunc", simple_generics = true)]
+		public delegate R LockFunc<T, R> (T data, [CCode (array_length = false)] out uint8[] plane);
+		[CCode (cname = "UnlockFunc", simple_generics = true)]
+		public delegate void UnlockFunc<T, R> (T data, R picture, [CCode (array_length = false)] ref uint8[] plane);
 		/**
 		 * Get float adjust option.
 		 */
-		[CCode(cname = "libvlc_video_get_adjust_float")]
-		public float get_adjust_float(VideoAdjust option);
+		[CCode (cname = "libvlc_video_get_adjust_float")]
+		public float get_adjust_float (VideoAdjust option);
 		/**
 		 * Get integer adjust option.
 		 */
-		[CCode(cname = "libvlc_video_get_adjust_int")]
-		public int get_adjust_int(VideoAdjust option);
+		[CCode (cname = "libvlc_video_get_adjust_int")]
+		public int get_adjust_int (VideoAdjust option);
 		/**
 		 * Get title chapter count
 		 *
 		 * @param title selected title
 		 * @return number of chapters in title, or -1
 		 */
-		[CCode(cname = "libvlc_media_player_get_chapter_count_for_title")]
-		public int get_chapter_count(int title);
+		[CCode (cname = "libvlc_media_player_get_chapter_count_for_title")]
+		public int get_chapter_count (int title);
 		/**
 		 * Get the description of available chapters for specific title.
 		 *
 		 * @param title selected title
 		 * @return list containing description of available chapter for the title
 		 */
-		[CCode(cname = "libvlc_video_get_chapter_description")]
-		public track_description? get_chapter_description(int title);
+		[CCode (cname = "libvlc_video_get_chapter_description")]
+		public track_description? get_chapter_description (int title);
 		/**
 		 * Get the mouse pointer coordinates over a video. Coordinates are
 		 * expressed in terms of the decoded video resolution, ''not'' in terms of
@@ -1629,23 +1628,23 @@ namespace VLC {
 		 * @param py the ordinate
 		 * @return 0 on success, -1 if the specified video does not exist
 		 */
-		[CCode(cname = "libvlc_video_get_cursor")]
-		public bool get_cursor(uint num, out int px, out int py);
+		[CCode (cname = "libvlc_video_get_cursor")]
+		public bool get_cursor (uint num, out int px, out int py);
 		/**
 		 * Get integer logo option.
 		 */
-		[CCode(cname = "libvlc_video_get_logo_int")]
-		public int get_logo_int(LogoOption option);
+		[CCode (cname = "libvlc_video_get_logo_int")]
+		public int get_logo_int (LogoOption option);
 		/**
 		 * Get an integer marquee option value
 		 */
-		[CCode(cname = "libvlc_video_get_marquee_int")]
-		public int get_marquee_int(MarqueeOption option);
+		[CCode (cname = "libvlc_video_get_marquee_int")]
+		public int get_marquee_int (MarqueeOption option);
 		/**
 		 * Get a string marquee option value
 		 */
-		[CCode(cname = "libvlc_video_get_marquee_string")]
-		public string get_marquee_string(MarqueeOption option);
+		[CCode (cname = "libvlc_video_get_marquee_string")]
+		public string get_marquee_string (MarqueeOption option);
 		/**
 		 * Get the pixel dimensions of a video.
 		 *
@@ -1654,39 +1653,39 @@ namespace VLC {
 		 * @param py the pixel height
 		 * @return false on success, true if the specified video does not exist
 		 */
-		[CCode(cname = "libvlc_video_get_size")]
-		public bool get_size(uint num, out uint px, out uint py);
+		[CCode (cname = "libvlc_video_get_size")]
+		public bool get_size (uint num, out uint px, out uint py);
 		/**
 		 * Set next chapter (if applicable)
 		 */
-		[CCode(cname = "libvlc_media_player_next_chapter")]
-		public void next_chapter();
+		[CCode (cname = "libvlc_media_player_next_chapter")]
+		public void next_chapter ();
 		/**
 		 * Display the next frame (if supported)
 		 */
-		[CCode(cname = "libvlc_media_player_next_frame")]
-		public void next_frame();
+		[CCode (cname = "libvlc_media_player_next_frame")]
+		public void next_frame ();
 		/**
 		 * Toggle pause (no effect if there is no media)
 		 */
-		[CCode(cname = "libvlc_media_player_pause")]
-		public void pause();
+		[CCode (cname = "libvlc_media_player_pause")]
+		public void pause ();
 		/**
 		 * Play
 		 * @return false if playback started (and was already started), or true on error.
 		 */
-		[CCode(cname = "libvlc_media_player_play")]
-		public bool play();
+		[CCode (cname = "libvlc_media_player_play")]
+		public bool play ();
 		/**
 		 * Set previous chapter (if applicable)
 		 */
-		[CCode(cname = "libvlc_media_player_previous_chapter")]
-		public void previous_chapter();
+		[CCode (cname = "libvlc_media_player_previous_chapter")]
+		public void previous_chapter ();
 		/**
 		 * Retain a reference to a media player object.
 		 */
-		[CCode(cname = "libvlc_media_player_retain")]
-		public void ref();
+		[CCode (cname = "libvlc_media_player_retain")]
+		public void ref ();
 		/**
 		 * Set adjust option as float. Options that take a different type value are
 		 * ignored.
@@ -1694,8 +1693,8 @@ namespace VLC {
 		 * @param option adust option to set
 		 * @param value adjust option value
 		 */
-		[CCode(cname = "libvlc_video_set_adjust_float")]
-		public void set_adjust_float(VideoAdjust option, float value);
+		[CCode (cname = "libvlc_video_set_adjust_float")]
+		public void set_adjust_float (VideoAdjust option, float value);
 		/**
 		 * Set adjust option as integer. Options that take a different type value
 		 * are ignored.
@@ -1705,8 +1704,8 @@ namespace VLC {
 		 * @param option adust option to set
 		 * @param value adjust option value
 		 */
-		[CCode(cname = "libvlc_video_set_adjust_int")]
-		public void set_adjust_int(VideoAdjust option, int value);
+		[CCode (cname = "libvlc_video_set_adjust_int")]
+		public void set_adjust_int (VideoAdjust option, int value);
 		/**
 		 * Set the audio output.
 		 * Change will be applied after stop and play.
@@ -1715,16 +1714,16 @@ namespace VLC {
 		 * use name of {@link audio_output}
 		 * @return false success, true on error
 		 */
-		[CCode(cname = "libvlc_audio_output_set")]
-		public bool set_audio_output(string name);
+		[CCode (cname = "libvlc_audio_output_set")]
+		public bool set_audio_output (string name);
 		/**
 		 * Set audio output device. Changes are only effective after stop and play.
 		 *
 		 * @param audio_output name of audio output, from {@link audio_output}
 		 * @param device_id device
 		 */
-		[CCode(cname = "libvlc_audio_output_device_set")]
-		public void set_audio_output_device(string audio_output, string device_id);
+		[CCode (cname = "libvlc_audio_output_device_set")]
+		public void set_audio_output_device (string audio_output, string device_id);
 		/**
 		 * Set callbacks and private data to render decoded video to a custom area
 		 * in memory.
@@ -1749,8 +1748,8 @@ namespace VLC {
 		 * @param unlock_func callback to release video memory
 		 * @param data private pointer for the three callbacks (as first parameter)
 		 */
-		[CCode(cname = "libvlc_video_set_callbacks", simple_generics = true)]
-		public void set_callbacks<T,R>(LockFunc<T,R> lock_func, UnlockFunc<T,R> unlock_func, DisplayFunc<T,R> display_func, T data);
+		[CCode (cname = "libvlc_video_set_callbacks", simple_generics = true)]
+		public void set_callbacks<T, R> (LockFunc<T, R> lock_func, UnlockFunc<T, R> unlock_func, DisplayFunc<T, R> display_func, T data);
 		/**
 		 * Set decoded video chroma and dimensions.
 		 *
@@ -1761,8 +1760,8 @@ namespace VLC {
 		 * @param height pixel height
 		 * @param pitch line pitch (in bytes)
 		 */
-		[CCode(cname = "libvlc_video_set_format")]
-		public void set_format(string chroma, uint width, uint height, uint pitch);
+		[CCode (cname = "libvlc_video_set_format")]
+		public void set_format (string chroma, uint width, uint height, uint pitch);
 		/**
 		 * Set logo option as integer. Options that take a different type value
 		 * are ignored.
@@ -1772,8 +1771,8 @@ namespace VLC {
 		 * @param option logo option to set
 		 * @param value logo option value
 		 */
-		[CCode(cname = "libvlc_video_set_logo_int")]
-		public void set_logo_int(LogoOption option, int value);
+		[CCode (cname = "libvlc_video_set_logo_int")]
+		public void set_logo_int (LogoOption option, int value);
 		/**
 		 * Set logo option as string. Options that take a different type value
 		 * are ignored.
@@ -1781,34 +1780,34 @@ namespace VLC {
 		 * @param option logo option to set
 		 * @param value logo option value
 		 */
-		[CCode(cname = "libvlc_video_set_logo_string")]
-		public void set_logo_string(LogoOption option, string value);
+		[CCode (cname = "libvlc_video_set_logo_string")]
+		public void set_logo_string (LogoOption option, string value);
 		/**
 		 * Enable, disable or set an integer marquee option
 		 *
 		 * Setting {@link MarqueeOption.ENABLE} has the side effect of enabling (arg !0)
 		 * or disabling (arg 0) the marq filter.
 		 */
-		[CCode(cname = "libvlc_video_set_marquee_int")]
-		public void set_marquee_int(MarqueeOption option, int val);
+		[CCode (cname = "libvlc_video_set_marquee_int")]
+		public void set_marquee_int (MarqueeOption option, int val);
 		/**
 		 * Set a marquee string option
 		 */
-		[CCode(cname = "libvlc_video_set_marquee_string")]
-		public void set_marquee_string(MarqueeOption option, string text);
+		[CCode (cname = "libvlc_video_set_marquee_string")]
+		public void set_marquee_string (MarqueeOption option, string text);
 		/**
 		 * Set new video subtitle file.
 		 *
 		 * @param subtitle new video subtitle file
 		 * @return the success status (boolean)
 		 */
-		[CCode(cname = "libvlc_video_set_subtitle_file")]
-		public bool set_subtitle_file(string subtitle);
+		[CCode (cname = "libvlc_video_set_subtitle_file")]
+		public bool set_subtitle_file (string subtitle);
 		/**
 		 * Stop (no effect if there is no media)
 		 */
-		[CCode(cname = "libvlc_media_player_stop")]
-		public void stop();
+		[CCode (cname = "libvlc_media_player_stop")]
+		public void stop ();
 		/**
 		 * Take a snapshot of the current video window.
 		 *
@@ -1821,26 +1820,26 @@ namespace VLC {
 		 * @param height the snapshot's height
 		 * @return false on success, true if the video was not found
 		 */
-		[CCode(cname = "libvlc_video_take_snapshot")]
-		public bool take_snapshot(uint num, string filepath, uint width, uint height);
+		[CCode (cname = "libvlc_video_take_snapshot")]
+		public bool take_snapshot (uint num, string filepath, uint width, uint height);
 		/**
 		 * Toggle fullscreen status on non-embedded video outputs.
 		 *
 		 * The same limitations applies to this function
 		 * as to {@link fullscreen}.
 		 */
-		[CCode(cname = "libvlc_toggle_fullscreen")]
-		public void toggle_fullscreen();
+		[CCode (cname = "libvlc_toggle_fullscreen")]
+		public void toggle_fullscreen ();
 		/**
 		 * Toggle mute status.
 		 */
-		[CCode(cname = "libvlc_audio_toggle_mute")]
-		public void toggle_mute();
+		[CCode (cname = "libvlc_audio_toggle_mute")]
+		public void toggle_mute ();
 		/**
 		 * Toggle teletext transparent status on video output.
 		 */
-		[CCode(cname = "libvlc_toggle_teletext")]
-		public void toggle_teletext();
+		[CCode (cname = "libvlc_toggle_teletext")]
+		public void toggle_teletext ();
 		/**
 		 * Release a media player after use
 		 *
@@ -1849,109 +1848,109 @@ namespace VLC {
 		 * the media player object has been released, then it should not be used
 		 * again.
 		 */
-		[CCode(cname = "libvlc_media_player_release")]
-		public void unref();
+		[CCode (cname = "libvlc_media_player_release")]
+		public void unref ();
 	}
 	/**
 	 * Description for audio output.
 	 */
-	[CCode(cname = "libvlc_audio_output_t", cheader_filename = "vlc/libvlc_media_player.h")]
+	[CCode (cname = "libvlc_audio_output_t", cheader_filename = "vlc/libvlc_media_player.h")]
 	public struct audio_output {
-		[CCode(cname = "description")]
+		[CCode (cname = "description")]
 		public string description;
-		[CCode(cname = "name")]
+		[CCode (cname = "name")]
 		public string name;
-		[CCode(cname = "p_next")]
+		[CCode (cname = "p_next")]
 		public audio_output? next;
 	}
 	/**
 	 * A LibVLC event
 	 */
-	[CCode(cname = "libvlc_event_t", cheader_filename = "vlc/libvlc_events.h")]
+	[CCode (cname = "libvlc_event_t", cheader_filename = "vlc/libvlc_events.h")]
 	public struct event {
 		public EventType type;
 		/**
 		 * Object emitting the event
 		 */
-		[CCode(cname = "p_obj")]
+		[CCode (cname = "p_obj")]
 		void* emitter;
-		[CCode(cname = "u.media_meta_changed.meta_type")]
+		[CCode (cname = "u.media_meta_changed.meta_type")]
 		public Meta meta_changed;
-		[CCode(cname = "u.media_subitem_added.new_child")]
+		[CCode (cname = "u.media_subitem_added.new_child")]
 		public Media media_subitem_added;
-		[CCode(cname = "u.media_duration_changed.new_duration")]
+		[CCode (cname = "u.media_duration_changed.new_duration")]
 		public int64 duration_changed;
-		[CCode(cname = "u.media_parsed_changed.new_status")]
+		[CCode (cname = "u.media_parsed_changed.new_status")]
 		public int new_status;
-		[CCode(cname = "u.media_freed.md")]
+		[CCode (cname = "u.media_freed.md")]
 		public Media freed_media;
-		[CCode(cname = "u.media_state_changed.new_state")]
+		[CCode (cname = "u.media_state_changed.new_state")]
 		public State new_state;
-		[CCode(cname = "u.media_player_position_changed.new_position")]
+		[CCode (cname = "u.media_player_position_changed.new_position")]
 		public float new_position;
-		[CCode(cname = "u.media_player_time_changed.new_time")]
+		[CCode (cname = "u.media_player_time_changed.new_time")]
 		public uint64 new_time;
-		[CCode(cname = "u.media_player_title_changed.new_title")]
+		[CCode (cname = "u.media_player_title_changed.new_title")]
 		public int new_title;
-		[CCode(cname = "u.media_player_seekable_changed.new_seekable")]
+		[CCode (cname = "u.media_player_seekable_changed.new_seekable")]
 		public int new_seekable;
-		[CCode(cname = "u.media_player_pausable_changed.new_pausable")]
+		[CCode (cname = "u.media_player_pausable_changed.new_pausable")]
 		public int new_pausable;
-		[CCode(cname = "u.media_list_item_added.item")]
+		[CCode (cname = "u.media_list_item_added.item")]
 		public Media item;
-		[CCode(cname = "u.media_list_item_added.index")]
+		[CCode (cname = "u.media_list_item_added.index")]
 		public int index;
-		[CCode(cname = "u.media_player_snapshot_taken.filename")]
+		[CCode (cname = "u.media_player_snapshot_taken.filename")]
 		public string snapshot_filename;
-		[CCode(cname = "u.media_player_length_changed.new_length")]
+		[CCode (cname = "u.media_player_length_changed.new_length")]
 		public uint64 new_length;
-		[CCode(cname = "u.vlm_media_event.media_name")]
+		[CCode (cname = "u.vlm_media_event.media_name")]
 		string media_name;
-		[CCode(cname = "u.vlm_media_event.instance_name")]
+		[CCode (cname = "u.vlm_media_event.instance_name")]
 		string instance_name;
-		[CCode(cname = "media_player_media_changed.new_media")]
+		[CCode (cname = "media_player_media_changed.new_media")]
 		public Media new_media;
 	}
 	/**
 	 * Media statistics
 	 */
-	[CCode(cname = "libvlc_media_stats_t", cheader_filename = "vlc/libvlc_media.h")]
+	[CCode (cname = "libvlc_media_stats_t", cheader_filename = "vlc/libvlc_media.h")]
 	public struct media_stats {
-		[CCode(cname = "i_decoded_audio")]
+		[CCode (cname = "i_decoded_audio")]
 		int decoded_audio;
-		[CCode(cname = "i_decoded_video")]
+		[CCode (cname = "i_decoded_video")]
 		int decoded_video;
-		[CCode(cname = "f_demux_bitrate")]
+		[CCode (cname = "f_demux_bitrate")]
 		float demux_bitrate;
-		[CCode(cname = "i_demux_corrupted")]
+		[CCode (cname = "i_demux_corrupted")]
 		int demux_corrupted;
-		[CCode(cname = "i_demux_discontinuity")]
+		[CCode (cname = "i_demux_discontinuity")]
 		int demux_discontinuity;
-		[CCode(cname = "i_demux_read_bytes")]
+		[CCode (cname = "i_demux_read_bytes")]
 		int demux_read_bytes;
-		[CCode(cname = "i_displayed_pictures")]
+		[CCode (cname = "i_displayed_pictures")]
 		int displayed_pictures;
-		[CCode(cname = "f_input_bitrate")]
+		[CCode (cname = "f_input_bitrate")]
 		float input_bitrate;
-		[CCode(cname = "i_lost_abuffers")]
+		[CCode (cname = "i_lost_abuffers")]
 		int lost_abuffers;
-		[CCode(cname = "i_lost_pictures")]
+		[CCode (cname = "i_lost_pictures")]
 		int lost_pictures;
-		[CCode(cname = "i_played_abuffers")]
+		[CCode (cname = "i_played_abuffers")]
 		int played_abuffers;
-		[CCode(cname = "i_read_bytes")]
+		[CCode (cname = "i_read_bytes")]
 		int read_bytes;
-		[CCode(cname = "f_send_bitrate")]
+		[CCode (cname = "f_send_bitrate")]
 		float send_bitrate;
-		[CCode(cname = "i_sent_bytes")]
+		[CCode (cname = "i_sent_bytes")]
 		int sent_bytes;
-		[CCode(cname = "i_sent_packets")]
+		[CCode (cname = "i_sent_packets")]
 		int sent_packets;
 	}
 	/**
 	 * Rectangle type for video geometry
 	 */
-	[CCode(cname = "libvlc_rectangle_t", cheader_filename = "vlc/libvlc_media_player.h")]
+	[CCode (cname = "libvlc_rectangle_t", cheader_filename = "vlc/libvlc_media_player.h")]
 	public struct rectangle {
 		public int bottom;
 		public int left;
@@ -1961,34 +1960,34 @@ namespace VLC {
 	/**
 	 * Description for video, audio tracks and subtitles.
 	 */
-	[CCode(cname = "libvlc_track_description_t", destroy_function = "libvlc_track_description_release", cheader_filename = "vlc/libvlc_media_player.h")]
+	[CCode (cname = "libvlc_track_description_t", destroy_function = "libvlc_track_description_release", cheader_filename = "vlc/libvlc_media_player.h")]
 	public struct track_description {
-		[CCode(cname = "i_id")]
+		[CCode (cname = "i_id")]
 		public int id;
-		[CCode(cname = "name")]
+		[CCode (cname = "name")]
 		public string name;
-		[CCode(cname = "p_next")]
+		[CCode (cname = "p_next")]
 		public track_description? next;
 	}
-	[CCode(cname = "libvlc_media_track_info_t", cheader_filename = "vlc/libvlc_media.h")]
+	[CCode (cname = "libvlc_media_track_info_t", cheader_filename = "vlc/libvlc_media.h")]
 	public struct track_info {
-		[CCode(cname = "u.audio.i_channels")]
+		[CCode (cname = "u.audio.i_channels")]
 		uint audio_channels;
-		[CCode(cname = "u.audio.i_rate")]
+		[CCode (cname = "u.audio.i_rate")]
 		uint audio_rate;
-		[CCode(cname = "i_codec")]
+		[CCode (cname = "i_codec")]
 		uint32 codec;
-		[CCode(cname = "u.video.i_height")]
+		[CCode (cname = "u.video.i_height")]
 		uint height;
-		[CCode(cname = "i_id")]
+		[CCode (cname = "i_id")]
 		int id;
-		[CCode(cname = "i_level")]
+		[CCode (cname = "i_level")]
 		int level;
-		[CCode(cname = "i_profile")]
+		[CCode (cname = "i_profile")]
 		int profile;
-		[CCode(cname = "i_type")]
+		[CCode (cname = "i_type")]
 		TrackType type;
-		[CCode(cname = "u.video.i_width")]
+		[CCode (cname = "u.video.i_width")]
 		uint width;
 	}
 }

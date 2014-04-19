@@ -1,30 +1,30 @@
 /**
  * Multi-Platform library for communication with HID devices.
  */
-[CCode(cheader_filename = "hidapi.h")]
+[CCode (cheader_filename = "hidapi.h")]
 namespace HidApi {
-	[CCode(cname = "hid_device", free_function = "hid_close")]
+	[CCode (cname = "hid_device", free_function = "hid_close")]
 	[Compact]
 	public class Device {
 
-	/**
-	 * Open a HID device using a Vendor ID (VID), Product ID (PID) and optionally a serial number.
-	 *
-	 * @param vendor_id The Vendor ID (VID) of the device to open.
-	 * @param product_id The Product ID (PID) of the device to open.
-	 * @param serial_number The Serial Number of the device to open.  If null,
-	 * the first device with the specified VID and PID is opened.
-	 */
-		[CCode(cname = "hid_open")]
-		public static Device? open(ushort vendor_id, ushort product_id, void* serial_number = null);
+		/**
+		 * Open a HID device using a Vendor ID (VID), Product ID (PID) and optionally a serial number.
+		 *
+		 * @param vendor_id The Vendor ID (VID) of the device to open.
+		 * @param product_id The Product ID (PID) of the device to open.
+		 * @param serial_number The Serial Number of the device to open.  If null,
+		 * the first device with the specified VID and PID is opened.
+		 */
+		[CCode (cname = "hid_open")]
+		public static Device? open (ushort vendor_id, ushort product_id, void* serial_number = null);
 
 		/**
 		 * Open a HID device by its path name.
 		 *
 		 * The path name be determined by calling {@link Info.enumerate}, or a platform-specific path name can be used (e.g., '''/dev/hidraw0''' on Linux).
 		 */
-		[CCode(cname = "hid_open_path")]
-		public static Device? open_path(string path);
+		[CCode (cname = "hid_open_path")]
+		public static Device? open_path (string path);
 
 		/**
 		 * Get a feature report from a HID device.
@@ -38,8 +38,8 @@ namespace HidApi {
 		 *
 		 * @return This function returns the number of bytes read and -1 on error.
 		 */
-		[CCode(cname = "hid_get_feature_report")]
-		public int get_feature_report([CCode(array_length_type = "size_t")] uint8[] data);
+		[CCode (cname = "hid_get_feature_report")]
+		public int get_feature_report ([CCode (array_length_type = "size_t")] uint8[] data);
 
 		/**
 		 * Read an Input report from a HID device.
@@ -55,8 +55,8 @@ namespace HidApi {
 		 * @return This function returns the actual number of bytes read and -1
 		 * on error.
 		 */
-		[CCode(cname = "hid_read")]
-		public int read([CCode(array_length_type = "size_t")] uint8[] data);
+		[CCode (cname = "hid_read")]
+		public int read ([CCode (array_length_type = "size_t")] uint8[] data);
 
 		/**
 		 * Read an Input report from a HID device with timeout.
@@ -74,8 +74,8 @@ namespace HidApi {
 		 * @return This function returns the actual number of bytes read and -1
 		 * on error.
 		 */
-		[CCode(cname = "hid_read_timeout")]
-		public int read_timeout([CCode(array_length_type = "size_t")] uint8[] data, int milliseconds);
+		[CCode (cname = "hid_read_timeout")]
+		public int read_timeout ([CCode (array_length_type = "size_t")] uint8[] data, int milliseconds);
 
 		/**
 		 * Send a Feature report to the device.
@@ -94,8 +94,8 @@ namespace HidApi {
 		 *
 		 * @return This function returns the actual number of bytes written and -1 on error.
 		 */
-		[CCode(cname = "hid_send_feature_report")]
-		public int send_feature_report([CCode(array_length_type = "size_t")] uint8[] data);
+		[CCode (cname = "hid_send_feature_report")]
+		public int send_feature_report ([CCode (array_length_type = "size_t")] uint8[] data);
 
 		/**
 		 * Set the device handle to be non-blocking.
@@ -107,8 +107,8 @@ namespace HidApi {
 		 *
 		 * Nonblocking can be turned on and off at any time.
 		 */
-		[CCode(cname = "!hid_set_nonblocking")]
-		public bool set_nonblocking(bool nonblock);
+		[CCode (cname = "!hid_set_nonblocking")]
+		public bool set_nonblocking (bool nonblock);
 
 		/**
 		 * Write an Output report to a HID device.
@@ -129,84 +129,85 @@ namespace HidApi {
 		 * @return This function returns the actual number of bytes written and
 		 * -1 on error.
 		 */
-		[CCode(cname = "hid_write")]
-		public int write([CCode(array_length_type = "size_t")] uint8[] data);
+		[CCode (cname = "hid_write")]
+		public int write ([CCode (array_length_type = "size_t")] uint8[] data);
 
 		/**
 		 * A string describing the last error which occurred.
 		 */
 		public string? error {
 			owned get {
-				unowned wchar_t[]? str = get_error();
-				if (str == null)
+				unowned wchar_t[]? str = get_error ();
+				if (str == null) {
 					return null;
-				uint8[] unistr = new uint8[wcstombs(null, str, 0) + 1];
-				wcstombs(unistr, str, unistr.length);
-				return ((string)unistr).dup();
+				}
+				uint8[] unistr = new uint8[wcstombs (null, str, 0) + 1];
+				wcstombs (unistr, str, unistr.length);
+				return ((string) unistr).dup ();
 			}
 		}
-		[CCode(cname = "hid_error", array_length = false)]
-		private unowned wchar_t[]? get_error();
+		[CCode (cname = "hid_error", array_length = false)]
+		private unowned wchar_t[]? get_error ();
 
 		public string? manufacturer {
 			owned get {
 				wchar_t str[127];
-				if (get_manufacturer_string(str)) {
-					uint8[] unistr = new uint8[wcstombs(null, str, 0) + 1];
-					wcstombs(unistr, str, unistr.length);
-					return ((string)unistr).dup();
+				if (get_manufacturer_string (str)) {
+					uint8[] unistr = new uint8[wcstombs (null, str, 0) + 1];
+					wcstombs (unistr, str, unistr.length);
+					return ((string) unistr).dup ();
 				}
 				return null;
 			}
 		}
-		[CCode(cname = "!hid_get_manufacturer_string")]
-		private bool get_manufacturer_string([CCode(array_length_type = "size_t")] wchar_t[] str);
+		[CCode (cname = "!hid_get_manufacturer_string")]
+		private bool get_manufacturer_string ([CCode (array_length_type = "size_t")] wchar_t[] str);
 
 		public string? product {
 			owned get {
 				wchar_t str[127];
-				if (get_product_string(str)) {
-					uint8[] unistr = new uint8[wcstombs(null, str, 0) + 1];
-					wcstombs(unistr, str, unistr.length);
-					return ((string)unistr).dup();
+				if (get_product_string (str)) {
+					uint8[] unistr = new uint8[wcstombs (null, str, 0) + 1];
+					wcstombs (unistr, str, unistr.length);
+					return ((string) unistr).dup ();
 				}
 				return null;
 			}
 		}
-		[CCode(cname = "!hid_get_product_string")]
-		private bool get_product_string([CCode(array_length_type = "size_t")] wchar_t[] str);
+		[CCode (cname = "!hid_get_product_string")]
+		private bool get_product_string ([CCode (array_length_type = "size_t")] wchar_t[] str);
 
 		public string? serial_number {
 			owned get {
 				wchar_t str[127];
-				if (get_serial_number_string(str)) {
-					uint8[] unistr = new uint8[wcstombs(null, str, 0) + 1];
-					wcstombs(unistr, str, unistr.length);
-					return ((string)unistr).dup();
+				if (get_serial_number_string (str)) {
+					uint8[] unistr = new uint8[wcstombs (null, str, 0) + 1];
+					wcstombs (unistr, str, unistr.length);
+					return ((string) unistr).dup ();
 				}
 				return null;
 			}
 		}
-		[CCode(cname = "!hid_get_serial_number_string")]
-		private bool get_serial_number_string([CCode(array_length_type = "size_t")] wchar_t[] str);
+		[CCode (cname = "!hid_get_serial_number_string")]
+		private bool get_serial_number_string ([CCode (array_length_type = "size_t")] wchar_t[] str);
 
 		/**
 		 * Get a string from a HID device, based on its string index.
 		 */
-		public string? get(int index) {
+		public string? get (int index) {
 			wchar_t str[127];
-			if (get_indexed_string(index, str)) {
-				uint8[] unistr = new uint8[wcstombs(null, str, 0) + 1];
-				wcstombs(unistr, str, unistr.length);
-				return ((string)unistr).dup();
+			if (get_indexed_string (index, str)) {
+				uint8[] unistr = new uint8[wcstombs (null, str, 0) + 1];
+				wcstombs (unistr, str, unistr.length);
+				return ((string) unistr).dup ();
 			}
 			return null;
 		}
-		[CCode(cname = "!hid_get_indexed_string")]
-		private bool get_indexed_string(int index, [CCode(array_length_type = "size_t")] wchar_t[] str);
+		[CCode (cname = "!hid_get_indexed_string")]
+		private bool get_indexed_string (int index, [CCode (array_length_type = "size_t")] wchar_t[] str);
 	}
 
-	[CCode(cname = "struct hid_device_info", free_function = "hid_free_enumeration")]
+	[CCode (cname = "struct hid_device_info", free_function = "hid_free_enumeration")]
 	[Compact]
 	public class Info {
 		/**
@@ -227,45 +228,48 @@ namespace HidApi {
 		public void* serial_number;
 		public string? serial_number_str {
 			owned get {
-				if (serial_number== null)
+				if (serial_number == null) {
 					return null;
-				uint8[] unistr = new uint8[wcstombs(null, (wchar_t[])serial_number, 0) + 1];
-				wcstombs(unistr, (wchar_t[])serial_number, unistr.length);
-				return ((string)unistr).dup();
+				}
+				uint8[] unistr = new uint8[wcstombs (null, (wchar_t[])serial_number, 0) + 1];
+				wcstombs (unistr, (wchar_t[])serial_number, unistr.length);
+				return ((string) unistr).dup ();
 			}
-		}		/**
-		 * Device release number in binary-coded decimal
-		 *
-		 * Also known as device version number.
-		 */
+		}               /**
+		                 * Device release number in binary-coded decimal
+		                 *
+		                 * Also known as device version number.
+		                 */
 		public ushort release_number;
 		/**
 		 * Manufacturer name
 		 */
 		public string? manufacturer {
 			owned get {
-				if (manufacturer_string == null)
+				if (manufacturer_string == null) {
 					return null;
-				uint8[] unistr = new uint8[wcstombs(null, manufacturer_string, 0) + 1];
-				wcstombs(unistr, manufacturer_string, unistr.length);
-				return ((string)unistr).dup();
+				}
+				uint8[] unistr = new uint8[wcstombs (null, manufacturer_string, 0) + 1];
+				wcstombs (unistr, manufacturer_string, unistr.length);
+				return ((string) unistr).dup ();
 			}
 		}
-		[CCode(array_length = false)]
+		[CCode (array_length = false)]
 		private wchar_t[]? manufacturer_string;
 		/**
 		 * Product name
 		 */
 		public string? product {
 			owned get {
-				if (product_string == null)
+				if (product_string == null) {
 					return null;
-				uint8[] unistr = new uint8[wcstombs(null, product_string, 0) + 1];
-				wcstombs(unistr, product_string, unistr.length);
-				return ((string)unistr).dup();
+				}
+				uint8[] unistr = new uint8[wcstombs (null, product_string, 0) + 1];
+				wcstombs (unistr, product_string, unistr.length);
+				return ((string) unistr).dup ();
 			}
 		}
-		[CCode(array_length = false)]
+		[CCode (array_length = false)]
 		private wchar_t[] product_string;
 		/**
 		 * Usage page for this device/interface (Windows/Mac only).
@@ -293,14 +297,14 @@ namespace HidApi {
 		 * @param vendor_id the vendor ID, or 0 to match any vendor.
 		 * @param product_id the product ID, or 0 to match any product.
 		 */
-		[CCode(cname = "hid_enumerate")]
-		public static Info? enumerate(ushort vendor_id = 0, ushort product_id = 0);
+		[CCode (cname = "hid_enumerate")]
+		public static Info? enumerate (ushort vendor_id = 0, ushort product_id = 0);
 
 		/**
 		 * Open the corresponding HID device.
 		 */
-		public Device? open() {
-			return Device.open(this.vendor_id, this.product_id, this.serial_number);
+		public Device? open () {
+			return Device.open (this.vendor_id, this.product_id, this.serial_number);
 		}
 	}
 
@@ -316,8 +320,8 @@ namespace HidApi {
 	 *
 	 * @return This function returns true on success and false on error.
 	 */
-	[CCode(cname = "!hid_init")]
-	public bool init();
+	[CCode (cname = "!hid_init")]
+	public bool init ();
 
 	/**
 	 * Finalize the HIDAPI library.
@@ -327,14 +331,13 @@ namespace HidApi {
 	 *
 	 * @return This function returns true on success and false on error.
 	 */
-	[CCode(cname = "!hid_exit")]
-	public bool exit();
+	[CCode (cname = "!hid_exit")]
+	public bool exit ();
 
-	[CCode(cname = "wcstombs", cheader_filename = "stdlib.h")]
-	private size_t wcstombs([CCode(array_length = false)] uint8[]? dest, [CCode(array_length = false)] wchar_t[] src, size_t n);
+	[CCode (cname = "wcstombs", cheader_filename = "stdlib.h")]
+	private size_t wcstombs ([CCode (array_length = false)] uint8[]? dest, [CCode (array_length = false)] wchar_t[] src, size_t n);
 
-	[CCode(cname = "wchar_t")]
+	[CCode (cname = "wchar_t")]
 	[SimpleType]
-	private struct wchar_t {
-	}
+	private struct wchar_t {}
 }

@@ -1,111 +1,111 @@
-[CCode(cheader_filename = "libelf.h")]
+[CCode (cheader_filename = "libelf.h")]
 namespace Elf {
 	/**
 	 * Magic number byte 0
 	 */
-	[CCode(cname = "ELFMAG0")]
+	[CCode (cname = "ELFMAG0")]
 	public const uint8 MAG0;
 	/**
 	 * Magic number byte 1
 	 */
-	[CCode(cname = "ELFMAG1")]
+	[CCode (cname = "ELFMAG1")]
 	public const uint8 MAG1;
 	/**
 	 * Magic number byte 2
 	 */
-	[CCode(cname = "ELFMAG2")]
+	[CCode (cname = "ELFMAG2")]
 	public const uint8 MAG2;
 	/**
 	 * Magic number byte 3
 	 */
-	[CCode(cname = "ELFMAG3")]
+	[CCode (cname = "ELFMAG3")]
 	public const uint8 MAG3;
 	/**
 	 * Get error code of last failing function call.
 	 *
 	 * This value is kept separately for each thread.
 	 */
-	[CCode(cname = "elf_errno")]
-	public int errno();
+	[CCode (cname = "elf_errno")]
+	public int errno ();
 	/**
 	 * Get error string.
 	 *
 	 * @param error If zero, return error string for most recent error or null is none occurred. If -1 the behaviour is similar to the last case except that not null but a legal string is returned.
 	 */
-	[CCode(cname = "elf_errmsg")]
-	public unowned string? errmsg(int error);
+	[CCode (cname = "elf_errmsg")]
+	public unowned string? errmsg (int error);
 	/**
 	 * Set fill bytes used to fill holes in data structures.
 	 */
-	[CCode(cname = "elf_fill")]
+	[CCode (cname = "elf_fill")]
 	public void fill (int fill);
 	/**
 	 * Compute hash value.
 	 */
-	[CCode(cname = "elf_hash")]
-	public ulong hash(string str);
+	[CCode (cname = "elf_hash")]
+	public ulong hash (string str);
 	/**
 	 * Coordinate ELF library and application versions.
 	 */
-	[CCode(cname = "elf_version")]
-	public Version version(Version version = Version.CURRENT);
+	[CCode (cname = "elf_version")]
+	public Version version (Version version = Version.CURRENT);
 }
 /**
  * Descriptor for the ELF file.
  */
-[CCode(cname = "Elf", free_function = "elf_end")]
+[CCode (cname = "Elf", free_function = "elf_end")]
 [Compact]
 public class Elf.Desc {
 	public archive_header? archive_header {
-		[CCode(cname = "elf_getarhdr")]
+		[CCode (cname = "elf_getarhdr")]
 		get;
 	}
 	/**
 	 * Get the base offset for an object file.
 	 */
 	public Posix.off_t base_offset {
-		[CCode(cname = "elf_getbase")]
+		[CCode (cname = "elf_getbase")]
 		get;
 	}
 	/**
 	 * Simple checksum from permanent parts of the ELF file.
 	 */
 	public long checksum {
-		[CCode(cname = "elf32_checksum")]
+		[CCode (cname = "elf32_checksum")]
 		get;
 	}
 	/**
 	 * Simple checksum from permanent parts of the ELF file using ELFCLASS64.
 	 */
 	public long checksum64 {
-		[CCode(cname = "elf64_checksum")]
+		[CCode (cname = "elf64_checksum")]
 		get;
 	}
 	public hdr32? header {
-		[CCode(cname = "elf32_getehdr")]
+		[CCode (cname = "elf32_getehdr")]
 		get;
 	}
 	public hdr64? header64 {
-		[CCode(cname = "elf64_getehdr")]
+		[CCode (cname = "elf64_getehdr")]
 		get;
 	}
 	public uint8[] ident {
-		[CCode(cname = "elf_getident", array_length_type = "size_t")]
+		[CCode (cname = "elf_getident", array_length_type = "size_t")]
 		get;
 	}
 	/**
 	 * The kind of file.
 	 */
 	public Elf.Kind kind {
-		[CCode(cname = "elf_kind")]
+		[CCode (cname = "elf_kind")]
 		get;
 	}
 	public program_header? program_header {
-		[CCode(cname = "elf32_getphdr")]
+		[CCode (cname = "elf32_getphdr")]
 		get;
 	}
 	public program_header64? program_header64 {
-		[CCode(cname = "elf64_getphdr")]
+		[CCode (cname = "elf64_getphdr")]
 		get;
 	}
 	/**
@@ -117,7 +117,7 @@ public class Elf.Desc {
 	 * @see control
 	 */
 	public uint8[] raw {
-		[CCode(cname = "elf_rawfile")]
+		[CCode (cname = "elf_rawfile")]
 		get;
 	}
 	/**
@@ -126,86 +126,86 @@ public class Elf.Desc {
 	 * @param cmd the type of actions that will be performed. This must match the state of the file descriptor.
 	 * @param ar_parent if provided, this is an ar(1) archive to browse
 	 */
-	[CCode(cname = "elf_begin")]
-	public static Desc? open(int filedes, Elf.Command cmd, Desc? ar_parent = null);
+	[CCode (cname = "elf_begin")]
+	public static Desc? open (int filedes, Elf.Command cmd, Desc? ar_parent = null);
 	/**
 	 * Create descriptor for memory region.
 	 */
-	[CCode(cname = "elf_memory")]
-	public static Desc? open_memory([CCode(array_length_type = "size_t")] uint8[] image);
+	[CCode (cname = "elf_memory")]
+	public static Desc? open_memory ([CCode (array_length_type = "size_t")] uint8[] image);
 	/**
 	 * Create a clone of an existing descriptor.
 	 */
-	[CCode(cname = "elf_clone")]
- public Desc clone(Elf.Command cmd);
+	[CCode (cname = "elf_clone")]
+	public Desc clone (Elf.Command cmd);
 	/**
 	 * Control the file descriptor.
 	 * @param cmd when {@link Command.FDDONE}, it tells the library not to use the file descriptor. This is usefl when a program has requested all the required information. When {@link Command.FDREAD}, it forces the library to read the contents of the file so that it might close the descriptor.
 	 */
-	[CCode(cname = "elf_cntl")]
-	public bool control(Command cmd);
+	[CCode (cname = "elf_cntl")]
+	public bool control (Command cmd);
 	/**
 	 * Behaves like {@link header}, but creates a header if one does not exist
 	 */
-	[CCode(cname = "elf32_newehdr")]
-	public hdr32? create_header();
+	[CCode (cname = "elf32_newehdr")]
+	public hdr32? create_header ();
 	/**
 	 * Behaves like {@link header64}, but creates a header if one does not exist
 	 */
-	[CCode(cname = "elf64_newehdr")]
-	public hdr64? create_header64();
+	[CCode (cname = "elf64_newehdr")]
+	public hdr64? create_header64 ();
 	/**
 	 * Create a new program header, discarding the previous one of it exists.
 	 * @param count the number of entries in the header
 	 */
-	[CCode(cname = "elf32_newphdr")]
-	public program_header? create_program_header(size_t count);
+	[CCode (cname = "elf32_newphdr")]
+	public program_header? create_program_header (size_t count);
 	/**
 	 * Create a new program header, discarding the previous one of it exists.
 	 * @param count the number of entries in the header
 	 */
-	[CCode(cname = "elf64_newphdr")]
-	public program_header? create_program_header64(size_t count);
+	[CCode (cname = "elf64_newphdr")]
+	public program_header? create_program_header64 (size_t count);
 	/**
 	 * Create a new section and append it.
 	 */
-	[CCode(cname = "elf_newscn")]
-	public Section? create_section();
+	[CCode (cname = "elf_newscn")]
+	public Section? create_section ();
 	/**
 	 * Get an elf section.
 	 *
 	 * Note that {@link Elf.Section.UNDEF} is always present, but uninteresting.
 	 */
-	[CCode(cname = "elf_getscn")]
-	public Section? get(size_t index);
-	[CCode(cname = "elf_getarsym")]
+	[CCode (cname = "elf_getscn")]
+	public Section? get (size_t index);
+	[CCode (cname = "elf_getarsym")]
 	public ar_symbol? get_ar_symbol (out size_t length);
 	/**
 	 * Get the number of programs.
 	 * @return false on success
 	 */
-	[CCode(cname = "elf_getphdrnum")]
-	public bool get_num_programs(out size_t num);
+	[CCode (cname = "elf_getphdrnum")]
+	public bool get_num_programs (out size_t num);
 	/**
 	 * Get the number of sections.
 	 * @return false on success
 	 */
-	[CCode(cname = "elf_getshdrnum")]
-	public bool get_num_sections(out size_t num);
+	[CCode (cname = "elf_getshdrnum")]
+	public bool get_num_sections (out size_t num);
 	/**
 	 * Converts a string section offset to a string.
 	 *
 	 * This identifies the file in which the string section resides, and the section table index for the strings.
 	 * @return normally a string, but null pointer when the section is invalid or is not a section of type {@link SectionType.STRTAB}, the section data cannot be obtained, offset is invalid, or an error occurs.
 	 */
-	[CCode(cname = "elf_strptr")]
-	public unowned string? get_string(size_t section, size_t offset);
+	[CCode (cname = "elf_strptr")]
+	public unowned string? get_string (size_t section, size_t offset);
 	/**
 	 * Get the index of the string table.
 	 * @return false on success
 	 */
-	[CCode(cname = "elf_getshdrstrndx")]
-	public bool get_string_section(out size_t index);
+	[CCode (cname = "elf_getshdrstrndx")]
+	public bool get_string_section (out size_t index);
 	/**
 	 * Move a section
 	 *
@@ -214,17 +214,17 @@ public class Elf.Desc {
 	 * @param after the section to place the moved section after
 	 * @return the original index of the removed section. Zero indicates an error.
 	 */
-	[CCode(cname = "elfx_movscn")]
-	public size_t move_section(Section scn, Section after);
+	[CCode (cname = "elfx_movscn")]
+	public size_t move_section (Section scn, Section after);
 	/**
 	 * Advance archive descriptor to next element.
 	 *
 	 * This is only useful when opened from a parent descriptor.
 	 */
-	[CCode(cname = "elf_next")]
-	public Elf.Command next();
-	[CCode(cname = "elf_nextscn")]
-	public unowned Section? next_section(Section? section = null);
+	[CCode (cname = "elf_next")]
+	public Elf.Command next ();
+	[CCode (cname = "elf_nextscn")]
+	public unowned Section? next_section (Section? section = null);
 	/**
 	 * Allow random archive processing, preparing to access an arbitrary archive member.
 	 *
@@ -235,54 +235,54 @@ public class Elf.Desc {
 	 * @return on success, it returns offset. Otherwise, it returns 0, because an error occurred, or the file was not an archive (no archive member can have a zero offset).
 	 * @see get_ar_symbol
 	 */
-	[CCode(cname = "elf_rand")]
-	public size_t rand(size_t offset);
+	[CCode (cname = "elf_rand")]
+	public size_t rand (size_t offset);
 	/**
 	 * Remove a section.
 	 * @return the original index of the removed section. Zero indicates an error.
 	 */
-	[CCode(cname = "elfx_remscn")]
-	public size_t remove_section(owned Section scn);
+	[CCode (cname = "elfx_remscn")]
+	public size_t remove_section (owned Section scn);
 	/**
 	 * Set the string table index.
 	 * @return false on success
 	 * @see get_string_section
 	 */
-	[CCode(cname = "elfx_update_shstrndx")]
-	public bool set_string_section(size_t index);
+	[CCode (cname = "elfx_update_shstrndx")]
+	public bool set_string_section (size_t index);
 	/**
 	 * Causes the library to examine the information associated with an ELF descriptor, and to recalculate the structural data needed to generate the file's image.
 	 *
 	 * @param cmd When {@link Command.NULL}, it recalculates various values, updating only the ELF descriptor's memory structures. Any modified structures are flagged with the {@link Flag.DIRTY} bit. A program thus can update the structural information and then reexamine them without changing the file associated with the ELF descriptor. Because this does not change the file, the ELF descriptor may allow reading, writing, or both reading and writing. When {@link Command.WRITE}, it duplicates its {@link Command.NULL} actions and also writes any dirty information associated with the ELF descriptor to the file. That is, when a program has used {@link get} or the various ''update_flags'' facilities to supply new (or update existing) information for an ELF descriptor, those data will be examined, coordinated, translated if necessary, and written to the file. When portions of the file are written, any {@link Flag.DIRTY} bits are reset, indicating those items no longer need to be written to the file. The sections' data are written in the order of their section header entries, and the section header table is written to the end of the file. When the ELF descriptor was created, it must have allowed writing the file.
 	 * @return If successful, it returns the total size of the file image (not the memory image), in bytes. Otherwise an error occurred, and the function returns -1.
 	 */
-	[CCode(cname = "elf_update")]
-	public Posix.off_t update(Command cmd = Command.NULL);
-	[CCode(cname = "elf_flagelf")]
-	public Flag update_elf_flag(Command cmd, Flag flags);
-	[CCode(cname = "elf_flagehdr")]
-	public Flag update_elf_header_flags(Command cmd, Flag flags);
-	[CCode(cname = "elf_flagphdr")]
-	public Flag update_phdr_flag(Command cmd, Flag flags);
+	[CCode (cname = "elf_update")]
+	public Posix.off_t update (Command cmd = Command.NULL);
+	[CCode (cname = "elf_flagelf")]
+	public Flag update_elf_flag (Command cmd, Flag flags);
+	[CCode (cname = "elf_flagehdr")]
+	public Flag update_elf_header_flags (Command cmd, Flag flags);
+	[CCode (cname = "elf_flagphdr")]
+	public Flag update_phdr_flag (Command cmd, Flag flags);
 }
 /*
  * Section descriptor
  */
-[CCode(cname = "Elf_Scn")]
+[CCode (cname = "Elf_Scn")]
 public class Elf.Section {
 	public section_header? header {
-		[CCode(cname = "elf32_getshdr")]
+		[CCode (cname = "elf32_getshdr")]
 		get;
 	}
 	public section_header64? header64 {
-		[CCode(cname = "elf64_getshdr")]
+		[CCode (cname = "elf64_getshdr")]
 		get;
 	}
 	/**
 	 * Section table index
 	 */
 	public size_t index {
-		[CCode(cname = "elf_ndxscn")]
+		[CCode (cname = "elf_ndxscn")]
 		get;
 	}
 	/**
@@ -290,14 +290,14 @@ public class Elf.Section {
 	 *
 	 * The new data descriptor appears empty, indicating the element holds no data. For convenience, the descriptor's type is set to {@link Type.BYTE}, and the version is set to the working version. The program is responsible for setting (or changing) the descriptor members as needed. This function implicitly sets the {@link Flag.DIRTY} bit for the section's data.
 	 */
-	[CCode(cname = "elf_newdata")]
-	public data? create_data();
+	[CCode (cname = "elf_newdata")]
+	public data? create_data ();
 	/**
 	 * Get a data block assoicated with this section.
 	 * @param previous the block preceeding the desired block, or null for the first
 	 */
-	[CCode(cname = "elf_getdata")]
-	public data? get_data(data? previous = null);
+	[CCode (cname = "elf_getdata")]
+	public data? get_data (data? previous = null);
 	/**
 	 * Get a datablock without interpreted bytes, regardless of the section type.
 	 *
@@ -305,129 +305,129 @@ public class Elf.Section {
 	 *
 	 * See {@link Desc.raw} for a related facility that applies to the entire file. When {@link get_data} provides the right translation, its use is recommended.
 	 */
-	[CCode(cname = "elf_rawdata")]
+	[CCode (cname = "elf_rawdata")]
 	public data? get_raw_data (data? previous = null);
-	[CCode(cname = "elf_flagshdr")]
-	public Flag update_header_flags(Command cmd, Flag flags);
-	[CCode(cname = "elf_flagscn")]
-	public Flag update_flags(Command cmd, Flag flags);
+	[CCode (cname = "elf_flagshdr")]
+	public Flag update_header_flags (Command cmd, Flag flags);
+	[CCode (cname = "elf_flagscn")]
+	public Flag update_flags (Command cmd, Flag flags);
 	/**
 	 * Undefined section
 	 */
-	[CCode(cname = "SHN_UNDEF")]
+	[CCode (cname = "SHN_UNDEF")]
 	public const size_t UNDEF;
 	/**
 	 * Start of reserved indices
 	 */
-	[CCode(cname = "SHN_LORESERVE")]
+	[CCode (cname = "SHN_LORESERVE")]
 	public const size_t LORESERVE;
 	/**
 	 * Start of processor-specific
 	 */
-	[CCode(cname = "SHN_LOPROC")]
+	[CCode (cname = "SHN_LOPROC")]
 	public const size_t LOPROC;
 	/**
 	 * Order section before all others (Solaris).
 	 */
-	[CCode(cname = "SHN_BEFORE")]
+	[CCode (cname = "SHN_BEFORE")]
 	public const size_t BEFORE;
 	/**
 	 * Order section after all others (Solaris).
 	 */
-	[CCode(cname = "SHN_AFTER")]
+	[CCode (cname = "SHN_AFTER")]
 	public const size_t AFTER;
 	/**
 	 * End of processor-specific
 	 */
-	[CCode(cname = "SHN_HIPROC")]
+	[CCode (cname = "SHN_HIPROC")]
 	public const size_t HIPROC;
 	/**
 	 * Start of OS-specific
 	 */
-	[CCode(cname = "SHN_LOOS")]
+	[CCode (cname = "SHN_LOOS")]
 	public const size_t LOOS;
 	/**
 	 * End of OS-specific
 	 */
-	[CCode(cname = "SHN_HIOS")]
+	[CCode (cname = "SHN_HIOS")]
 	public const size_t HIOS;
 	/**
 	 * Associated symbol is absolute
 	 */
-	[CCode(cname = "SHN_ABS")]
+	[CCode (cname = "SHN_ABS")]
 	public const size_t ABS;
 	/**
 	 * Associated symbol is common
 	 */
-	[CCode(cname = "SHN_COMMON")]
+	[CCode (cname = "SHN_COMMON")]
 	public const size_t COMMON;
 	/**
 	 * Index is in extra table.
 	 */
-	[CCode(cname = "SHN_XINDEX")]
+	[CCode (cname = "SHN_XINDEX")]
 	public const size_t XINDEX;
 	/**
 	 * End of reserved indices
 	 */
-	[CCode(cname = "SHN_HIRESERVE")]
+	[CCode (cname = "SHN_HIRESERVE")]
 	public const size_t HIRESERVE;
 }
 /**
  * Archive symbol table entry
  */
-[CCode(cname = "Elf_Arsym")]
+[CCode (cname = "Elf_Arsym")]
 public struct Elf.ar_symbol {
 	/**
 	 * Symbol name.
 	 */
-	[CCode(cname = "as_name")]
+	[CCode (cname = "as_name")]
 	string name;
 	/**
 	 * Offset for this file in the archive.
 	 */
-	[CCode(cname = "as_off")]
+	[CCode (cname = "as_off")]
 	size_t off;
 	/**
 	 * Hash value of the name.
 	 */
-	[CCode(cname = "as_hash")]
+	[CCode (cname = "as_hash")]
 	ulong hash;
 }
 /**
  * Archive member header
  */
-[CCode(cname = "Elf_Arhdr")]
+[CCode (cname = "Elf_Arhdr")]
 public struct Elf.archive_header {
 	/**
 	 * An archive member name, is a string, with the ar format control characters removed.
 	 * @see raw_name
 	 */
-	[CCode(cname = "ar_name")]
+	[CCode (cname = "ar_name")]
 	string name;
 	/**
 	 * File date.
 	 */
-	[CCode(cname = "ar_date")]
+	[CCode (cname = "ar_date")]
 	time_t date;
 	/**
 	 * User ID.
 	 */
-	[CCode(cname = "ar_uid")]
+	[CCode (cname = "ar_uid")]
 	long uid;
 	/**
 	 * Group ID.
 	 */
-	[CCode(cname = "ar_gid")]
+	[CCode (cname = "ar_gid")]
 	long gid;
 	/**
 	 * File mode.
 	 */
-	[CCode(cname = "ar_mode")]
+	[CCode (cname = "ar_mode")]
 	ulong mode;
 	/**
 	 * File size.
 	 */
-	[CCode(cname = "ar_size")]
+	[CCode (cname = "ar_size")]
 	Posix.off_t size;
 	/**
 	 * Holds a string that represents the original name bytes in the file, including the terminating slash and trailing blanks as specified in the archive format.
@@ -437,352 +437,352 @@ public struct Elf.archive_header {
 	 * * A single slash is the archive symbol table. If present, it will be the first archive member. A program may access the archive symbol table through {@link Desc.get_ar_symbol}. The information in the symbol table is useful for random archive processing (see {@link Desc.rand}).
 	 * * A double slash member, if present, holds a string table for long archive member names. An archive member's header contains a 16-byte area for the name, which may be exceeded in some file systems.
 	 */
-	[CCode(cname = "ar_rawname")]
+	[CCode (cname = "ar_rawname")]
 	string raw_name;
 }
 /**
  * Data converted to/from memory format
  */
-[CCode(cname = "Elf_Data", destroy_function = "")]
+[CCode (cname = "Elf_Data", destroy_function = "")]
 public struct Elf.data {
-	[CCode(cname = "d_buf", array_length_cname = "d_size")]
+	[CCode (cname = "d_buf", array_length_cname = "d_size")]
 	public uint8[] buf;
-	[CCode(cname = "d_type")]
+	[CCode (cname = "d_type")]
 	public Type type;
-	[CCode(cname = "d_off")]
+	[CCode (cname = "d_off")]
 	public Posix.off_t offset;
-	[CCode(cname = "d_align")]
+	[CCode (cname = "d_align")]
 	public size_t align;
-	[CCode(cname = "d_version")]
+	[CCode (cname = "d_version")]
 	public Version version;
-	[CCode(cname = "elf32_xlatetof", instance_pos = 1.1)]
-	public bool from_memory(out data dst, Encoding encode);
-	[CCode(cname = "elf32_xlatetom", instance_pos = 1.1)]
-	public bool to_memory(out data dst, Encoding encode);
-	[CCode(cname = "elf64_xlatetof", instance_pos = 1.1)]
-	public bool from_memory64(out data dst, Encoding encode);
-	[CCode(cname = "elf64_xlatetom", instance_pos = 1.1)]
-	public bool to_memory64(out data dst, Encoding encode);
-	[CCode(cname = "elf_flagdata")]
-	public Flag update_flags(Command cmd, Flag flags);
+	[CCode (cname = "elf32_xlatetof", instance_pos = 1.1)]
+	public bool from_memory (out data dst, Encoding encode);
+	[CCode (cname = "elf32_xlatetom", instance_pos = 1.1)]
+	public bool to_memory (out data dst, Encoding encode);
+	[CCode (cname = "elf64_xlatetof", instance_pos = 1.1)]
+	public bool from_memory64 (out data dst, Encoding encode);
+	[CCode (cname = "elf64_xlatetom", instance_pos = 1.1)]
+	public bool to_memory64 (out data dst, Encoding encode);
+	[CCode (cname = "elf_flagdata")]
+	public Flag update_flags (Command cmd, Flag flags);
 }
 /* The ELF file header. This appears at the start of every ELF file. */
-[CCode(cname = "Elf32_Ehdr")]
+[CCode (cname = "Elf32_Ehdr")]
 public struct Elf.hdr32 {
 	/**
 	 * Magic number
 	 */
-	[CCode(cname = "e_ident", array_length_cexpr = "EI_NIDENT")]
+	[CCode (cname = "e_ident", array_length_cexpr = "EI_NIDENT")]
 	char[] ident;
-	[CCode(cname = "e_type")]
+	[CCode (cname = "e_type")]
 	ObjType type;
-	[CCode(cname = "e_machine")]
+	[CCode (cname = "e_machine")]
 	Machine machine;
-	[CCode(cname = "e_version")]
+	[CCode (cname = "e_version")]
 	Version version;
 	/**
 	 * Entry point virtual address
 	 */
-	[CCode(cname = "e_entry")]
+	[CCode (cname = "e_entry")]
 	uint32 entry;
 	/**
 	 * Program header table file offset
 	 */
-	[CCode(cname = "e_phoff")]
+	[CCode (cname = "e_phoff")]
 	uint32 program_header_offset;
 	/**
 	 * Section header table file offset
 	 */
-	[CCode(cname = "e_shoff")]
+	[CCode (cname = "e_shoff")]
 	uint32 section_header_offset;
 	/**
 	 * Processor-specific flags
 	 */
-	[CCode(cname = "e_flags")]
+	[CCode (cname = "e_flags")]
 	uint32 flags;
 	/**
 	 * ELF header size in bytes
 	 */
-	[CCode(cname = "e_ehsize")]
+	[CCode (cname = "e_ehsize")]
 	uint16 header_size;
 	/**
 	 * Program header table entry size
 	 */
-	[CCode(cname = "e_phentsize")]
+	[CCode (cname = "e_phentsize")]
 	uint16 program_entry_size;
 	/**
 	 * Program header table entry count
 	 */
-	[CCode(cname = "e_phnum")]
+	[CCode (cname = "e_phnum")]
 	uint16 program_count;
 	/**
 	 * Section header table entry size
 	 */
-	[CCode(cname = "e_shentsize")]
+	[CCode (cname = "e_shentsize")]
 	uint16 section_header_size;
 	/**
 	 * Section header table entry count
 	 */
-	[CCode(cname = "e_shnum")]
+	[CCode (cname = "e_shnum")]
 	uint16 section_count;
 	/**
 	 * Section header string table index
 	 */
-	[CCode(cname = "e_shstrndx")]
+	[CCode (cname = "e_shstrndx")]
 	uint16 string_index;
 }
-[CCode(cname = "Elf64_Ehdr")]
+[CCode (cname = "Elf64_Ehdr")]
 public struct Elf.hdr64 {
 	/**
 	 * Magic number
 	 */
-	[CCode(cname = "e_ident", array_length_cexpr = "EI_NIDENT")]
- char[] ident;
-	[CCode(cname = "e_type")]
+	[CCode (cname = "e_ident", array_length_cexpr = "EI_NIDENT")]
+	char[] ident;
+	[CCode (cname = "e_type")]
 	ObjType type;
-	[CCode(cname = "e_machine")]
+	[CCode (cname = "e_machine")]
 	Machine machine;
-	[CCode(cname = "e_version")]
+	[CCode (cname = "e_version")]
 	Version version;
 	/**
 	 * Entry point virtual address
 	 */
-	[CCode(cname = "e_entry")]
+	[CCode (cname = "e_entry")]
 	uint64 entry;
 	/**
 	 * Program header table file offset
 	 */
-	[CCode(cname = "e_phoff")]
+	[CCode (cname = "e_phoff")]
 	uint64 program_header_offset;
 	/**
 	 * Section header table file offset
 	 */
-	[CCode(cname = "e_shoff")]
+	[CCode (cname = "e_shoff")]
 	uint64 section_header_offset;
 	/**
 	 * Processor-specific flags
 	 */
-	[CCode(cname = "e_flags")]
+	[CCode (cname = "e_flags")]
 	uint32 flags;
 	/**
 	 * ELF header size in bytes
 	 */
-	[CCode(cname = "e_ehsize")]
+	[CCode (cname = "e_ehsize")]
 	uint16 header_size;
 	/**
 	 * Program header table entry size
 	 */
-	[CCode(cname = "e_phentsize")]
+	[CCode (cname = "e_phentsize")]
 	uint16 program_entry_size;
 	/**
 	 * Program header table entry count
 	 */
-	[CCode(cname = "e_phnum")]
+	[CCode (cname = "e_phnum")]
 	uint16 program_count;
 	/**
 	 * Section header table entry size
 	 */
-	[CCode(cname = "e_shentsize")]
+	[CCode (cname = "e_shentsize")]
 	uint16 section_header_size;
 	/**
 	 * Section header table entry count
 	 */
-	[CCode(cname = "e_shnum")]
+	[CCode (cname = "e_shnum")]
 	uint16 section_count;
 	/**
 	 * Section header string table index
 	 */
-	[CCode(cname = "e_shstrndx")]
+	[CCode (cname = "e_shstrndx")]
 	uint16 string_index;
 
-	[CCode(cname = "e_ident[EI_CLASS]")]
+	[CCode (cname = "e_ident[EI_CLASS]")]
 	public Class @class;
-	[CCode(cname = "e_ident[EI_DATA]")]
+	[CCode (cname = "e_ident[EI_DATA]")]
 	public Encoding encoding;
-	[CCode(cname = "e_ident[EI_VERSION]")]
+	[CCode (cname = "e_ident[EI_VERSION]")]
 	public Version abi_version;
-	[CCode(cname = "e_ident[EI_OSABI]")]
+	[CCode (cname = "e_ident[EI_OSABI]")]
 	public OsAbi abi;
 }
-[CCode(cname = "Elf32_Phdr")]
+[CCode (cname = "Elf32_Phdr")]
 public struct Elf.program_header {
-	[CCode(cname = "p_type")]
+	[CCode (cname = "p_type")]
 	ProgType type;
 	/**
 	 * Segment file offset
 	 */
-	[CCode(cname = "p_offset")]
+	[CCode (cname = "p_offset")]
 	uint32 offset;
 	/**
 	 * Segment virtual address
 	 */
-	[CCode(cname = "p_vaddr")]
+	[CCode (cname = "p_vaddr")]
 	uint32 virtual_addr;
 	/**
 	 * Segment physical address
 	 */
-	[CCode(cname = "p_paddr")]
+	[CCode (cname = "p_paddr")]
 	uint32 physical_addr;
 	/**
 	 * Segment size in file
 	 */
-	[CCode(cname = "p_filesz")]
+	[CCode (cname = "p_filesz")]
 	uint32 file_size;
 	/**
 	 * Segment size in memory
 	 */
-	[CCode(cname = "p_memsz")]
+	[CCode (cname = "p_memsz")]
 	uint32 memory_Size;
-	[CCode(cname = "p_flags")]
+	[CCode (cname = "p_flags")]
 	SegmentFlag flags;
 	/**
 	 * Segment alignment
 	 */
-	[CCode(cname = "p_align")]
+	[CCode (cname = "p_align")]
 	uint32 align;
 }
-[CCode(cname = "Elf64_Phdr")]
+[CCode (cname = "Elf64_Phdr")]
 public struct Elf.program_header64 {
-	[CCode(cname = "p_type")]
+	[CCode (cname = "p_type")]
 	ProgType type;
 	/**
 	 * Segment file offset
 	 */
-	[CCode(cname = "p_offset")]
+	[CCode (cname = "p_offset")]
 	uint64 offset;
 	/**
 	 * Segment virtual address
 	 */
-	[CCode(cname = "p_vaddr")]
+	[CCode (cname = "p_vaddr")]
 	uint64 virtual_addr;
 	/**
 	 * Segment physical address
 	 */
-	[CCode(cname = "p_paddr")]
+	[CCode (cname = "p_paddr")]
 	uint64 physical_addr;
 	/**
 	 * Segment size in file
 	 */
-	[CCode(cname = "p_filesz")]
+	[CCode (cname = "p_filesz")]
 	uint64 file_size;
 	/**
 	 * Segment size in memory
 	 */
-	[CCode(cname = "p_memsz")]
+	[CCode (cname = "p_memsz")]
 	uint64 memory_Size;
-	[CCode(cname = "p_flags")]
+	[CCode (cname = "p_flags")]
 	SegmentFlag flags;
 	/**
 	 * Segment alignment
 	 */
-	[CCode(cname = "p_align")]
+	[CCode (cname = "p_align")]
 	uint64 align;
 }
-[CCode(cname = "Elf32_Shdr")]
+[CCode (cname = "Elf32_Shdr")]
 public struct Elf.section_header {
 	/**
 	 * Section name (string table index)
 	 */
-	[CCode(cname = "sh_name")]
+	[CCode (cname = "sh_name")]
 	uint32 name;
-	[CCode(cname = "sh_type")]
+	[CCode (cname = "sh_type")]
 	SectionType type;
-	[CCode(cname = "sh_flags")]
+	[CCode (cname = "sh_flags")]
 	SectionFlag flags;
 	/**
 	 * Section virtual addr at execution
 	 */
-	[CCode(cname = "sh_addr")]
+	[CCode (cname = "sh_addr")]
 	uint32 addr;
 	/**
 	 * Section file offset
 	 */
-	[CCode(cname = "sh_offset")]
+	[CCode (cname = "sh_offset")]
 	uint32 offset;
 	/**
 	 * Section size in bytes
 	 */
-	[CCode(cname = "sh_size")]
+	[CCode (cname = "sh_size")]
 	uint32 size;
 	/**
 	 * Link to another section
 	 */
-	[CCode(cname = "sh_link")]
+	[CCode (cname = "sh_link")]
 	uint32 link;
 	/**
 	 * Additional section information
 	 */
-	[CCode(cname = "sh_info")]
+	[CCode (cname = "sh_info")]
 	uint32 info;
 	/**
 	 * Section alignment
 	 */
-	[CCode(cname = "sh_addralign")]
+	[CCode (cname = "sh_addralign")]
 	uint32 addralign;
 	/**
 	 * Entry size if section holds table
 	 */
-	[CCode(cname = "sh_entsize")]
+	[CCode (cname = "sh_entsize")]
 	uint32 entsize;
 }
-[CCode(cname = "Elf64_Shdr")]
+[CCode (cname = "Elf64_Shdr")]
 public struct Elf.section_header64 {
 	/**
 	 * Section name (string table index)
 	 */
-	[CCode(cname = "sh_name")]
+	[CCode (cname = "sh_name")]
 	uint32 name;
-	[CCode(cname = "sh_type")]
+	[CCode (cname = "sh_type")]
 	SectionType type;
-	[CCode(cname = "sh_flags")]
+	[CCode (cname = "sh_flags")]
 	SectionFlag flags;
 	/**
 	 * Section virtual addr at execution
 	 */
-	[CCode(cname = "sh_addr")]
+	[CCode (cname = "sh_addr")]
 	uint64 addr;
 	/**
 	 * Section file offset
 	 */
-	[CCode(cname = "sh_offset")]
+	[CCode (cname = "sh_offset")]
 	uint64 offset;
 	/**
 	 * Section size in bytes
 	 */
-	[CCode(cname = "sh_size")]
+	[CCode (cname = "sh_size")]
 	uint64 size;
 	/**
 	 * Link to another section
 	 */
-	[CCode(cname = "sh_link")]
+	[CCode (cname = "sh_link")]
 	uint64 link;
 	/**
 	 * Additional section information
 	 */
-	[CCode(cname = "sh_info")]
+	[CCode (cname = "sh_info")]
 	uint64 info;
 	/**
 	 * Section alignment
 	 */
-	[CCode(cname = "sh_addralign")]
+	[CCode (cname = "sh_addralign")]
 	uint64 addralign;
 	/**
 	 * Entry size if section holds table
 	 */
-	[CCode(cname = "sh_entsize")]
+	[CCode (cname = "sh_entsize")]
 	uint64 entsize;
 }
 
-[CCode(cname = "int")]
+[CCode (cname = "int")]
 public enum Elf.Class {
-	[CCode(cname = "ELFCLASSNONE")]
+	[CCode (cname = "ELFCLASSNONE")]
 	NONE,
-	[CCode(cname = "ELFCLASS32")]
+	[CCode (cname = "ELFCLASS32")]
 	THIRTY_TWO,
-	[CCode(cname = "ELFCLASS64")]
+	[CCode (cname = "ELFCLASS64")]
 	SIXTY_FOUR
 }
-[CCode(cname = "Elf_Cmd", cprefix = "ELF_C_")]
+[CCode (cname = "Elf_Cmd", cprefix = "ELF_C_")]
 public enum Elf.Command {
 	/**
 	 * Nothing, terminate, or compute only.
@@ -837,7 +837,7 @@ public enum Elf.Command {
 	 */
 	EMPTY
 }
-[CCode(cname = "int", cprefix = "ELFDATA")]
+[CCode (cname = "int", cprefix = "ELFDATA")]
 public enum Elf.Encoding {
 	/**
 	 * Invalid data encoding
@@ -846,15 +846,15 @@ public enum Elf.Encoding {
 	/**
 	 * 2's complement, little endian
 	 */
-	[CCode(cname = "ELFDATA2LSB")]
+	[CCode (cname = "ELFDATA2LSB")]
 	TWO_LSB,
 	/**
 	 * 2's complement, big endian
 	 */
-	[CCode(cname = "ELFDATA2MSB")]
+	[CCode (cname = "ELFDATA2MSB")]
 	TWO_MSB
 }
-[CCode(cname = "int", cprefix ="ELF_F_")]
+[CCode (cname = "int", cprefix = "ELF_F_")]
 [Flags]
 public enum Elf.Flag {
 	DIRTY,
@@ -870,7 +870,7 @@ public enum Elf.Flag {
 /**
  * Identification values for recognized object files.
  */
-[CCode(cname = "Elf_Kind")]
+[CCode (cname = "Elf_Kind")]
 public enum Elf.Kind {
 	/**
 	 * Unknown.
@@ -889,7 +889,7 @@ public enum Elf.Kind {
 	 */
 	ELF,
 }
-[CCode(cname = "int", cprefix = "EM_")]
+[CCode (cname = "int", cprefix = "EM_")]
 public enum Elf.Machine {
 	/**
 	 * No machine
@@ -906,22 +906,22 @@ public enum Elf.Machine {
 	/**
 	 * Intel 80386
 	 */
-	[CCode(cname = "EM_386")]
+	[CCode (cname = "EM_386")]
 	I386,
 	/**
 	 * Motorola m68k family
 	 */
-	[CCode(cname = "EM_68K")]
+	[CCode (cname = "EM_68K")]
 	M68K,
 	/**
 	 * Motorola m88k family
 	 */
-	[CCode(cname = "EM_88K")]
+	[CCode (cname = "EM_88K")]
 	M88K,
 	/**
 	 * Intel 80860
 	 */
-	[CCode(cname = "EM_860")]
+	[CCode (cname = "EM_860")]
 	M860,
 	/**
 	 * MIPS R3000 big-endian
@@ -950,7 +950,7 @@ public enum Elf.Machine {
 	/**
 	 * Intel 80960
 	 */
-	[CCode(cname = "EM_960")]
+	[CCode (cname = "EM_960")]
 	I960,
 	/**
 	 * PowerPC
@@ -1194,7 +1194,7 @@ public enum Elf.Machine {
 	 */
 	XTENSA
 }
-[CCode(cname = "int", cprefix = "ET_NONE")]
+[CCode (cname = "int", cprefix = "ET_NONE")]
 public enum Elf.ObjType {
 	/**
 	 * No file type
@@ -1217,7 +1217,7 @@ public enum Elf.ObjType {
 	 */
 	CORE
 }
-[CCode(cname = "int", cprefix = "ELFOSABI_")]
+[CCode (cname = "int", cprefix = "ELFOSABI_")]
 public enum Elf.OsAbi {
 	/**
 	 * UNIX System V ABI
@@ -1278,7 +1278,7 @@ public enum Elf.OsAbi {
 	 */
 	STANDALONE
 }
-[CCode(cname = "int", cprefix = "PT_")]
+[CCode (cname = "int", cprefix = "PT_")]
 public enum Elf.ProgType {
 	/**
 	 * Program header table entry unused
@@ -1351,7 +1351,7 @@ public enum Elf.ProgType {
 	 */
 	HIPROC,
 }
-[CCode(cname = "long", cprefix = "SHF_")]
+[CCode (cname = "long", cprefix = "SHF_")]
 [Flags]
 public enum Elf.SectionFlag {
 	/**
@@ -1411,7 +1411,7 @@ public enum Elf.SectionFlag {
 	 */
 	EXCLUDE
 }
-[CCode(cname = "long")]
+[CCode (cname = "long")]
 public enum Elf.SectionType {
 	/**
 	 * Section header table entry unused
@@ -1570,7 +1570,7 @@ public enum Elf.SegmentFlag {
 /**
  * Known translation types.
  */
-[CCode(cname = "Elf_Type", cprefix = "ELF_T_")]
+[CCode (cname = "Elf_Type", cprefix = "ELF_T_")]
 public enum Elf.Type {
 	/**
 	 * unsigned char
@@ -1677,15 +1677,15 @@ public enum Elf.Type {
 	 *
 	 * The binary class is taken from ELF. The result is based on the version of the ELF standard.
 	 */
-	[CCode(cname = "elf32_fsize")]
-	public size_t size(size_t count = 1, Version version = Version.CURRENT);
+	[CCode (cname = "elf32_fsize")]
+	public size_t size (size_t count = 1, Version version = Version.CURRENT);
 	/**
 	 * Return size of array of the type in the external representation in ELFCLASS64.
 	 */
-	[CCode(cname = "elf64_fsize")]
-	public size_t size64(size_t count = 1, Version version = Version.CURRENT);
+	[CCode (cname = "elf64_fsize")]
+	public size_t size64 (size_t count = 1, Version version = Version.CURRENT);
 }
-[CCode(cname = "unsigned int", cprefix = "EV_")]
+[CCode (cname = "unsigned int", cprefix = "EV_")]
 public enum Elf.Version {
 	/**
 	 * Invalid ELF version

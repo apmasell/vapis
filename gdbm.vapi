@@ -1,11 +1,11 @@
-[CCode(cheader_filename = "gdbm.h")]
+[CCode (cheader_filename = "gdbm.h")]
 namespace GDBM {
 
 	/**
 	 * Configuration mode for opening a database.
 	 */
 	[Flags]
-	[CCode(cprefix = "GDBM_", type = "int", has_type_id = false)]
+	[CCode (cprefix = "GDBM_", type = "int", has_type_id = false)]
 	public enum OpenFlag {
 		/**
 		 * Open file as reader.
@@ -39,28 +39,27 @@ namespace GDBM {
 	}
 
 	[SimpleType]
-	[CCode(cname = "datum", destroy_function = "", has_type_id = false)]
+	[CCode (cname = "datum", destroy_function = "", has_type_id = false)]
 	private struct rdatum {
-		[CCode(cname = "dptr", array_length_cname = "dsize", array_length_type = "int")]
+		[CCode (cname = "dptr", array_length_cname = "dsize", array_length_type = "int")]
 		uint8[] data;
 	}
 
 	[SimpleType]
-	[CCode(cname = "datum", has_destroy_function = false, has_type_id = false)]
+	[CCode (cname = "datum", has_destroy_function = false, has_type_id = false)]
 	private struct datum {
-		[CCode(array_length = false)]
+		[CCode (array_length = false)]
 		unowned uint8[] dptr;
 		int dsize;
 	}
 
-
 	/**
 	 * The gdbm build release string.
 	 */
-	[CCode(cname = "gdbm_version")]
+	[CCode (cname = "gdbm_version")]
 	public const string VERSION;
 
-	[CCode(type = "int", cprefix = "GDBM_", has_type_id = false)]
+	[CCode (type = "int", cprefix = "GDBM_", has_type_id = false)]
 	private enum Option {
 		CACHESIZE,
 		FASTMODE,
@@ -72,8 +71,8 @@ namespace GDBM {
 	/**
 	 * Delegate for the handler when database opening fails
 	 */
-	[CCode(has_target = false, has_type_id = false)]
-	public delegate void FatalHandler();
+	[CCode (has_target = false, has_type_id = false)]
+	public delegate void FatalHandler ();
 
 	/**
 	 * Access handle to a gdbm database.
@@ -82,7 +81,7 @@ namespace GDBM {
 	 * A process that opens a gdbm file is designated as a "reader" or a "writer". Only one writer may open a gdbm file and many readers may open the file. Readers and writers can not open the gdbm file at the same time.
 	 */
 	[Compact]
-	[CCode(cname = "void", cprefix = "gdbm_", free_function = "gdbm_close", has_type_id = false)]
+	[CCode (cname = "void", cprefix = "gdbm_", free_function = "gdbm_close", has_type_id = false)]
 	public class Database {
 
 		private int @delete (datum key);
@@ -92,7 +91,7 @@ namespace GDBM {
 		private rdatum nextkey (datum previous);
 		private int reorganize ();
 		private int setopt (Option option, int* value, int size);
-		private int store (datum key, datum content, [CCode(type = "int")] bool replace);
+		private int store (datum key, datum content, [CCode (type = "int")] bool replace);
 
 		/**
 		 * Open a database.
@@ -110,8 +109,8 @@ namespace GDBM {
 		 *
 		 * If you have had a lot of deletions and would like to shrink the space used by the gdbm file, this routine will reorganize the database. Gdbm will not shorten the length of a gdbm file except by using this reorganization. (Deleted file space will be reused.) It should be used very infrequently.
 		 */
-		public bool compact() {
-			return this.reorganize() == 0;
+		public bool compact () {
+			return this.reorganize () == 0;
 		}
 
 		/**
@@ -124,14 +123,14 @@ namespace GDBM {
 			datum k;
 			k.dptr = key;
 			k.dsize = key.length;
-			return exists(k);
+			return exists (k);
 		}
 
 		/**
 		 * Retrieve the "first" key in the database.
 		 */
-		public uint8[] first_key() {
-			return this.firstkey().data;
+		public uint8[] first_key () {
+			return this.firstkey ().data;
 		}
 
 		/**
@@ -145,7 +144,7 @@ namespace GDBM {
 			datum k;
 			k.dptr = key;
 			k.dsize = key.length;
-			return (owned) this.fetch(k).data;
+			return (owned) this.fetch (k).data;
 		}
 
 		/**
@@ -154,11 +153,11 @@ namespace GDBM {
 		 * This access is not key sequential, but it is guaranteed to visit every key in the database once. Key order can be rearrange if the database is modified!
 		 * @param key the preceding key
 		 */
-		public uint8[]? next_key(uint8[] key) {
+		public uint8[]? next_key (uint8[] key) {
 			datum k;
 			k.dptr = key;
 			k.dsize = key.length;
-			return this.nextkey(k).data;
+			return this.nextkey (k).data;
 		}
 
 		/**
@@ -171,7 +170,7 @@ namespace GDBM {
 			datum k;
 			k.dptr = key;
 			k.dsize = key.length;
-			return this.delete(k) == 0;
+			return this.delete (k) == 0;
 		}
 
 		/**
@@ -185,21 +184,21 @@ namespace GDBM {
 		 * @param content is the data to be associated with the key.
 		 * @param replace Replace contents if key exists otherwise insert only, generate an error if key exists.
 		 */
-		public bool save(uint8[] key, uint8[] content, bool replace) {
+		public bool save (uint8[] key, uint8[] content, bool replace) {
 			datum k;
 			k.dptr = key;
 			k.dsize = key.length;
 			datum c;
 			c.dptr = content;
 			c.dsize = content.length;
-			return this.store(k, c, replace) == 0;
+			return this.store (k, c, replace) == 0;
 		}
 
 		/**
 		 * Update the database overwriting the existing data.
 		 */
 		public void @set (uint8[] key, uint8[] content) {
-			this.save(key, content, true);
+			this.save (key, content, true);
 		}
 
 		/**
@@ -216,7 +215,7 @@ namespace GDBM {
 		 */
 		public int CacheSize {
 			set {
-				this.setopt(Option.CACHESIZE, &value, (int) sizeof(int));
+				this.setopt (Option.CACHESIZE, &value, (int) sizeof (int));
 			}
 		}
 
@@ -228,7 +227,7 @@ namespace GDBM {
 		public bool CentralFreeBlocks {
 			set {
 				int v = value ? 1 : 0;
-				this.setopt(Option.CENTFREE, &v, (int) sizeof(int));
+				this.setopt (Option.CENTFREE, &v, (int) sizeof (int));
 			}
 		}
 
@@ -240,19 +239,19 @@ namespace GDBM {
 		public bool CoalesceBlocks {
 			set {
 				int v = value ? 1 : 0;
-				this.setopt(Option.COALESCEBLKS, &v, (int) sizeof(int));
+				this.setopt (Option.COALESCEBLKS, &v, (int) sizeof (int));
 			}
 		}
 		/**
 		 * Set fast mode to either on or off.
 		 *
 		 * This allows fast mode to be toggled on an already open and active database. This option is now obsolete.
-		*/
+		 */
 		[Deprecated]
 		public bool FastMode {
 			set {
 				int v = value ? 1 : 0;
-				this.setopt(Option.FASTMODE, &v, (int) sizeof(int));
+				this.setopt (Option.FASTMODE, &v, (int) sizeof (int));
 			}
 		}
 
@@ -264,7 +263,7 @@ namespace GDBM {
 		public bool SyncMode {
 			set {
 				int v = value ? 1 : 0;
-				this.setopt(Option.SYNCMODE, &v, (int) sizeof(int));
+				this.setopt (Option.SYNCMODE, &v, (int) sizeof (int));
 			}
 		}
 
@@ -272,7 +271,7 @@ namespace GDBM {
 		 * The file descriptor used by the database.
 		 */
 		public int descriptor {
-			[CCode(cname = "gdbm_fdesc")]
+			[CCode (cname = "gdbm_fdesc")]
 			get;
 		}
 	}
@@ -280,7 +279,7 @@ namespace GDBM {
 	/**
 	 * Error codes set by database operations.
 	 */
-	[CCode(type = "gdbm_error", cprefix = "GDBM_", has_type_id = false)]
+	[CCode (type = "gdbm_error", cprefix = "GDBM_", has_type_id = false)]
 	public enum Error {
 		/**
 		 * No error
@@ -366,13 +365,13 @@ namespace GDBM {
 		 * Illegal option
 		 */
 		OPT_ILLEGAL;
-		[CCode(cname = "gdbm_strerror")]
-		public unowned string to_string();
+		[CCode (cname = "gdbm_strerror")]
+		public unowned string to_string ();
 	}
 
 	/**
 	 * Error code of the last database operation.
 	 */
-	[CCode(cname = "gdbm_errno")]
+	[CCode (cname = "gdbm_errno")]
 	public static Error errno;
 }

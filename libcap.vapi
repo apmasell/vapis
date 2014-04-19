@@ -1,4 +1,4 @@
-[CCode(cheader_filename = "sys/capability.h")]
+[CCode (cheader_filename = "sys/capability.h")]
 /**
  * Defunct POSIX.1e Standard: 25.2 Capabilities
  */
@@ -6,10 +6,10 @@ namespace Posix {
 	/**
 	 * Capability handle
 	 */
-	[CCode(cname = "struct _cap_struct", free_function = "cap_free")]
+	[CCode (cname = "struct _cap_struct", free_function = "cap_free")]
 	[Compact]
 	public class Capability {
-		[CCode(cname = "cap_flag_t", cprefix = "CAP_")]
+		[CCode (cname = "cap_flag_t", cprefix = "CAP_")]
 		public enum Flag {
 			EFFECTIVE,
 			PERMITTED,
@@ -17,10 +17,10 @@ namespace Posix {
 			/**
 			 * Evaluates if the returned status from {@link compare} differs in this flag component.
 			 */
-			[CCode(cname = "CAP_DIFFERS", instance_pos = -1)]
-			public bool differs(int result);
+			[CCode (cname = "CAP_DIFFERS", instance_pos = -1)]
+			public bool differs (int result);
 		}
-		[CCode(cname = "cap_value_t", cprefix = "CAP_")]
+		[CCode (cname = "cap_value_t", cprefix = "CAP_")]
 		public enum Value {
 			/**
 			 * This overrides the restriction of changing file ownership and group ownership.
@@ -149,7 +149,7 @@ namespace Posix {
 			 * Allow setting geometry in floppy driver.
 			 * Allow turning DMA on/off in xd driver.
 			 * Allow administration of md devices (mostly the above, but some
- extra ioctls).
+			   extra ioctls).
 			 * Allow tuning the ide driver.
 			 * Allow access to the nvram device.
 			 * Allow administration of apm_bios, serial and bttv (TV) device.
@@ -159,7 +159,7 @@ namespace Posix {
 			 * Allow setting up serial ports.
 			 * Allow sending raw qic-117 commands.
 			 * Allow enabling/disabling tagged queuing on SCSI controllers and sending
- arbitrary SCSI commands.
+			   arbitrary SCSI commands.
 			 * Allow setting encryption key on loopback filesystem.
 			 * Allow setting zone reclaim policy.
 			 */
@@ -231,15 +231,15 @@ namespace Posix {
 			 * Converts a text representation of a capability, such as "cap_chown".
 			 * @return whether or not the specified capability can be represented by the library.
 			 */
-			[CCode(cname = "0 == cap_from_name")]
-			public static bool from_name(string name, out Value @value);
+			[CCode (cname = "0 == cap_from_name")]
+			public static bool from_name (string name, out Value @value);
 			/**
 			 * Can be used to lower the specified bounding set capability.
 			 *
 			 * To complete successfully, the prevailing effective capability set must have a raised {@link Value.SETPCAP}.
 			 */
-			[CCode(cname = "0 == cap_drop_bound")]
-			public bool drop_bound();
+			[CCode (cname = "0 == cap_drop_bound")]
+			public bool drop_bound ();
 			/**
 			 * Gets the current value of this bounding set capability flag in effect for the current process.
 			 *
@@ -247,12 +247,12 @@ namespace Posix {
 			 * @return -1 if the requested capability is unknown, otherwise the return value reflects the current state of that capability in the prevailing bounding set.
 			 * @see is_supported
 			 */
-			[CCode(cname = "cap_get_bound")]
-			public int get_bound();
-			[CCode(cname = "CAP_IS_SUPPORTED")]
-			public bool is_supported();
-			[CCode(cname = "cap_to_name")]
-			public string to_string();
+			[CCode (cname = "cap_get_bound")]
+			public int get_bound ();
+			[CCode (cname = "CAP_IS_SUPPORTED")]
+			public bool is_supported ();
+			[CCode (cname = "cap_to_name")]
+			public string to_string ();
 		}
 		/**
 		 * The total length (in bytes) that the capability state in working storage would require when converted by {@link copy}.
@@ -260,7 +260,7 @@ namespace Posix {
 		 * This is used primarily to determine the amount of buffer space that must be provided to the {@link copy} function in order to hold the capability data record created.
 		 */
 		public ssize_t size {
-			[CCode(cname = "cap_size")]
+			[CCode (cname = "cap_size")]
 			get;
 		}
 		/**
@@ -268,73 +268,73 @@ namespace Posix {
 		 *
 		 * The function initializes the capability state and then copies the capability state from the record passed into the capability state, converting, if necessary, the data from a contiguous, persistent format to an undefined, internal format. Once copied into internal format, the object can be manipulated by the capability state manipulation functions. Note that the record must have been obtained from a previous, successful call to {@link copy} for this function to work successfully.
 		 */
-		[CCode(cname = "cap_copy_int")]
-		public static Capability? create([CCode(array_length = false)] uint8[] buffer);
+		[CCode (cname = "cap_copy_int")]
+		public static Capability? create ([CCode (array_length = false)] uint8[] buffer);
 		/**
 		 * Allocates and initializes a capability state in working storage. It then sets the contents of this newly created capability state to the state represented by a human-readable character string. It returns a pointer to the newly created capability state.
 		 *
 		 * @return an null if it cannot parse the contents of the string or does not recognize any '''capability_name''' or flag character as valid. Also returns null if any flag is both set and cleared within a single clause.
 		 */
-		[CCode(cname = "cap_from_text")]
-		public static Capability? from_text(string text);
+		[CCode (cname = "cap_from_text")]
+		public static Capability? from_text (string text);
 		/**
 		 * Allocate a capability state in working storage and set it to represent the capability state of the path.
 		 *
 		 * The effects of reading the capability state from any file other than a regular file is undefined.
 		 */
-		[CCode(cname = "cap_get_fd")]
-		public static Capability? get_fd(int fd);
+		[CCode (cname = "cap_get_fd")]
+		public static Capability? get_fd (int fd);
 		/**
 		 * Allocate a capability state in working storage and set it to represent the capability state of the file open on descriptor.
 		 *
 		 * The effects of reading the capability state from any file other than a regular file is undefined.
 		 */
-		[CCode(cname = "cap_get_file")]
-		public static Capability? get_file(string filename);
+		[CCode (cname = "cap_get_file")]
+		public static Capability? get_file (string filename);
 		/**
 		 * Returns cap_d with the process capabilities of the process indicated by pid.
 		 */
-		[CCode(cname = "cap_get_pid")]
-		public static Capability? get_pid(Posix.pid_t pid);
+		[CCode (cname = "cap_get_pid")]
+		public static Capability? get_pid (Posix.pid_t pid);
 		/**
 		 * Allocates a capability state in working storage, sets its state to that of the calling process.
 		 */
-		[CCode(cname = "cap_get_proc")]
-		public static Capability? get_proc();
+		[CCode (cname = "cap_get_proc")]
+		public static Capability? get_proc ();
 		/**
 		 * Reset the values for all capability flags for all capabilities for the open file descriptor.
 		 *
 		 * @see set_file
 		 */
-		[CCode(cname = "0 == cap_set_fd")]
-		public static bool reset_fd(int fd, Capability? cap = null);
+		[CCode (cname = "0 == cap_set_fd")]
+		public static bool reset_fd (int fd, Capability? cap = null);
 		/**
 		 * Reset the values for all capability flags for all capabilities for a file.
 		 *
 		 * @see set_file
 		 */
-		[CCode(cname = "0 == cap_set_file")]
-		public static bool reset_file(string filename, Capability? cap = null);
-		[CCode(cname = "cap_init")]
-		public Capability();
+		[CCode (cname = "0 == cap_set_file")]
+		public static bool reset_file (string filename, Capability? cap = null);
+		[CCode (cname = "cap_init")]
+		public Capability ();
 		/**
 		 * Initializes the capability state so that all capability flags are cleared.
 		 */
-		[CCode(cname = "0 == cap_clear")]
-		public bool clear();
+		[CCode (cname = "0 == cap_clear")]
+		public bool clear ();
 		/**
 		 * Clears all of the capabilities of the specified capability flag.
 		 */
-		[CCode(cname = "cap_clear_flag")]
-		public bool clear_flag(Flag flag);
+		[CCode (cname = "cap_clear_flag")]
+		public bool clear_flag (Flag flag);
 		/**
 		 * Compares two full capability sets and, in the spirit of memcmp(), returns zero if the two capability sets are identical.
 		 *
 		 * A positive return value, status, indicates there is a difference between them. The returned value carries further information about which of three sets differ.
 		 * @see Flag.differs
 		 */
-		[CCode(cname = "cap_compare")]
-		public int compare(Capability other);
+		[CCode (cname = "cap_compare")]
+		public int compare (Capability other);
 		/**
 		 * Copies a capability state in working storage from system managed space to user-managed space.
 		 *
@@ -342,43 +342,43 @@ namespace Posix {
 		 * @return the length of the resulting data record.
 		 * @see size
 		 */
-		[CCode(cname = "cap_copy_ext", instance_pos = 1.1)]
-		public ssize_t copy([CCode(array_length_pos = 1.2)] uint8[] buffer);
-		[CCode(cname = "cap_dup")]
-		public Capability dup();
+		[CCode (cname = "cap_copy_ext", instance_pos = 1.1)]
+		public ssize_t copy ([CCode (array_length_pos = 1.2)] uint8[] buffer);
+		[CCode (cname = "cap_dup")]
+		public Capability dup ();
 		/**
 		 * Obtains the current value of the capability flag.
 		 */
-		[CCode(cname = "0 == cap_get_flag")]
-		public bool get_flag(Value val, Flag flag, out bool result);
+		[CCode (cname = "0 == cap_get_flag")]
+		public bool get_flag (Value val, Flag flag, out bool result);
 		/**
 		 * Set the values for all capability flags for all capabilities for the open file descriptor.
 		 *
 		 * @see set_file
 		 */
-		[CCode(cname = "0 == cap_set_fd", instance_pos = -1)]
-		public bool set_fd(int fd);
+		[CCode (cname = "0 == cap_set_fd", instance_pos = -1)]
+		public bool set_fd (int fd);
 		/**
 		 * Set the values for all capability flags for all capabilities for a file.
 		 *
 		 * The new capability state of the file is completely determined by the contents of this object.
 		 * For these functions to succeed, the calling process must have the effective capability, {@link Value.SETFCAP}, enabled and either the effective user ID of the process must match the file owner or the calling process must have the {@link Value.FOWNER} flag in its effective capability set. The effects of writing the capability state to any file type other than a regular file are undefined.
 		 */
-		[CCode(cname = "0 == cap_set_file", instance_pos = -1)]
-		public bool set_file(string filename);
+		[CCode (cname = "0 == cap_set_file", instance_pos = -1)]
+		public bool set_file (string filename);
 		/**
 		 * Sets the flag of each capability in the array caps in the capability state.
 		 */
-		[CCode(cname = "0 == cap_set_flag")]
-		public bool set_flag(Flag flag, [CCode(array_length_pos = 2.1)] Value[] values, bool val);
+		[CCode (cname = "0 == cap_set_flag")]
+		public bool set_flag (Flag flag, [CCode (array_length_pos = 2.1)] Value[] values, bool val);
 		/**
 		 * Sets the values for all capability flags for all capabilities to this capability state.
 		 *
 		 * The new capability state of the process will be completely determined by the contents of this object upon successful return from this function. If any flag is set for any capability not currently permitted for the calling process, the function will fail, and the capability state of the process will remain unchanged.
 		 */
-		[CCode(cname = "0 == cap_set_proc")]
-		public bool set_proc();
-		[CCode(cname = "cap_to_text", array_length_type = "ssize_t")]
-		public uint8[] to_text();
+		[CCode (cname = "0 == cap_set_proc")]
+		public bool set_proc ();
+		[CCode (cname = "cap_to_text", array_length_type = "ssize_t")]
+		public uint8[] to_text ();
 	}
 }
