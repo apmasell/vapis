@@ -1,4 +1,4 @@
-[CCode(cheader_filename = "libssh2.h>\ntypedef LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC((*libssh2_userauth_publickey_sign_delegate));\ntypedef LIBSSH2_IGNORE_FUNC((*libssh2_ignore_delegate));\ntypedef LIBSSH2_DEBUG_FUNC((*libssh2_debug_delegate));\ntypedef LIBSSH2_DISCONNECT_FUNC((*libssh2_disconnect_delegate));\ntypedef LIBSSH2_PASSWD_CHANGEREQ_FUNC((*libssh2_passwd_changereq_delegate));\ntypedef LIBSSH2_MACERROR_FUNC((*libssh2_macerror_delegate));\ntypedef LIBSSH2_X11_OPEN_FUNC((*libssh2_x11_open_delegate));\ntypedef LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC((*libssh2_userauth_kbdint_response_delegate));\n#include <libssh2.h")]
+[CCode(cheader_filename = "libssh2.h>\ntypedef LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC((*libssh2_userauth_publickey_sign_delegate));\ntypedef LIBSSH2_IGNORE_FUNC((*libssh2_ignore_delegate));\ntypedef LIBSSH2_DEBUG_FUNC((*libssh2_debug_delegate));\ntypedef LIBSSH2_DISCONNECT_FUNC((*libssh2_disconnect_delegate));\ntypedef LIBSSH2_PASSWD_CHANGEREQ_FUNC((*libssh2_passwd_changereq_delegate));\ntypedef LIBSSH2_MACERROR_FUNC((*libssh2_macerror_delegate));\ntypedef LIBSSH2_X11_OPEN_FUNC((*libssh2_x11_open_delegate));\ntypedef LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC((*libssh2_userauth_kbdint_response_delegate));\ntypedef LIBSSH2_RECV_FUNC((*libssh2_recv_func_delegate));\ntypedef LIBSSH2_SEND_FUNC((*libssh2_send_func_delegate));\n#include <libssh2.h")]
 namespace SSH2 {
 	namespace Version {
 		[CCode(cname = "HAVE_LIBSSH2_AGENT_API")]
@@ -470,8 +470,10 @@ namespace SSH2 {
 		 * This is optional; a banner corresponding to the protocol and libssh2 version will be sent by default.
 		 */
 		public string banner {
-			[CCode(cname = "libssh2_banner_set")]
+			[CCode(cname = "libssh2_session_banner_set")]
 			set;
+			[CCode(cname = "libssh2_session_banner_get")]
+			get;
 		}
 		/**
 		 * The directions that socket should wait for before calling libssh2 function again
@@ -488,6 +490,12 @@ namespace SSH2 {
 		}
 		public Error last_error {
 			[CCode(cname = "libssh2_session_last_errno")]
+			get;
+		}
+		public long timeout {
+			[CCode(cname = "libssh2_session_set_timeout")]
+			set;
+			[CCode(cname = "libssh2_session_get_timeout")]
 			get;
 		}
 		public unowned T userdata {
@@ -617,7 +625,7 @@ namespace SSH2 {
 		 * Determine the most recent error condition and its cause.
 		 */
 		[CCode(cname = "libssh2_session_last_error")]
-		public Error get_last_error(out uint8[] errmsg, bool want_buf = true);
+		public Error get_last_error(out char[] errmsg, bool want_buf = true);
 				/**
 		 * Returns the computed digest of the remote system's hostkey. The length of the returned string is hash-type specific (e.g., 16 bytes for MD5, 20 bytes for SHA1).
 		 */
@@ -647,6 +655,18 @@ namespace SSH2 {
 		public PublicKey? get_public_key();
 		[CCode(cname = "libssh2_sftp_init")]
 		public SFTP? get_sftp();
+		[CCode(cname = "libssh2_session_supported_algs")]
+		private int _supported_algs(MethodType method_type, out string[]? algs);
+		public Error get_supported_algs(MethodType method_type, out string[]? algs) {
+			var result = _supported_algs(method_type, out algs);
+			if (result < 1) {
+				return (Error) result;
+			} else {
+				algs.length = result;
+				return Error.NONE;
+			}
+		}
+
 		[CCode(cname = "libssh2_session_handshake")]
 		public Error handshake(int sock);
 		/**
@@ -671,7 +691,7 @@ namespace SSH2 {
 		[CCode(cname = "libssh2_channel_open_ex")]
 		public Channel? open([CCode(array_length_type = "unsigned int")] uint8[] channel_type, uint window_size = Channel.WINDOW_DEFAULT, uint packet_size = Channel.PACKET_DEFAULT, [CCode(array_length_type = "unsigned int")]uint8[]? message = null);
 		[CCode(cname = "libssh2_channel_open_session")]
-		public Channel? open_session();
+		public Channel? open_channel();
 		[CCode(cname = "libssh2_scp_recv")]
 		public Channel? scp_recv(string path, out Posix.Stat sb);
 		[CCode(cname = "libssh2_scp_send64")]
@@ -732,6 +752,12 @@ namespace SSH2 {
 		public MACErrorHandler<T>? set_mac_error_handler(MACErrorHandler<T>? callback) {
 			return _set_callback<MACErrorHandler<T>>(CallbackType.MACERROR, callback);
 		}
+		public SendHandler<T>? set_send_handler(SendHandler<T>? callback) {
+			return _set_callback<SendHandler<T>>(CallbackType.SEND, callback);
+		}
+		public RecvHandler<T>? set_recv_handler(RecvHandler<T>? callback) {
+			return _set_callback<RecvHandler<T>>(CallbackType.RECV, callback);
+		}
 		/**
 		 * Set preferred methods to be negotiated. These preferrences must be set prior to calling {@link handshake} as they are used during the protocol initiation phase.
 		 * @param prefs Comma-delimited list of preferred methods to use with the most preferred listed first and the least preferred listed last. If a method is listed which is not supported by libssh2 it will be ignored and not sent to the remote host during protocol negotiation.
@@ -761,7 +787,9 @@ namespace SSH2 {
 			DEBUG,
 			DISCONNECT,
 			MACERROR,
-			X11
+			X11,
+			SEND,
+			RECV
 		}
 		[CCode(cname = "libssh2_passwd_changereq_delegate", simple_generics = true, has_target = false)]
 		public delegate void ChangePasswdHandler<T>(Session<T> session, out uint8[]? newpw, ref T user_data);
@@ -775,6 +803,11 @@ namespace SSH2 {
 		public delegate Error PublicKeySignFunc<T>(Session<T> session, [CCode(array_length_type = "size_t")] out uint8[] sig, [CCode(array_length_type = "size_t")] uint8[] data);
 		[CCode(cname = "libssh2_userauth_kbdint_response_delegate", simple_generics = true, has_target = false)]
 		public delegate void KeyboardInteractiveHandler<T>([CCode(array_length_type = "int")]uint8[] name, [CCode(array_length_type = "int")]uint8[] instruction, [CCode(array_length_pos = 2.1)] keyboard_prompt prompts, [CCode(array_length = false)] keyboard_response responses, ref T user_data);
+		[CCode(cname = "libssh2_recv_func_delegate", simple_generics = true, has_target = false)]
+		public delegate ssize_t RecvHandler<T>(int socket, [CCode(array_length_type = "size_t")] uint8[] buffer, int flags, ref T user_data);
+		[CCode(cname = "libssh2_send_func_delegate", simple_generics = true, has_target = false)]
+		public delegate ssize_t SendHandler<T>(int socket, [CCode(array_length_type = "size_t")] uint8[] buffer, int flags, ref T user_data);
+
 		/**
 		 * Handler for mismatched MAC packets in transport layer.
 		 * @return true to discard. If false, the packet will be accepted nonetheless.
@@ -1124,7 +1157,7 @@ namespace SSH2 {
 		NOTFOUND,
 		FAILURE
 	}
-	[CCode(cname = "int", cprefix = "SSH_SESSION_BLOCK_", has_type_id = false)]
+	[CCode(cname = "int", cprefix = "LIBSSH2_SESSION_BLOCK_", has_type_id = false)]
 	[Flags]
 	public enum Direction {
 		INBOUND,
