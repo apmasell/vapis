@@ -99,9 +99,10 @@ namespace Asn1 {
 		 * Fill the named element with values of a DER encoding
 		 * string.
 		 *
-		 * The structure must just be created with function {@link create_element}. The DER vector must contain the encoding
-		 * string of the whole structure. If an error occurs during the
-		 * decoding procedure, the structure is set to null.
+		 * The structure must just be created with function {@link create_element}.
+		 * The DER vector must contain the encoding string of the whole structure.
+		 * If an error occurs during the decoding procedure, the structure is set
+		 * to null.
 		 *
 		 * @param structure an ASN1 structure
 		 * @param element_name name of the element to fill
