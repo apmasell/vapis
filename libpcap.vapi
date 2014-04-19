@@ -1372,7 +1372,7 @@ namespace PCap {
 		 * @param wirelen the length of the original packet
 		 */
 		[CCode(cname = "bpf_filter")]
-		public uint	filter([CCode(array_length = false)] instruction[] instructions, [CCode(array_length_pos = -1)] uint8[] packet_data, uint wirelen);
+		public static uint filter([CCode(array_length = false)] instruction[] instructions, [CCode(array_length_pos = -1)] uint8[] packet_data, uint wirelen);
 		[CCode(cname = "bpf_image")]
 		public unowned string to_string(int index);
 	}
