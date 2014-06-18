@@ -509,7 +509,7 @@ namespace SSH2 {
 		[CCode (cname = "libssh2_hostkey_hash", array_length = false)]
 		private unowned uint8[] _get_hostkey_hash (HashType type);
 		[CCode (cname = "libssh2_session_callback_set", simple_generics = true)]
-		private S? _set_callback<S> (CallbackType cbtype, S? callback);
+		private S _set_callback<S> (CallbackType cbtype, S callback);
 		/**
 		 * Return a pointer to where the abstract pointer provided is stored.
 		 *
@@ -636,11 +636,11 @@ namespace SSH2 {
 			}
 			switch (type) {
 			 case HashType.SHA1 :
-				 hash.length = 20;
+				 ((!)hash).length = 20;
 				 break;
 
 			 case HashType.MD5 :
-				 hash.length = 16;
+				 ((!)hash).length = 16;
 				 break;
 			}
 			return hash;
@@ -664,7 +664,7 @@ namespace SSH2 {
 			if (result < 1) {
 				return (Error) result;
 			} else {
-				algs.length = result;
+				((!)algs).length = result;
 				return Error.NONE;
 			}
 		}
@@ -712,7 +712,7 @@ namespace SSH2 {
 		 * @return the previous callback handler, if there was one.
 		 */
 		public DebugHandler<T>? set_debug_handler (DebugHandler<T>? callback) {
-			return _set_callback<DebugHandler<T> > (CallbackType.DEBUG, callback);
+			return _set_callback<DebugHandler<T>? > (CallbackType.DEBUG, callback);
 		}
 		/**
 		 * Set a handler when a SSH_MSG_DISCONNECT message is received
@@ -720,7 +720,7 @@ namespace SSH2 {
 		 * @return the previous callback handler, if there was one.
 		 */
 		public DisconnectHandler<T>? set_disconnect_handler (DisconnectHandler<T>? callback) {
-			return _set_callback<DisconnectHandler<T> > (CallbackType.DISCONNECT, callback);
+			return _set_callback<DisconnectHandler<T>? > (CallbackType.DISCONNECT, callback);
 		}
 		[CCode (cname = "libssh2_session_flag")]
 		public Error set_flag (Option option, bool @value);
@@ -730,7 +730,7 @@ namespace SSH2 {
 		 * @return the previous callback handler, if there was one.
 		 */
 		public IgnoreHandler<T>? set_ignore_handler (IgnoreHandler<T>? callback) {
-			return _set_callback<IgnoreHandler<T> > (CallbackType.IGNORE, callback);
+			return _set_callback<IgnoreHandler<T>? > (CallbackType.IGNORE, callback);
 		}
 		/**
 		 * Set how often keepalive messages should be sent.
@@ -752,13 +752,13 @@ namespace SSH2 {
 		 * @return the previous callback handler, if there was one.
 		 */
 		public MACErrorHandler<T>? set_mac_error_handler (MACErrorHandler<T>? callback) {
-			return _set_callback<MACErrorHandler<T> > (CallbackType.MACERROR, callback);
+			return _set_callback<MACErrorHandler<T>? > (CallbackType.MACERROR, callback);
 		}
 		public SendHandler<T>? set_send_handler (SendHandler<T>? callback) {
-			return _set_callback<SendHandler<T> > (CallbackType.SEND, callback);
+			return _set_callback<SendHandler<T>? > (CallbackType.SEND, callback);
 		}
 		public RecvHandler<T>? set_recv_handler (RecvHandler<T>? callback) {
-			return _set_callback<RecvHandler<T> > (CallbackType.RECV, callback);
+			return _set_callback<RecvHandler<T>? > (CallbackType.RECV, callback);
 		}
 		/**
 		 * Set preferred methods to be negotiated. These preferrences must be set prior to calling {@link handshake} as they are used during the protocol initiation phase.
@@ -781,7 +781,7 @@ namespace SSH2 {
 		 * @return the previous callback handler, if there was one.
 		 */
 		public X11Handler<T>? set_x_handler (X11Handler<T>? callback) {
-			return _set_callback<X11Handler<T> > (CallbackType.X11, callback);
+			return _set_callback<X11Handler<T>? > (CallbackType.X11, callback);
 		}
 		[CCode (cname = "int", cprefix = "LIBSSH2_CALLBACK_")]
 		private enum CallbackType {
