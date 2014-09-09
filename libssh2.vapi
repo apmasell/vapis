@@ -166,7 +166,7 @@ namespace SSH2 {
 		 * @param lang_tag the language tag (if provided by remote server).
 		 */
 		[CCode (cname = "libssh2_channel_get_exit_signal")]
-		public Error get_exit_signal ([CCode (array_length_type = "size_t")] out uint8[]? exit_signal, [CCode (array_length_type = "size_t")] out uint8[]? error_message, [CCode (array_length_type = "size_t")] out uint8[]? lang_tag);
+		public Error get_exit_signal ([CCode (array_length_type = "size_t")] out char[]? exit_signal, [CCode (array_length_type = "size_t")] out char[]? error_message, [CCode (array_length_type = "size_t")] out char[]? lang_tag);
 		/**
 		 * Check if data is available
 		 *
