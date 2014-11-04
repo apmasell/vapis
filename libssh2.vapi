@@ -636,11 +636,11 @@ namespace SSH2 {
 			}
 			switch (type) {
 			 case HashType.SHA1 :
-				 ((!)hash).length = 20;
+				 hash.length = 20;
 				 break;
 
 			 case HashType.MD5 :
-				 ((!)hash).length = 16;
+				 hash.length = 16;
 				 break;
 			}
 			return hash;
