@@ -354,6 +354,7 @@ namespace SSH2 {
 		 * @param type specifies on what format the given host and keys are
 		 */
 		[CCode (cname = "libssh2_knownhost_add")]
+		[Deprecated (replacement = "addc")]
 		public Error add (string host, string? salt, [CCode (array_length_type = "size_t")] uint8[] key, HostFormat type, out unowned Host? result);
 		/**
 		 * Add a host and its associated key to the collection of known hosts with a comment.
