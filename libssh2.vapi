@@ -1234,7 +1234,8 @@ namespace SSH2 {
 		AGENT_PROTOCOL,
 		SOCKET_RECV,
 		ENCRYPT,
-		BAD_SOCKET
+		BAD_SOCKET,
+		KNOWN_HOSTS
 	}
 	[CCode (cname = "int", cprefix = "LIBSSH2_CHANNEL_EXTENDED_DATA_", has_type_id = false)]
 	public enum ExtendedData {
