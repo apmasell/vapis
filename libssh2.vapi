@@ -647,7 +647,7 @@ namespace SSH2 {
 			return hash;
 		}
 		[CCode (cname = "libssh2_session_hostkey", array_length_type = "size_t", array_length_pos = 0.1)]
-		public uint8[] get_host_key (out KeyType type);
+		public unowned uint8[] get_host_key (out KeyType type);
 		/**
 		 * Returns the actual method negotiated for a particular transport parameter.
 		 * @return Negotiated method or null if the session has not yet been started.
