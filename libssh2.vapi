@@ -1297,7 +1297,17 @@ namespace SSH2 {
 	public enum KeyType {
 		UNKNOWN,
 		RSA,
-		DSS
+		DSS;
+		public HostFormat get_format () {
+			switch (this) {
+				case RSA:
+					return HostFormat.KEY_SSHRSA;
+				case DSS:
+					return HostFormat.KEY_SSHDSS;
+				default:
+					return 0;
+			}
+		}
 	}
 	[CCode (cname = "int", cprefix = "SSH_METHOD_", has_type_id = false)]
 	public enum MethodType {
