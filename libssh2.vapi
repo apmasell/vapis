@@ -798,7 +798,7 @@ namespace SSH2 {
 		[CCode (cname = "libssh2_debug_delegate", simple_generics = true, has_target = false)]
 		public delegate void DebugHandler<T> (Session<T> session, bool always_display, uint8[] message, uint8[] language, ref T user_data);
 		[CCode (cname = "libssh2_disconnect_delegate", simple_generics = true, has_target = false)]
-		public delegate void DisconnectHandler<T> (Session<T> session, int reason, uint8[] message, uint8[] language, ref T user_data);
+		public delegate void DisconnectHandler<T> (Session<T> session, Disconnect reason, uint8[] message, uint8[] language, ref T user_data);
 		[CCode (cname = "libssh2_ignore_delegate", simple_generics = true, has_target = false)]
 		public delegate void IgnoreHandler<T> (Session<T> session, uint8[] message, ref T user_data);
 		[CCode (cname = "libssh2_userauth_publickey_sign_delegate", simple_generics = true)]
