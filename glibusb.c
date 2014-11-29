@@ -165,8 +165,10 @@ static void start_xfer(struct libusb_transfer *xfer) {
 	}\
 	enum libusb_transfer_status glibusb_##name##_transfer_finish(GAsyncResult *result, int *actual_length) { \
 		struct libusb_transfer *xfer = (struct libusb_transfer*) g_simple_async_result_get_op_res_gpointer(G_SIMPLE_ASYNC_RESULT(result)); \
+		enum libusb_transfer_status status = xfer->status; \
 		if (actual_length) *actual_length = xfer->actual_length; \
-		return xfer->status; \
+		libusb_free_transfer(xfer); \
+		return status; \
 	}
 
 #define ASYNC_ARGS buffer,
