@@ -1164,7 +1164,18 @@ namespace SSH2 {
 	[Flags]
 	public enum Direction {
 		INBOUND,
-		OUTBOUND
+		OUTBOUND;
+		public GLib.IOCondition to_condition () {
+			GLib.IOCondition result = 0;
+			if (Direction.INBOUND in this) {
+				result |= GLib.IOCondition.IN;
+			}
+			if (Direction.OUTBOUND in this) {
+				result |= GLib.IOCondition.OUT;
+				GLib.message ("OUT!");
+			}
+			return result;
+		}
 	}
 	/**
 	 * Disconnect codes defined by SSH protocol
