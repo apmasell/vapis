@@ -460,9 +460,9 @@ namespace SSH2 {
 	[Compact]
 	public class Session<T> {
 		[CCode (cname = "libssh2_session_init_ex", simple_generics = true)]
-		private static Session<T> _create<T> (void* alloc, void* free, void* realloc, void* abstract);
-		public static Session<T> create<T> () {
-			return _create<T>((void*) GLib.try_malloc, (void*) GLib.free, (void*) GLib.try_realloc, null);
+		private static Session<T> _create<T> (void* alloc, void* free, void* realloc, void* user_data);
+		public static Session<T> create<T> (T user_data = null) {
+			return _create<T>((void*) GLib.try_malloc, (void*) GLib.free, (void*) GLib.try_realloc, user_data);
 		}
 		public bool authenticated {
 			[CCode (cname = "libssh2_userauth_authenticated")]
