@@ -1169,7 +1169,6 @@ namespace SSH2 {
 			}
 			if (Direction.OUTBOUND in this) {
 				result |= GLib.IOCondition.OUT;
-				GLib.message ("OUT!");
 			}
 			return result;
 		}
