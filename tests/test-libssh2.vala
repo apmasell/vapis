@@ -25,13 +25,13 @@ void kbd_callback(uint8[] name, uint8[]instruction,
 
 int main(string[] args)
 {
-   string home=GLib.Environment.get_home_dir();
-   keyfile1=home+"/.ssh/id_rsa.pub";
-   keyfile2=home+"/.ssh/id_rsa";
-	username="username";
-	password="password";
+    string home=GLib.Environment.get_home_dir();
+    keyfile1=home+"/.ssh/id_rsa.pub";
+    keyfile2=home+"/.ssh/id_rsa";
+    username="username";
+    password="password";
 
-		uint32 hostaddr;
+    uint32 hostaddr;
     if (args.length > 1) {
         hostaddr = Posix.inet_addr(args[1]);
     } else {
@@ -56,7 +56,7 @@ int main(string[] args)
      */
     var sock = Posix.socket(Posix.AF_INET, Posix.SOCK_STREAM, 0);
 
-	Posix.SockAddrIn sin = Posix.SockAddrIn();
+    Posix.SockAddrIn sin = Posix.SockAddrIn();
     sin.sin_family = Posix.AF_INET;
     sin.sin_port = Posix.htons(22);
     sin.sin_addr.s_addr = hostaddr;
@@ -88,7 +88,7 @@ int main(string[] args)
     stdout.printf("\n");
 
     /* check what authentication methods are available */
-		int auth_pw = 0;
+    int auth_pw = 0;
     var userauthlist = session.list_authentication(username.data);
     stdout.printf("Authentication methods: %s\n", userauthlist);
     if ( "password" in userauthlist) {
@@ -118,9 +118,10 @@ int main(string[] args)
         /* We could authenticate via password */
         if (session.auth_password(username, password) != SSH2.Error.NONE) {
             stdout.printf("\tAuthentication by password failed!\n");
-    session.disconnect( "Normal Shutdown, Thank you for playing");
-		session = null;
-    Posix.close(sock); return 1;
+            session.disconnect( "Normal Shutdown, Thank you for playing");
+            session = null;
+            Posix.close(sock);
+            return 1;
         } else {
             stdout.printf("\tAuthentication by password succeeded.\n");
         }
@@ -128,9 +129,10 @@ int main(string[] args)
         /* Or via keyboard-interactive */
         if (session.auth_keyboard_interactive(username, (SSH2.Session.KeyboardInteractiveHandler<bool>)kbd_callback)  != SSH2.Error.NONE) {
             stdout.printf("\tAuthentication by keyboard-interactive failed!\n");
-    session.disconnect( "Normal Shutdown, Thank you for playing");
-		session = null;
-    Posix.close(sock); return 1;
+            session.disconnect( "Normal Shutdown, Thank you for playing");
+            session = null;
+            Posix.close(sock);
+            return 1;
         } else {
             stdout.printf("\tAuthentication by keyboard-interactive succeeded.\n");
         }
@@ -138,63 +140,64 @@ int main(string[] args)
         /* Or by public key */
         if (session.auth_publickey_from_file(username, keyfile1, keyfile2, password) != SSH2.Error.NONE) {
             stdout.printf("\tAuthentication by public key failed!\n");
-    session.disconnect( "Normal Shutdown, Thank you for playing");
-		session = null;
-    Posix.close(sock); return 1;
+            session.disconnect( "Normal Shutdown, Thank you for playing");
+            session = null;
+            Posix.close(sock);
+            return 1;
         } else {
             stdout.printf("\tAuthentication by public key succeeded.\n");
         }
     } else {
         stdout.printf("No supported authentication methods found!\n");
-    session.disconnect( "Normal Shutdown, Thank you for playing");
-		session = null;
-    Posix.close(sock); return 1;
+        session.disconnect( "Normal Shutdown, Thank you for playing");
+        session = null;
+        Posix.close(sock); return 1;
     }
 
     /* Request a shell */
-		SSH2.Channel? channel = null;
-    if (session.authenticated && (channel = session.open_session()) == null) {
+    SSH2.Channel? channel = null;
+    if (session.authenticated && (channel = session.open_channel()) == null) {
         stderr.printf("Unable to open a session\n");
     } else {
 
-    /* Some environment variables may be set,
-     * It's up to the server which ones it'll allow though
-     */
-    channel.set_env("FOO", "bar");
+        /* Some environment variables may be set,
+         * It's up to the server which ones it'll allow though
+         */
+        channel.set_env("FOO", "bar");
 
-    /* Request a terminal with 'vanilla' terminal emulation
-     * See /etc/termcap for more options
-     */
-    if (channel.request_pty("vanilla".data) != SSH2.Error.NONE) {
-        stderr.printf("Failed requesting pty\n");
-    session.disconnect( "Normal Shutdown, Thank you for playing");
-		session = null;
-    Posix.close(sock);
+        /* Request a terminal with 'vanilla' terminal emulation
+         * See /etc/termcap for more options
+         */
+        if (channel.request_pty("vanilla".data) != SSH2.Error.NONE) {
+           stderr.printf("Failed requesting pty\n");
+           session.disconnect( "Normal Shutdown, Thank you for playing");
+           session = null;
+           Posix.close(sock);
+        }
+
+        /* Open a SHELL on that pty */
+        if (channel.start_shell() != SSH2.Error.NONE) {
+           stderr.printf("Unable to request shell on allocated pty\n");
+           session.disconnect( "Normal Shutdown, Thank you for playing");
+           session = null;
+           Posix.close(sock);
+        }
+
+        /* At this point the shell can be interacted with using
+         * libssh2_channel_read()
+         * libssh2_channel_read_stderr()
+         * libssh2_channel_write()
+         * libssh2_channel_write_stderr()
+         *
+         * Blocking mode may be (en|dis)abled with: libssh2_channel_set_blocking()
+         * If the server send EOF, libssh2_channel_eof() will return non-0
+         * To send EOF to the server use: libssh2_channel_send_eof()
+         * A channel can be closed with: libssh2_channel_close()
+         * A channel can be freed with: libssh2_channel_free()
+         */
+
+        channel = null;
     }
-
-    /* Open a SHELL on that pty */
-    if (channel.start_shell() != SSH2.Error.NONE) {
-        stderr.printf("Unable to request shell on allocated pty\n");
-    session.disconnect( "Normal Shutdown, Thank you for playing");
-		session = null;
-    Posix.close(sock);
-    }
-
-    /* At this point the shell can be interacted with using
-     * libssh2_channel_read()
-     * libssh2_channel_read_stderr()
-     * libssh2_channel_write()
-     * libssh2_channel_write_stderr()
-     *
-     * Blocking mode may be (en|dis)abled with: libssh2_channel_set_blocking()
-     * If the server send EOF, libssh2_channel_eof() will return non-0
-     * To send EOF to the server use: libssh2_channel_send_eof()
-     * A channel can be closed with: libssh2_channel_close()
-     * A channel can be freed with: libssh2_channel_free()
-     */
-
-	channel = null;
-}
     /* Other channel types are supported via:
      * libssh2_scp_send()
      * libssh2_scp_recv()
@@ -202,7 +205,7 @@ int main(string[] args)
      */
 
     session.disconnect( "Normal Shutdown, Thank you for playing");
-		session = null;
+    session = null;
     Posix.close(sock);
     stdout.printf("all done!\n");
 
