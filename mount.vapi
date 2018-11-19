@@ -8,7 +8,6 @@ namespace Mount {
 	 * Stores canonicalized paths and evaluated tags
 	 */
 	[CCode (cname = "struct libmnt_cache", free_function = "mnt_free_cache", has_type_id = false)]
-	[Comapt]
 	public class Cache {
 		[CCode (cname = "mnt_new_cache")]
 		public Cache ();
@@ -733,11 +732,10 @@ namespace Mount {
 		public int print_debug (
 			# if POSIX
 			Posix.FILE
-			# else {
-				GLib.FileStream
-				# endif
-				file);
-			}
+			# else
+			GLib.FileStream
+			# endif
+			file);
 		        /**
 		         * Resets (zeroize) fs.
 		         */
@@ -946,11 +944,11 @@ namespace Mount {
 				public int parse_stream (
 					# if POSIX
 					Posix.FILE
-					# else {
-						GLib.FileStream
-						# endif
-						f, string filename);
-					}
+					# else
+					GLib.FileStream
+					# endif
+					f, string filename);
+
 					[CCode (cname = "mnt_table_remove_fs")]
 					public int remove (FileSystem fs);
 		                        /**
