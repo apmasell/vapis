@@ -25,8 +25,9 @@ void kbd_callback(uint8[] name, uint8[]instruction,
 
 int main(string[] args)
 {
-	keyfile1="~/.ssh/id_rsa.pub";
-	keyfile2="~/.ssh/id_rsa";
+   string home=GLib.Environment.get_home_dir();
+   keyfile1=home+"/.ssh/id_rsa.pub";
+   keyfile2=home+"/.ssh/id_rsa";
 	username="username";
 	password="password";
 
