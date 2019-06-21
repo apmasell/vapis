@@ -354,7 +354,7 @@ namespace SSH2 {
 		 * @param type specifies on what format the given host and keys are
 		 */
 		[CCode (cname = "libssh2_knownhost_add")]
-		[Deprecated (replacement = "addc")]
+		[Version (deprecated = true, deprecated_since = "", replacement = "addc")]
 		public Error add (string host, string? salt, [CCode (array_length_type = "size_t")] uint8[] key, HostFormat type, out unowned Host? result);
 		/**
 		 * Add a host and its associated key to the collection of known hosts with a comment.
@@ -454,10 +454,7 @@ namespace SSH2 {
 	[Compact]
 	public class Session<T> {
 		[CCode (cname = "libssh2_session_init_ex", simple_generics = true)]
-		private static Session<T> _create<T> (void* alloc, void* free, void* realloc, void* user_data);
-		public static Session<T> create<T> (T user_data = null) {
-			return _create<T>((void*) GLib.try_malloc, (void*) GLib.free, (void*) GLib.try_realloc, user_data);
-		}
+		public static Session<T> create<T> ([CCode (pos = 4.1)] T user_data = null, void* alloc = (void*) GLib.try_malloc, void* free = (void*) GLib.free, void* realloc = (void*) GLib.try_realloc);
 		public bool authenticated {
 			[CCode (cname = "libssh2_userauth_authenticated")]
 			get;
